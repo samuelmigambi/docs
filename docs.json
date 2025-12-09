@@ -1,68 +1,186 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Fileloom",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#6366F1",
+    "light": "#818CF8",
+    "dark": "#4F46E5"
   },
   "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "getting-started/introduction",
+              "getting-started/quickstart",
+              "getting-started/concepts"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Authentication",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "authentication/api-keys",
+              "authentication/key-management",
+              "authentication/webhook-security"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Templates",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "templates/overview",
+              "templates/creating-templates",
+              "templates/template-data",
+              "templates/page-configuration",
+              "templates/headers-footers",
+              "templates/output-filename",
+              "templates/fonts-and-emojis"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Webhooks",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "webhooks/overview",
+              "webhooks/events",
+              "webhooks/signature-verification",
+              "webhooks/troubleshooting"
+            ]
+          },
+          {
+            "group": "Storage",
+            "pages": [
+              "storage/overview",
+              "storage/fileloom-storage",
+              "storage/external-storage",
+              "storage/file-retention"
+            ]
+          },
+          {
+            "group": "Files",
+            "pages": [
+              "files/overview",
+              "files/accessing-files",
+              "files/file-metadata"
+            ]
+          },
+          {
+            "group": "Workspaces",
+            "pages": [
+              "workspaces/overview",
+              "workspaces/team-members",
+              "workspaces/workspace-settings"
+            ]
+          },
+          {
+            "group": "Billing",
+            "pages": [
+              "billing/plans-and-pricing",
+              "billing/credits"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "resources/changelog",
+              "resources/faq",
+              "resources/glossary",
+              "resources/support",
+              "resources/status"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/overview",
+              "api-reference/errors",
+              "api-reference/rate-limits"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Endpoints",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/generate-pdf",
+              "api-reference/generate-from-html",
+              "api-reference/generate-from-template",
+              "api-reference/response-format"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Helpers",
+        "groups": [
+          {
+            "group": "Handlebars Helpers",
+            "pages": [
+              "helpers/overview",
+              "helpers/text-transformation",
+              "helpers/string-manipulation",
+              "helpers/math-operations",
+              "helpers/number-formatting",
+              "helpers/date-time",
+              "helpers/comparison",
+              "helpers/logical",
+              "helpers/arrays",
+              "helpers/formatting",
+              "helpers/business-logic"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SDKs",
+        "groups": [
+          {
+            "group": "Official SDKs",
+            "pages": [
+              "sdks/overview",
+              "sdks/javascript",
+              "sdks/typescript",
+              "sdks/python",
+              "sdks/php",
+              "sdks/ruby",
+              "sdks/go",
+              "sdks/java",
+              "sdks/csharp",
+              "sdks/rust"
+            ]
+          },
+          {
+            "group": "Tools",
+            "pages": [
+              "sdks/curl",
+              "sdks/postman"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Tutorials",
+            "pages": [
+              "guides/invoices",
+              "guides/reports",
+              "guides/certificates",
+              "guides/receipts",
+              "guides/contracts",
+              "guides/migrating-from-puppeteer"
             ]
           }
         ]
@@ -71,52 +189,59 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "API Status",
+          "href": "https://status.fileloom.io",
+          "icon": "signal-bars"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "GitHub",
+          "href": "https://github.com/fileloom",
+          "icon": "github"
         }
       ]
     }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@fileloom.io"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "href": "https://app.fileloom.io"
+    }
+  },
+  "api": {
+    "baseUrl": "https://api.fileloom.io",
+    "auth": {
+      "method": "key",
+      "name": "X-API-Key"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "cursor"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/fileloom",
+      "github": "https://github.com/fileloom",
+      "linkedin": "https://linkedin.com/company/fileloom"
     }
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true
+  },
+  "search": {
+    "placeholder": "Search documentation..."
   }
 }

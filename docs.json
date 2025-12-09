@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Fileloom",
   "colors": {
-    "primary": "#6366F1",
-    "light": "#818CF8",
-    "dark": "#4F46E5"
+    "primary": "#000000",
+    "light": "#404040",
+    "dark": "#000000"
   },
   "favicon": "/favicon.svg",
   "logo": {

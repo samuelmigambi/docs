@@ -1,5 +1,221 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Quickstart"
+sidebarTitle: "Quickstart"
+description: "Generate your first PDF in under 5 minutes."
+icon: "rocket"
 ---
 
+# Quickstart
+
+Generate your first PDF in under 5 minutes. This guide will walk you through creating an account, getting your API key, and making your first API call.
+
+## Prerequisites
+
+- A Fileloom account ([sign up free](https://app.fileloom.io/signup))
+- An API key
+- A tool to make HTTP requests (cURL, Postman, or any programming language)
+
+## Step 1: Get Your API Key
+
+<Steps>
+  <Step title="Sign Up">
+    Create a free account at [app.fileloom.io](https://app.fileloom.io/signup)
+  </Step>
+  <Step title="Navigate to API Keys">
+    Go to **Settings** → **API Keys** in your dashboard
+  </Step>
+  <Step title="Create a Key">
+    Click **Create API Key**, give it a name, and copy the key.
+
+    <Warning>
+      Store your API key securely. It won't be shown again.
+    </Warning>
+  </Step>
+</Steps>
+
+## Step 2: Generate a PDF from HTML
+
+The simplest way to generate a PDF is by sending raw HTML:
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.fileloom.io/v1/pdf \
+  -H "X-API-Key: your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<html><body><h1>Hello, World!</h1><p>My first PDF with Fileloom.</p></body></html>",
+    "filename": "hello-world"
+  }'
+```
+
+
+```javascript JavaScript
+const response = await fetch('https://api.fileloom.io/v1/pdf', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': 'your_api_key_here',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    htmlContent: '<html><body><h1>Hello, World!</h1><p>My first PDF with Fileloom.</p></body></html>',
+    filename: 'hello-world'
+  })
+});
+
+const data = await response.json();
+console.log(data.data.url); // URL to your PDF
+```
+
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.fileloom.io/v1/pdf',
+    headers={
+        'X-API-Key': 'your_api_key_here',
+        'Content-Type': 'application/json'
+    },
+    json={
+        'htmlContent': '<html><body><h1>Hello, World!</h1><p>My first PDF with Fileloom.</p></body></html>',
+        'filename': 'hello-world'
+    }
+)
+
+data = response.json()
+print(data['data']['url'])  # URL to your PDF
+```
+
+
+```php PHP
+$ch = curl_init('https://api.fileloom.io/v1/pdf');
+
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'X-API-Key: your_api_key_here',
+        'Content-Type: application/json'
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'htmlContent' => '<html><body><h1>Hello, World!</h1><p>My first PDF with Fileloom.</p></body></html>',
+        'filename' => 'hello-world'
+    ])
+]);
+
+$response = curl_exec($ch);
+$data = json_decode($response, true);
+echo $data['data']['url']; // URL to your PDF
+```
+
+</CodeGroup>
+
+## Step 3: Check the Response
+
+A successful response looks like this:
+
+```json
+{
+  "success": true,
+  "requestId": "req_1234567890_abc123",
+  "data": {
+    "fileId": "file_1234567890_xyz789",
+    "url": "https://storage.googleapis.com/fileloom/workspaces/ws_xxx/pdfs/2024/01/hello-world-1234567890.pdf",
+    "signedUrl": "https://storage.googleapis.com/fileloom/...",
+    "filename": "hello-world.pdf",
+    "size": 12345,
+    "processingTimeMs": 847,
+    "generationMethod": "html"
+  },
+  "usage": {
+    "remaining": 99,
+    "quotaUsed": 1,
+    "quotaLimit": 100
+  }
+}
+```
+
+Open the `url` in your browser to view your PDF!
+
+## Step 4: Use a Template (Optional)
+
+For reusable documents, create a template in your dashboard and reference it:
+
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf \
+  -H "X-API-Key: your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateId": "tpl_your_template_id",
+    "templateData": {
+      "customerName": "Acme Corp",
+      "invoiceNumber": "INV-001",
+      "amount": 299.99
+    }
+  }'
+```
+
+## Step 5: Customize Your PDF
+
+Add options to control page size, margins, and more:
+
+```json
+{
+  "htmlContent": "<html>...</html>",
+  "filename": "my-document",
+  "options": {
+    "format": "A4",
+    "orientation": "portrait",
+    "margin": {
+      "top": 20,
+      "right": 15,
+      "bottom": 20,
+      "left": 15
+    },
+    "printBackground": true
+  }
+}
+```
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="Core Concepts" icon="lightbulb" href="/getting-started/concepts">
+    Learn about workspaces, templates, and credits
+  </Card>
+  <Card title="Create Templates" icon="file-code" href="/templates/creating-templates">
+    Build reusable templates with dynamic data
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Explore all API options and parameters
+  </Card>
+  <Card title="Handlebars Helpers" icon="wand-magic-sparkles" href="/helpers/overview">
+    Discover 70+ helpers for formatting data
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+    Check that your API key is correct and included in the `X-API-Key` header.
+  </Accordion>
+  <Accordion title="429 No Credits Available">
+    You've used all your monthly quota. Purchase credits or upgrade your plan.
+  </Accordion>
+  <Accordion title="400 Validation Error">
+    Check the error message for details. Common issues:
+
+    - Missing `htmlContent` or `templateId`
+    - Invalid `templateId`
+    - `htmlContent` exceeds size limit
+  </Accordion>
+  <Accordion title="502 PDF Generation Failed">
+    There was an error rendering your HTML. Check for:
+
+    - Invalid HTML syntax
+    - External resources that can't be loaded
+    - CSS that causes infinite loops
+  </Accordion>
+</AccordionGroup>

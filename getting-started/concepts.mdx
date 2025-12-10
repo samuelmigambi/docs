@@ -1,5 +1,212 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Core Concepts"
+sidebarTitle: "Concepts"
+description: "Understand the key concepts behind Fileloom: workspaces, templates, credits, and more."
+icon: "lightbulb"
 ---
 
+# Core Concepts
+
+Before diving deeper into Fileloom, let's understand the key concepts that make up the platform.
+
+## Workspaces
+
+A **workspace** is your organization's container in Fileloom. Everything belongs to a workspace:
+
+- Templates
+- Generated files
+- API keys
+- Team members
+- Billing and usage
+
+<Note>
+  When you sign up, a default workspace is created for you. You can invite team members to collaborate.
+</Note>
+
+### Team Roles
+
+| Role | Permissions |
+|------|-------------|
+| **Owner** | Full access, billing, delete workspace |
+| **Editor** | Create/edit templates, generate PDFs, manage API keys |
+| **Viewer** | View templates and files, generate PDFs |
+
+## Templates
+
+A **template** is a reusable HTML document with placeholders for dynamic data. Templates are the recommended way to generate PDFs because they:
+
+- **Separate design from data** - Update the design without changing code
+- **Ensure consistency** - Same template, same output every time
+- **Enable non-developers** - Designers can update templates without deployments
+- **Improve performance** - Templates are cached for faster generation
+
+### Template Structure
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .invoice-header { font-size: 24px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="invoice-header">Invoice #{{invoiceNumber}}</div>
+  <p>Customer: {{customerName}}</p>
+  <p>Date: {{formatDate invoiceDate "MMMM DD, YYYY"}}</p>
+  <p>Total: {{currency totalAmount "USD"}}</p>
+</body>
+</html>
+```
+
+### Handlebars Syntax
+
+Fileloom uses Handlebars for templating. Key syntax:
+
+| Syntax | Description | Example |
+|--------|-------------|---------|
+| `{{variable}}` | Output a value | `{{customerName}}` |
+| `{{helper arg}}` | Use a helper | `{{uppercase status}}` |
+| `{{#each items}}` | Loop over array | `{{#each lineItems}}...{{/each}}` |
+| `{{#if condition}}` | Conditional | `{{#if isPaid}}Paid{{/if}}` |
+
+## Credits System
+
+Fileloom uses a **credits system** for PDF generation:
+
+### Monthly Quota
+
+Each plan includes a monthly PDF quota that resets on your billing date:
+
+| Plan | Monthly PDFs |
+|------|--------------|
+| Free | 100 |
+| Starter | 2,000 |
+| Growth | 10,000 |
+| Scale | 50,000 |
+| Scale Business | 500,000 |
+| Scale Enterprise | 1,000,000 |
+
+### Credit Packs
+
+Need more PDFs? Purchase credit packs that never count against your monthly quota:
+
+| Pack | PDFs | Price | Per PDF |
+|------|------|-------|---------|
+| Starter | 500 | $6 | $0.012 |
+| Professional | 2,000 | $20 | $0.010 |
+| Business | 5,000 | $45 | $0.009 |
+| Enterprise | 10,000 | $80 | $0.008 |
+| Mega | 25,000 | $175 | $0.007 |
+
+<Info>
+  Credit packs expire 90 days after purchase. Unused credits are lost.
+</Info>
+
+### Consumption Order (FIFO)
+
+When you generate a PDF, credits are consumed in this order:
+
+1. **Monthly quota first** - Use your plan's included PDFs
+2. **Credit packs second** - Oldest expiring pack is used first (FIFO)
+3. **Hard block** - If no credits available, the request fails
+
+## API Keys
+
+**API keys** authenticate your requests to the Fileloom API. Each key has:
+
+- **Name** - A friendly identifier (e.g., "Production", "Staging")
+- **Prefix** - First 8 characters shown for identification (e.g., `fl_abc123...`)
+- **Permissions** - What the key can do
+
+### Permissions
+
+| Permission | Description |
+|------------|-------------|
+| `pdf.generate` | Generate PDFs |
+| `pdf.read` | View generated files |
+| `pdf.delete` | Delete files |
+| `template.read` | View templates |
+| `template.write` | Create/edit templates |
+
+<Warning>
+  API keys are shown only once when created. Store them securely in environment variables, never in code.
+</Warning>
+
+## Files
+
+Every generated PDF creates a **file record** that includes:
+
+- **File ID** - Unique identifier (e.g., `file_1234567890_abc`)
+- **URL** - Permanent public URL
+- **Signed URL** - Temporary URL (24 hours) for secure access
+- **Metadata** - Size, generation time, template used, etc.
+
+### Retention
+
+Files are automatically deleted after your plan's retention period:
+
+| Plan | Retention |
+|------|-----------|
+| Free | 7 days |
+| Starter | 30 days |
+| Growth | 90 days |
+| Scale | 180 days |
+| Scale Business+ | 365 days |
+
+## Storage Modes
+
+Choose where your PDFs are stored:
+
+<CardGroup cols={3}>
+  <Card title="Fileloom" icon="cloud">
+    **Default** - We store your PDFs in our secure cloud storage. Simplest option.
+  </Card>
+  <Card title="External" icon="hard-drive">
+    **Your Storage** - PDFs go directly to your S3, Google Drive, or other provider.
+  </Card>
+  <Card title="Both" icon="copy">
+    **Redundant** - Store in both Fileloom and your external storage.
+  </Card>
+</CardGroup>
+
+## Webhooks
+
+**Webhooks** notify your application when events occur:
+
+| Event | Description |
+|-------|-------------|
+| `pdf.generated` | PDF was successfully created |
+| `pdf.failed` | PDF generation failed |
+| `quota.warning` | Approaching quota limit (90%) |
+| `quota.exceeded` | Quota exhausted |
+| `credits.purchased` | Credit pack purchased |
+| `credits.expiring` | Credits expiring soon |
+
+## Rate Limits
+
+API requests are rate-limited per plan:
+
+| Plan | Requests/Minute |
+|------|-----------------|
+| Free | 10 |
+| Starter | 120 |
+| Growth | 200 |
+| Scale | 400 |
+| Scale Business | 1,000 |
+| Scale Enterprise | Unlimited |
+
+<Tip>
+  If you hit rate limits, implement exponential backoff in your code.
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Create Your First Template" icon="file-code" href="/templates/creating-templates">
+    Build a reusable PDF template
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Explore all API endpoints and options
+  </Card>
+</CardGroup>

@@ -20,7 +20,6 @@
           {
             "group": "Getting Started",
             "pages": [
-              "index",
               "getting-started/introduction",
               "getting-started/quickstart",
               "getting-started/concepts"

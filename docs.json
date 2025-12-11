@@ -7,11 +7,11 @@
     "light": "#404040",
     "dark": "#000000"
   },
-  "favicon": "/favicon.svg",
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
   },
+  "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
@@ -26,221 +26,147 @@
             ]
           },
           {
-            "group": "Authentication",
+            "group": "Dashboard",
             "pages": [
-              "authentication/api-keys",
-              "authentication/key-management",
-              "authentication/webhook-security"
+              "dashboard/overview",
+              "dashboard/workspaces",
+              "dashboard/templates",
+              "dashboard/files",
+              "dashboard/api-keys",
+              "dashboard/team-members",
+              "dashboard/billing",
+              "dashboard/account"
+            ]
+          },
+          {
+            "group": "Template Editor",
+            "pages": [
+              "template-editor/overview",
+              "template-editor/settings",
+              "template-editor/headers-footers",
+              "template-editor/version-history"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/generate-pdf",
+              "api-reference/examples"
             ]
           },
           {
             "group": "Templates",
             "pages": [
               "templates/overview",
-              "templates/creating-templates",
-              "templates/template-data",
-              "templates/page-configuration",
-              "templates/headers-footers",
-              "templates/output-filename",
-              "templates/fonts-and-emojis"
+              "templates/handlebars-basics",
+              "templates/starter-templates",
+              "templates/best-practices"
+            ]
+          },
+          {
+            "group": "Helpers",
+            "pages": [
+              "helpers/overview",
+              "helpers/text",
+              "helpers/string",
+              "helpers/math",
+              "helpers/numbers",
+              "helpers/dates",
+              "helpers/comparison",
+              "helpers/logic",
+              "helpers/arrays",
+              "helpers/business"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/overview",
+              "integrations/aws-s3",
+              "integrations/supabase"
             ]
           },
           {
             "group": "Webhooks",
             "pages": [
-              "webhooks/overview",
-              "webhooks/events",
-              "webhooks/signature-verification",
-              "webhooks/troubleshooting"
-            ]
-          },
-          {
-            "group": "Storage",
-            "pages": [
-              "storage/overview",
-              "storage/fileloom-storage",
-              "storage/external-storage",
-              "storage/file-retention"
-            ]
-          },
-          {
-            "group": "Files",
-            "pages": [
-              "files/overview",
-              "files/accessing-files",
-              "files/file-metadata"
-            ]
-          },
-          {
-            "group": "Workspaces",
-            "pages": [
-              "workspaces/overview",
-              "workspaces/team-members",
-              "workspaces/workspace-settings"
+              "webhooks/overview"
             ]
           },
           {
             "group": "Billing",
             "pages": [
-              "billing/plans-and-pricing",
+              "billing/plans",
               "billing/credits"
+            ]
+          },
+          {
+            "group": "Code Examples",
+            "pages": [
+              "code-examples/overview",
+              "code-examples/curl",
+              "code-examples/javascript",
+              "code-examples/typescript",
+              "code-examples/python",
+              "code-examples/flutter",
+              "code-examples/php",
+              "code-examples/dotnet",
+              "code-examples/go",
+              "code-examples/java",
+              "code-examples/ruby",
+              "code-examples/rust"
             ]
           },
           {
             "group": "Resources",
             "pages": [
-              "resources/changelog",
-              "resources/faq",
-              "resources/glossary",
               "resources/support",
-              "resources/status"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "api-reference/overview",
-              "api-reference/errors",
-              "api-reference/rate-limits"
-            ]
-          },
-          {
-            "group": "Endpoints",
-            "pages": [
-              "api-reference/generate-pdf",
-              "api-reference/generate-from-html",
-              "api-reference/generate-from-template",
-              "api-reference/response-format"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Helpers",
-        "groups": [
-          {
-            "group": "Handlebars Helpers",
-            "pages": [
-              "helpers/overview",
-              "helpers/text-transformation",
-              "helpers/string-manipulation",
-              "helpers/math-operations",
-              "helpers/number-formatting",
-              "helpers/date-time",
-              "helpers/comparison",
-              "helpers/logical",
-              "helpers/arrays",
-              "helpers/formatting",
-              "helpers/business-logic"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "SDKs",
-        "groups": [
-          {
-            "group": "Official SDKs",
-            "pages": [
-              "sdks/overview",
-              "sdks/javascript",
-              "sdks/typescript",
-              "sdks/python",
-              "sdks/php",
-              "sdks/ruby",
-              "sdks/go",
-              "sdks/java",
-              "sdks/csharp",
-              "sdks/rust"
-            ]
-          },
-          {
-            "group": "Tools",
-            "pages": [
-              "sdks/curl",
-              "sdks/postman"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Tutorials",
-            "pages": [
-              "guides/invoices",
-              "guides/reports",
-              "guides/certificates",
-              "guides/receipts",
-              "guides/contracts",
-              "guides/migrating-from-puppeteer"
+              "resources/glossary"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "API Status",
-          "href": "https://status.fileloom.io",
-          "icon": "signal-bars"
-        },
-        {
-          "anchor": "GitHub",
-          "href": "https://github.com/fileloom",
-          "icon": "github"
-        }
-      ]
-    }
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:support@fileloom.io"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.fileloom.io"
-    }
-  },
-  "api": {
-    "baseUrl": "https://api.fileloom.io",
-    "auth": {
-      "method": "key",
-      "name": "X-API-Key"
-    }
-  },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "cursor"
     ]
   },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/fileloom",
-      "github": "https://github.com/fileloom",
-      "linkedin": "https://linkedin.com/company/fileloom"
-    }
+  "footerSocials": {
+    "github": "https://github.com/fileloom",
+    "twitter": "https://twitter.com/fileloom"
+  },
+  "api": {
+    "baseUrl": "https://api.fileloom.io/v1"
   },
   "feedback": {
     "thumbsRating": true,
     "suggestEdit": true
   },
   "search": {
-    "placeholder": "Search documentation..."
-  }
+    "prompt": "Search documentation..."
+  },
+  "topbarLinks": [
+    {
+      "name": "Dashboard",
+      "url": "https://app.fileloom.io"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "https://app.fileloom.io/signup"
+  },
+  "anchors": [
+    {
+      "name": "API Reference",
+      "icon": "code",
+      "url": "api-reference"
+    },
+    {
+      "name": "Helpers",
+      "icon": "wand-magic-sparkles",
+      "url": "helpers"
+    },
+    {
+      "name": "Support",
+      "icon": "envelope",
+      "url": "mailto:support@fileloom.io"
+    }
+  ]
 }

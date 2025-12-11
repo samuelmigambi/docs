@@ -5,8 +5,8 @@ description: "Invite team members and manage roles in your Fileloom workspace."
 
 Collaborate with your team by inviting members to your workspace. Access team management in **Workspace Settings** → **Members**.
 
-<Frame caption="Team members list showing all workspace members">
-  <img src="/images/dashboard/team-members-list.png" alt="Team Members List" />
+<Frame caption="Team members list with roles">
+  <img src="/images/dashboard/team-members.png" alt="Team Members" />
 </Frame>
 
 ## Members List
@@ -35,15 +35,7 @@ Collaborate with your team by inviting members to your workspace. Access team ma
   </Step>
 </Steps>
 
-<Frame caption="Invite member modal with email field and role selector">
-  <img src="/images/dashboard/team-members-invite-modal.png" alt="Invite Member Modal" />
-</Frame>
-
 The invitee receives an email with a link to join your workspace.
-
-<Frame caption="Invitation email preview">
-  <img src="/images/dashboard/team-members-invite-email.png" alt="Invitation Email" />
-</Frame>
 
 ## Roles and Permissions
 
@@ -62,10 +54,6 @@ The invitee receives an email with a link to join your workspace.
 | Manage billing | ✓ | — | — |
 | Delete workspace | ✓ | — | — |
 
-<Frame caption="Role permissions comparison chart">
-  <img src="/images/dashboard/team-members-roles-chart.png" alt="Roles Comparison" />
-</Frame>
-
 ## Changing Member Roles
 
 Owners can change member roles:
@@ -75,12 +63,8 @@ Owners can change member roles:
 3. Select the new role
 4. Confirm the change
 
-<Frame caption="Role dropdown menu for changing member role">
-  <img src="/images/dashboard/team-members-role-dropdown.png" alt="Role Dropdown" />
-</Frame>
-
 <Info>
-  Role changes take effect immediately. The member's access updates on their next page load.
+Role changes take effect immediately. The member's access updates on their next page load.
 </Info>
 
 ## Removing Members
@@ -92,24 +76,9 @@ To remove a member from the workspace:
 3. Select "Remove from Workspace"
 4. Confirm removal
 
-<Frame caption="Remove member confirmation dialog">
-  <img src="/images/dashboard/team-members-remove-confirm.png" alt="Remove Member Confirmation" />
-</Frame>
-
 <Warning>
-  Removed members immediately lose access to the workspace. Any API keys they created remain active.
+Removed members immediately lose access to the workspace. Any API keys they created remain active.
 </Warning>
-
-## Pending Invitations
-
-View and manage pending invitations:
-
-<Frame caption="Pending invitations section showing unaccepted invites">
-  <img src="/images/dashboard/team-members-pending.png" alt="Pending Invitations" />
-</Frame>
-
-- **Resend** — Send the invitation email again
-- **Cancel** — Revoke the invitation
 
 ## Member Limits
 
@@ -128,24 +97,10 @@ Team size limits are based on your plan:
 
 To transfer workspace ownership:
 
-<Steps>
-  <Step title="Go to Members">
-    Open Workspace Settings → Members.
-  </Step>
-  <Step title="Select New Owner">
-    Click on the member to become owner.
-  </Step>
-  <Step title="Transfer">
-    Select "Transfer Ownership".
-  </Step>
-  <Step title="Confirm">
-    Confirm the transfer.
-  </Step>
-</Steps>
-
-<Frame caption="Transfer ownership confirmation dialog">
-  <img src="/images/dashboard/team-members-transfer-ownership.png" alt="Transfer Ownership" />
-</Frame>
+1. Go to **Workspace Settings** → **Members**
+2. Click on the member to become owner
+3. Select "Transfer Ownership"
+4. Confirm the transfer
 
 You'll become an Editor after transferring ownership.
 

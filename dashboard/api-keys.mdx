@@ -5,8 +5,8 @@ description: "Create and manage API keys for authenticating with the Fileloom AP
 
 API keys authenticate your requests to the Fileloom API. Manage them in **Workspace Settings** → **API Keys**.
 
-<Frame caption="API keys list showing all keys in workspace">
-  <img src="/images/dashboard/api-keys-list.png" alt="API Keys List" />
+<Frame caption="API keys management page">
+  <img src="/images/dashboard/api-keys.png" alt="API Keys" />
 </Frame>
 
 ## API Keys List
@@ -36,17 +36,9 @@ API keys authenticate your requests to the Fileloom API. Manage them in **Worksp
   </Step>
 </Steps>
 
-<Frame caption="Create API key modal with name and permissions">
-  <img src="/images/dashboard/api-keys-create-modal.png" alt="Create API Key Modal" />
-</Frame>
-
 <Warning>
-  The full API key is only shown once when created. Store it securely — we cannot recover it.
+The full API key is only shown once when created. Store it securely — we cannot recover it.
 </Warning>
-
-<Frame caption="API key revealed screen - copy immediately">
-  <img src="/images/dashboard/api-keys-revealed.png" alt="API Key Revealed" />
-</Frame>
 
 ## Key Permissions
 
@@ -57,10 +49,6 @@ API keys authenticate your requests to the Fileloom API. Manage them in **Worksp
 | **pdf.delete** | Delete generated files |
 | **template.read** | View template details |
 | **template.write** | Create and modify templates |
-
-<Frame caption="Permissions checkboxes when creating API key">
-  <img src="/images/dashboard/api-keys-permissions.png" alt="API Key Permissions" />
-</Frame>
 
 ## Using API Keys
 
@@ -77,19 +65,6 @@ Or use the Authorization header:
 Authorization: Bearer fl_your_api_key_here
 ```
 
-## Key Usage Statistics
-
-View usage stats for each key:
-
-<Frame caption="API key usage statistics showing requests over time">
-  <img src="/images/dashboard/api-keys-usage-stats.png" alt="API Key Usage Stats" />
-</Frame>
-
-- Total requests
-- Successful requests
-- Failed requests
-- Last used timestamp
-
 ## Revoking Keys
 
 To revoke an API key:
@@ -99,12 +74,8 @@ To revoke an API key:
 3. Select "Revoke Key"
 4. Confirm revocation
 
-<Frame caption="Revoke key confirmation dialog">
-  <img src="/images/dashboard/api-keys-revoke-confirm.png" alt="Revoke Key Confirmation" />
-</Frame>
-
 <Warning>
-  Revoked keys immediately stop working. Any applications using the key will receive authentication errors.
+Revoked keys immediately stop working. Any applications using the key will receive authentication errors.
 </Warning>
 
 ## Key Limits

@@ -1,5 +1,292 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Credits System"
+description: "Purchase credit packs for additional PDFs beyond your monthly quota."
 ---
 
+## Overview
+
+Credits provide flexible, pay-as-you-go PDF generation beyond your plan's monthly quota. Purchase credit packs when you need extra capacity without upgrading your plan.
+
+**Key benefits:**
+- **No commitment** - Buy only what you need
+- **90-day validity** - Credits don't expire monthly
+- **Instant activation** - Use immediately after purchase
+- **Volume discounts** - Lower per-PDF cost at higher tiers
+
+---
+
+## Credit Packs
+
+| Pack | PDFs | Price | Per PDF | Savings |
+|------|------|-------|---------|---------|
+| **Starter** | 500 | $7 | $0.014 | — |
+| **Professional** | 2,000 | $20 | $0.010 | 29% |
+| **Business** | 5,000 | $45 | $0.009 | 36% |
+| **Enterprise** | 10,000 | $80 | $0.008 | 43% |
+| **Mega** | 25,000 | $175 | $0.007 | 50% |
+
+<Info>
+All credit packs are valid for **90 days** from purchase date.
+</Info>
+
+---
+
+## How Credits Work
+
+### Consumption Order (FIFO)
+
+Fileloom uses your quota first, then credits:
+```
+PDF Request
+    ↓
+1. Monthly quota remaining?
+   → Yes: Use quota
+   → No: Continue to step 2
+    ↓
+2. Credit packs available?
+   → Yes: Use oldest pack first (FIFO)
+   → No: Return error (429)
+```
+
+**FIFO (First In, First Out):** When consuming credits, Fileloom automatically uses the pack that expires soonest, ensuring you never lose purchased credits.
+
+### Example Scenario
+
+You're on the Growth plan (10,000 PDFs/month) and purchased a Business pack:
+
+| Source | Available | Expires |
+|--------|-----------|---------|
+| Monthly Quota | 10,000 | End of month |
+| Business Pack | 5,000 | 90 days |
+| **Total** | **15,000** | — |
+
+When you generate PDFs:
+1. First 10,000 use your monthly quota
+2. Next 5,000 use your credit pack
+3. After 15,000, API returns quota exceeded error
+
+---
+
+## Purchasing Credits
+
+### From Dashboard
+
+1. Go to **Settings** → **Billing**
+2. Click **Buy Credits**
+3. Select a credit pack
+4. Complete payment
+
+Credits are available immediately after purchase.
+
+### Via API (Coming Soon)
+
+Programmatic credit purchases will be available in a future update.
+
+---
+
+## Auto Top-Up
+
+Never run out of credits with automatic purchases when your balance is low.
+
+### Setting Up Auto Top-Up
+
+1. Go to **Settings** → **Billing** → **Auto Top-Up**
+2. Enable auto top-up
+3. Configure:
+   - **Pack to purchase**: Which credit pack to buy
+   - **Trigger**: When to purchase (percentage or absolute)
+   - **Monthly limit**: Maximum auto-purchases per month
+
+### Configuration Options
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| Pack | Which credit pack to auto-purchase | Business |
+| Trigger Type | `percentage` or `absolute` | percentage |
+| Trigger Value | When to trigger (e.g., 90% used or 1000 remaining) | 90 |
+| Include Credits | Count existing credits in trigger calculation | No |
+| Max Per Month | Safety limit on auto-purchases | 5 |
+| Notify On Purchase | Email when auto-purchase occurs | Yes |
+| Notify On Failure | Email if purchase fails | Yes |
+
+### Example Configuration
+```json
+{
+  "enabled": true,
+  "packName": "Business Pack",
+  "packPdfs": 5000,
+  "packPrice": 4500,
+  "triggerType": "percentage",
+  "triggerValue": 90,
+  "maxTriggersPerMonth": 5,
+  "notifyOnPurchase": true
+}
+```
+
+This configuration:
+- Purchases a Business Pack (5,000 PDFs)
+- When 90% of quota is used
+- Maximum 5 times per month
+- Sends email notification on purchase
+
+<Warning>
+Auto top-up requires a valid payment method on file. Failed payments disable auto top-up after 3 consecutive failures.
+</Warning>
+
+---
+
+## Viewing Credit Balance
+
+### Dashboard
+
+Your credit balance appears in multiple locations:
+
+- **Top navigation**: Quick view of total available
+- **Billing page**: Detailed breakdown by source
+- **Usage page**: Historical consumption chart
+
+### API Response
+
+Every PDF generation response includes usage data:
+```json
+{
+  "success": true,
+  "data": { ... },
+  "usage": {
+    "remaining": 12500,
+    "quotaUsed": 7500,
+    "quotaLimit": 10000
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `remaining` | Total PDFs available (quota + credits) |
+| `quotaUsed` | Monthly quota consumed |
+| `quotaLimit` | Monthly quota limit from plan |
+
+---
+
+## Credit Expiration
+
+### 90-Day Validity
+
+Credit packs expire 90 days from purchase, regardless of:
+- Billing cycle changes
+- Plan upgrades or downgrades
+- Subscription cancellation
+
+### Expiration Warnings
+
+Fileloom sends notifications before credits expire:
+
+| Warning | Timing |
+|---------|--------|
+| First notice | 14 days before |
+| Second notice | 7 days before |
+| Final notice | 1 day before |
+
+### What Happens at Expiration
+
+- Remaining PDFs in the pack are forfeited
+- Pack is marked as `expired`
+- Lifetime stats updated with expired count
+- No refunds for expired credits
+
+<Tip>
+Purchase credits when you have a specific need rather than stockpiling. The 90-day window provides flexibility without long-term commitment.
+</Tip>
+
+---
+
+## Credit History
+
+View your complete credit history in **Settings** → **Billing** → **Credit History**.
+
+Each entry shows:
+
+| Field | Description |
+|-------|-------------|
+| Pack Name | Which pack was purchased |
+| PDFs | Total PDFs in pack |
+| Remaining | PDFs still available |
+| Status | active, depleted, expired |
+| Purchased | Purchase date |
+| Expires | Expiration date |
+| Price | Amount paid |
+
+### Status Meanings
+
+| Status | Description |
+|--------|-------------|
+| `active` | Available for use |
+| `expiring_soon` | Less than 7 days until expiration |
+| `depleted` | All PDFs consumed |
+| `expired` | Expiration date passed |
+| `refunded` | Purchase was refunded |
+
+---
+
+## Credits vs Plan Upgrade
+
+When should you buy credits vs upgrade your plan?
+
+### Buy Credits When:
+
+- **Temporary spike** - One-time project or seasonal demand
+- **Testing capacity** - Evaluating higher usage before committing
+- **Buffer needed** - Want safety margin without monthly commitment
+- **Near cycle end** - Only need extra capacity for a few days
+
+### Upgrade Plan When:
+
+- **Consistent growth** - Regularly exceeding quota
+- **Need features** - Want capabilities only in higher tiers
+- **Cost efficiency** - Monthly average exceeds credit pack value
+- **Team scaling** - Need more members or API keys
+
+### Cost Comparison Example
+
+If you consistently need 15,000 PDFs/month:
+
+| Option | Monthly Cost |
+|--------|--------------|
+| Growth ($49) + Business Pack ($45) | $94 |
+| Scale Plan ($199) | $199 |
+
+In this case, credits are more economical. But Scale includes 50,000 PDFs, priority support, and 99.5% SLA.
+
+---
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Do credits roll over month to month?">
+    Yes! Unlike monthly quota, credit packs are valid for 90 days from purchase date, independent of your billing cycle.
+  </Accordion>
+  
+  <Accordion title="Can I get a refund on unused credits?">
+    Credit pack purchases are non-refundable. We recommend purchasing based on actual need rather than anticipated usage.
+  </Accordion>
+  
+  <Accordion title="What happens to credits if I cancel my subscription?">
+    Your credits remain valid for their full 90-day period. You can continue using them on the Free plan (with Free plan limits on other features).
+  </Accordion>
+  
+  <Accordion title="Can I transfer credits between workspaces?">
+    No, credits are tied to the workspace where they were purchased and cannot be transferred.
+  </Accordion>
+  
+  <Accordion title="Is there a limit to how many credits I can purchase?">
+    No limit on manual purchases. Auto top-up has a configurable monthly limit (default: 5) for safety.
+  </Accordion>
+  
+  <Accordion title="Do credits count toward my usage analytics?">
+    Yes, PDFs generated from credits appear in your analytics with a `fromCredits` flag for separate tracking.
+  </Accordion>
+  
+  <Accordion title="Can I use credits before my monthly quota?">
+    No, Fileloom always uses your monthly quota first to ensure you get full value from your subscription.
+  </Accordion>
+</AccordionGroup>

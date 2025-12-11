@@ -1,5 +1,126 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Python Examples"
+description: "Generate PDFs in Python using requests."
 ---
 
+## Installation
+```bash
+pip install requests
+```
+
+## Basic Generation
+```python
+import requests
+import os
+
+API_KEY = os.environ.get('FILELOOM_API_KEY')
+API_URL = 'https://api.fileloom.io/v1/pdf/generate'
+
+def generate_pdf(html, filename=None, options=None):
+    payload = {'htmlContent': html}
+    if filename: payload['filename'] = filename
+    if options: payload['options'] = options
+    
+    response = requests.post(API_URL, json=payload, 
+        headers={'X-API-Key': API_KEY}, timeout=60)
+    response.raise_for_status()
+    return response.json()
+
+result = generate_pdf('<h1>Hello</h1>', 'hello.pdf')
+print(f"URL: {result['data']['url']}")
+```
+
+## With Template
+```python
+def generate_from_template(template_id, data, filename=None):
+    payload = {'templateId': template_id, 'templateData': data}
+    if filename: payload['filename'] = filename
+    
+    response = requests.post(API_URL, json=payload,
+        headers={'X-API-Key': API_KEY}, timeout=60)
+    response.raise_for_status()
+    return response.json()
+
+result = generate_from_template('tpl_invoice_v2', {
+    'invoiceNumber': 'INV-001',
+    'customer': {'name': 'Acme Corp'},
+    'items': [{'description': 'Web Dev', 'quantity': 10, 'price': 150}],
+    'total': 1500
+}, 'invoice.pdf')
+```
+
+## Download to File
+```python
+def generate_and_download(html, output_path):
+    result = generate_pdf(html)
+    response = requests.get(result['data']['url'])
+    with open(output_path, 'wb') as f:
+        f.write(response.content)
+
+generate_and_download('<h1>Report</h1>', './report.pdf')
+```
+
+## Client Class
+```python
+from dataclasses import dataclass
+from typing import Optional, Dict, Any
+
+@dataclass
+class PdfResult:
+    file_id: str
+    url: str
+    filename: str
+    size: int
+    remaining_credits: int
+
+class FileloomClient:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = 'https://api.fileloom.io/v1'
+    
+    def generate_pdf(self, html: str = None, template_id: str = None,
+                     template_data: Dict = None, filename: str = None) -> PdfResult:
+        payload = {}
+        if template_id: payload['templateId'] = template_id
+        elif html: payload['htmlContent'] = html
+        if template_data: payload['templateData'] = template_data
+        if filename: payload['filename'] = filename
+        
+        response = requests.post(f'{self.base_url}/pdf/generate',
+            json=payload, headers={'X-API-Key': self.api_key}, timeout=60)
+        
+        data = response.json()
+        if not response.ok:
+            raise Exception(data.get('error', {}).get('message', 'Unknown error'))
+        
+        return PdfResult(
+            file_id=data['data']['fileId'],
+            url=data['data']['url'],
+            filename=data['data']['filename'],
+            size=data['data']['size'],
+            remaining_credits=data['usage']['remaining']
+        )
+
+# Usage
+client = FileloomClient(os.environ['FILELOOM_API_KEY'])
+result = client.generate_pdf(template_id='tpl_invoice_v2',
+    template_data={'invoiceNumber': 'INV-001'}, filename='invoice.pdf')
+```
+
+## Flask Integration
+```python
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+client = FileloomClient(os.environ['FILELOOM_API_KEY'])
+
+@app.route('/api/invoices/<invoice_id>/pdf', methods=['POST'])
+def generate_invoice_pdf(invoice_id):
+    invoice = get_invoice(invoice_id)
+    result = client.generate_pdf(
+        template_id='tpl_invoice_v2',
+        template_data=invoice,
+        filename=f'invoice-{invoice["number"]}.pdf'
+    )
+    return jsonify({'pdfUrl': result.url})
+```

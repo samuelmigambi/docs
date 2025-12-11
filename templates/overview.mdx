@@ -1,0 +1,187 @@
+---
+title: "Templates Overview"
+description: "Create reusable PDF templates with HTML, CSS, and Handlebars for dynamic document generation."
+---
+
+Templates are the foundation of Fileloom. They combine HTML structure, CSS styling, and Handlebars placeholders to create dynamic, reusable PDF documents.
+
+## What is a Template?
+
+A template is a saved document design that you can use repeatedly with different data. Instead of sending raw HTML with every API request, you:
+
+1. Create a template once in the dashboard
+2. Reference it by ID in API requests
+3. Pass only the dynamic data
+
+```json
+{
+  "templateId": "tpl_invoice_v2",
+  "templateData": {
+    "invoiceNumber": "INV-2024-001",
+    "customerName": "Acme Corp",
+    "total": 1250.00
+  }
+}
+```
+
+## Template Components
+
+Every template consists of:
+
+| Component     | Description                                     |
+| ------------- | ----------------------------------------------- |
+| **HTML**      | Document structure with Handlebars placeholders |
+| **CSS**       | Styling (colors, fonts, layout)                 |
+| **Settings**  | Paper size, margins, orientation                |
+| **Test Data** | Sample JSON for previewing                      |
+
+## Template vs Raw HTML
+
+| Approach      | Best For                                                                    |
+| ------------- | --------------------------------------------------------------------------- |
+| **Templates** | Repeated documents (invoices, reports), team collaboration, version control |
+| **Raw HTML**  | One-off documents, dynamic layouts, programmatic generation                 |
+
+<Tip>
+  Use templates for any document you'll generate more than once. They're faster (no HTML transfer), easier to maintain, and support versioning.
+</Tip>
+
+## Creating Your First Template
+
+<Steps>
+  <Step title="Open Template Editor">
+    Go to **Templates** → **Create Template** in the dashboard.
+  </Step>
+  <Step title="Write HTML">
+    Create your document structure with Handlebars placeholders:
+
+    ```html
+        <div class="invoice">
+          <h1>Invoice #{{invoiceNumber}}</h1>
+          <p>Customer: {{customer.name}}</p>
+          <p>Total: {{currency total "USD"}}</p>
+        </div>
+    ```
+  </Step>
+  <Step title="Add CSS">
+    Style your document in the CSS tab:
+
+    ```css
+        .invoice {
+          font-family: 'Inter', sans-serif;
+          padding: 40px;
+        }
+        h1 { color: #333; }
+    ```
+  </Step>
+  <Step title="Test with Data">
+    Enter sample JSON in the Test Data tab:
+
+    ```json
+        {
+          "invoiceNumber": "INV-001",
+          "customer": { "name": "Acme Corp" },
+          "total": 1250.00
+        }
+    ```
+  </Step>
+  <Step title="Preview and Publish">
+    Check the live preview, then click **Publish** to make it available via API.
+  </Step>
+</Steps>
+
+## Handlebars Basics
+
+Fileloom uses Handlebars for dynamic content:
+
+```handlebars
+{{! Output a variable }}
+{{variableName}}
+
+{{! Access nested properties }}
+{{customer.address.city}}
+
+{{! Use helpers for formatting }}
+{{currency amount "USD"}}
+{{formatDate date "MMMM D, YYYY"}}
+
+{{! Conditionals }}
+{{#if isPaid}}Paid{{else}}Unpaid{{/if}}
+
+{{! Loops }}
+{{#each items}}
+  <li>{{this.name}}: {{currency this.price "USD"}}</li>
+{{/each}}
+```
+
+See [Handlebars Basics](/templates/handlebars-basics) for complete syntax guide.
+
+## Built-in Helpers
+
+Fileloom includes 70+ helpers for common operations:
+
+<CardGroup cols={2}>
+  <Card title="Text & String" icon="font" href="/helpers/text">
+    uppercase, lowercase, truncate, replace
+  </Card>
+  <Card title="Numbers & Currency" icon="dollar-sign" href="/helpers/numbers">
+    currency, formatNumber, percentage
+  </Card>
+  <Card title="Dates & Time" icon="calendar" href="/helpers/dates">
+    formatDate, formatTime, addDays, now
+  </Card>
+  <Card title="Math & Logic" icon="calculator" href="/helpers/math">
+    add, multiply, round, gt, lt, and, or
+  </Card>
+</CardGroup>
+
+## Template Categories
+
+Organize templates by type:
+
+- **Invoice** — Billing documents
+- **Receipt** — Transaction confirmations
+- **Contract** — Agreements and legal documents
+- **Report** — Data reports and analytics
+- **Certificate** — Awards, credentials, completions
+- **Ticket** — Event tickets and passes
+- **Label** — Shipping and product labels
+- **Custom** — Everything else
+
+## Using Templates via API
+
+Reference your template by ID:
+
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateId": "tpl_abc123xyz",
+    "templateData": {
+      "invoiceNumber": "INV-2024-001",
+      "items": [
+        {"name": "Widget", "price": 29.99}
+      ]
+    }
+  }'
+```
+
+Find template IDs in the dashboard templates list or template editor.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Handlebars Basics" icon="code" href="/templates/handlebars-basics">
+    Learn template syntax in depth
+  </Card>
+  <Card title="Starter Templates" icon="rocket" href="/templates/starter-templates">
+    Browse 50+ ready-to-use templates
+  </Card>
+  <Card title="Helpers Reference" icon="wand-magic-sparkles" href="/helpers/overview">
+    Explore all 70+ built-in helpers
+  </Card>
+  <Card title="Best Practices" icon="check" href="/templates/best-practices">
+    Tips for production templates
+  </Card>
+</CardGroup>

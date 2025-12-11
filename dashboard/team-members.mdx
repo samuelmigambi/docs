@@ -1,5 +1,101 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Team Members"
+description: "Invite team members to collaborate in your Fileloom workspace."
 ---
 
+Collaborate with your team by inviting members to your workspace with role-based access control.
+
+## Member Roles
+
+| Role | Permissions |
+|------|-------------|
+| **Owner** | Full access including billing, can delete workspace |
+| **Editor** | Create/edit templates, manage files, view API keys |
+| **Viewer** | Read-only access to templates and files |
+
+## Inviting Members
+
+<Steps>
+  <Step title="Open Team Settings">
+    Click "Invite to Workspace" in the sidebar, or go to **Workspace Settings** → **Members**.
+  </Step>
+  <Step title="Enter Email">
+    Type the email address of the person you want to invite.
+  </Step>
+  <Step title="Select Role">
+    Choose the appropriate role (Editor or Viewer).
+  </Step>
+  <Step title="Send Invitation">
+    Click "Invite" to send the invitation.
+  </Step>
+</Steps>
+
+<Info>
+  Invited users see the workspace immediately in their dashboard. An email notification is also sent, but they don't need to click a link to accept.
+</Info>
+
+## Managing Members
+
+### View Members
+
+The Members page shows all workspace members:
+
+| Column | Description |
+|--------|-------------|
+| **Name** | Display name |
+| **Email** | Account email |
+| **Role** | Owner, Editor, or Viewer |
+| **Joined** | When they joined the workspace |
+| **Status** | Active or Pending |
+
+### Change Role
+
+1. Click on the member
+2. Select a new role from the dropdown
+3. Save changes
+
+<Warning>
+  Only owners can change member roles. You cannot change your own role if you're the only owner.
+</Warning>
+
+### Remove Member
+
+1. Click on the member
+2. Click "Remove from Workspace"
+3. Confirm removal
+
+Removed members lose access immediately but can be re-invited later.
+
+## Member Limits
+
+| Plan | Max Team Members |
+|------|------------------|
+| Free | 2 |
+| Starter | 3 |
+| Growth | 5 |
+| Scale | 10 |
+| Scale Business | 25 |
+| Scale Enterprise | Unlimited |
+
+<Tip>
+  Need more team members? Upgrade your plan in **Workspace Settings** → **Billing**.
+</Tip>
+
+## Transferring Ownership
+
+To transfer workspace ownership:
+
+1. Ensure the new owner is already a member
+2. Go to **Workspace Settings** → **Members**
+3. Click on the member to become owner
+4. Select "Transfer Ownership"
+5. Confirm the transfer
+
+You'll become an Editor after transferring ownership.
+
+## Best Practices
+
+- **Least privilege** — Assign the minimum role needed for each member's tasks
+- **Review regularly** — Periodically audit member access
+- **Remove promptly** — Remove members who no longer need access
+- **Document ownership** — Ensure multiple people can access critical workspaces

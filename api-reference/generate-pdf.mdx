@@ -1,5 +1,337 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Generate PDF"
+description: "Generate a PDF from HTML content or a saved template."
 ---
 
+Generate a PDF document from raw HTML or a saved template with dynamic data.
+
+## Endpoint
+```
+POST https://api.fileloom.io/v1/pdf/generate
+```
+
+## Authentication
+
+Include your API key in the request headers:
+```
+X-API-Key: fl_your_api_key
+```
+
+## Request Body
+
+You must provide either `htmlContent` OR `templateId`, but not both.
+
+### Using Raw HTML
+```json
+{
+  "htmlContent": "<html><body><h1>Hello {{name}}</h1></body></html>",
+  "templateData": {
+    "name": "World"
+  },
+  "filename": "greeting.pdf",
+  "options": {
+    "format": "A4",
+    "orientation": "portrait",
+    "margin": {
+      "top": 10,
+      "right": 10,
+      "bottom": 10,
+      "left": 10
+    },
+    "printBackground": true
+  }
+}
+```
+
+### Using a Template
+```json
+{
+  "templateId": "tpl_abc123xyz",
+  "templateData": {
+    "invoiceNumber": "INV-2024-001",
+    "customer": {
+      "name": "Acme Corp",
+      "email": "billing@acme.com"
+    },
+    "items": [
+      {"name": "Widget", "price": 29.99, "quantity": 2},
+      {"name": "Gadget", "price": 49.99, "quantity": 1}
+    ],
+    "total": 109.97
+  },
+  "filename": "invoice-INV-2024-001.pdf"
+}
+```
+
+## Parameters
+
+### Required (one of)
+
+<ParamField body="htmlContent" type="string">
+  Raw HTML content to convert to PDF. Supports Handlebars syntax for dynamic content.
+</ParamField>
+
+<ParamField body="templateId" type="string">
+  ID of a saved template to use. Find this in the template editor or templates list.
+</ParamField>
+
+### Optional
+
+<ParamField body="templateData" type="object">
+  JSON object with data to inject into Handlebars placeholders.
+</ParamField>
+
+<ParamField body="filename" type="string">
+  Custom filename for the generated PDF (without .pdf extension). Max 255 characters.
+</ParamField>
+
+<ParamField body="options" type="object">
+  PDF generation options. When using a template, these override template settings.
+</ParamField>
+
+### Options Object
+
+<ParamField body="options.format" type="string" default="A4">
+  Paper size. One of: `A0`, `A1`, `A2`, `A3`, `A4`, `A5`, `A6`, `Letter`, `Legal`, `Tabloid`, `Ledger`, `Custom`
+</ParamField>
+
+<ParamField body="options.orientation" type="string" default="portrait">
+  Page orientation. One of: `portrait`, `landscape`
+</ParamField>
+
+<ParamField body="options.width" type="number">
+  Custom page width in millimeters. Only used when format is `Custom`.
+</ParamField>
+
+<ParamField body="options.height" type="number">
+  Custom page height in millimeters. Only used when format is `Custom`.
+</ParamField>
+
+<ParamField body="options.margin" type="object">
+  Page margins in millimeters.
+```json
+  {
+    "top": 10,
+    "right": 10,
+    "bottom": 10,
+    "left": 10
+  }
+```
+</ParamField>
+
+<ParamField body="options.printBackground" type="boolean" default="true">
+  Include background colors and images in the PDF.
+</ParamField>
+
+<ParamField body="options.header" type="object">
+  Page header configuration.
+```json
+  {
+    "enabled": true,
+    "height": 15,
+    "content": "<div style='text-align: center;'>Header</div>"
+  }
+```
+</ParamField>
+
+<ParamField body="options.footer" type="object">
+  Page footer configuration.
+```json
+  {
+    "enabled": true,
+    "height": 10,
+    "content": "<div style='text-align: center;'>Page <span class='pageNumber'></span></div>"
+  }
+```
+</ParamField>
+
+<ParamField body="options.outputName" type="string">
+  Dynamic filename template using Handlebars syntax. Example: `Invoice-{{invoiceNumber}}`
+</ParamField>
+
+## Response
+
+### Success Response (200)
+```json
+{
+  "success": true,
+  "requestId": "req_1734012345_abc123",
+  "data": {
+    "fileId": "file_1734012345_xyz789",
+    "url": "https://storage.googleapis.com/fileloom-prod/workspaces/ws_xxx/pdfs/2024/12/document-1734012345.pdf",
+    "signedUrl": "https://storage.googleapis.com/fileloom-prod/workspaces/ws_xxx/pdfs/2024/12/document-1734012345.pdf?X-Goog-Algorithm=...",
+    "filename": "document.pdf",
+    "size": 12847,
+    "expiresAt": "2024-12-16T10:30:00.000Z",
+    "storageProvider": "firebase",
+    "processingTimeMs": 847,
+    "generationMethod": "html",
+    "templateUsed": null
+  },
+  "usage": {
+    "remaining": 1999,
+    "quotaUsed": 1,
+    "quotaLimit": 2000
+  }
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `success` | boolean | Whether the request succeeded |
+| `requestId` | string | Unique identifier for this request |
+| `data.fileId` | string | Unique identifier for the generated file |
+| `data.url` | string | Permanent public URL (valid until retention expires) |
+| `data.signedUrl` | string | Temporary signed URL (valid for 24 hours) |
+| `data.filename` | string | Filename of the generated PDF |
+| `data.size` | number | File size in bytes |
+| `data.expiresAt` | string | When the signed URL expires (ISO 8601) |
+| `data.storageProvider` | string | Storage provider used (`firebase`, `s3`, `supabase`) |
+| `data.processingTimeMs` | number | Time to generate the PDF in milliseconds |
+| `data.generationMethod` | string | `html` or `template` |
+| `data.templateUsed` | object | Template info if using a template (`id`, `name`) |
+| `usage.remaining` | number | Total credits remaining |
+| `usage.quotaUsed` | number | Quota used this billing period |
+| `usage.quotaLimit` | number | Monthly quota limit |
+
+### External Storage Response
+
+When using external storage (S3 or Supabase), additional fields are included:
+```json
+{
+  "success": true,
+  "data": {
+    "fileId": "file_1734012345_xyz789",
+    "url": "https://your-bucket.s3.amazonaws.com/pdfs/document.pdf?...",
+    "storageProvider": "s3",
+    "externalCopies": [
+      {
+        "provider": "s3",
+        "name": "Production S3",
+        "url": "https://your-bucket.s3.amazonaws.com/pdfs/document.pdf",
+        "expiresAt": "2024-12-22T10:30:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+## Error Codes
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `VALIDATION_ERROR` | 400 | Invalid request parameters |
+| `INVALID_API_KEY` | 401 | API key missing or invalid |
+| `TEMPLATE_NOT_FOUND` | 404 | Template ID doesn't exist or isn't accessible |
+| `WORKSPACE_NOT_FOUND` | 404 | Workspace associated with API key not found |
+| `TEMPLATE_COMPILATION_ERROR` | 400 | Handlebars syntax error in template |
+| `REQUEST_TIMEOUT` | 408 | PDF generation exceeded timeout limit |
+| `FILE_TOO_LARGE` | 413 | Generated PDF exceeds size limit |
+| `NO_CREDITS_AVAILABLE` | 429 | No quota or credits remaining |
+| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
+| `PDF_GENERATION_FAILED` | 502 | Internal error generating PDF |
+| `INTERNAL_ERROR` | 500 | Unexpected server error |
+
+### Error Response Format
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Either htmlContent or templateId is required",
+    "details": [
+      "Either htmlContent or templateId is required"
+    ],
+    "requestId": "req_1734012345_abc123",
+    "timestamp": "2024-12-15T10:30:00.000Z"
+  }
+}
+```
+
+## Examples
+
+### Minimal Request
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<h1>Hello World</h1>"
+  }'
+```
+
+### With Dynamic Data
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<h1>Invoice #{{number}}</h1><p>Amount: {{currency amount \"USD\"}}</p>",
+    "templateData": {
+      "number": "INV-001",
+      "amount": 299.99
+    }
+  }'
+```
+
+### Full Options
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<html><head><style>body{font-family:Arial;}</style></head><body><h1>Report</h1><p>Content here</p></body></html>",
+    "filename": "quarterly-report",
+    "options": {
+      "format": "Letter",
+      "orientation": "landscape",
+      "margin": {
+        "top": 20,
+        "right": 15,
+        "bottom": 20,
+        "left": 15
+      },
+      "printBackground": true,
+      "header": {
+        "enabled": true,
+        "height": 15,
+        "content": "<div style=\"text-align: center; font-size: 10px;\">Quarterly Report - Q4 2024</div>"
+      },
+      "footer": {
+        "enabled": true,
+        "height": 10,
+        "content": "<div style=\"text-align: center; font-size: 9px;\">Page <span class=\"pageNumber\"></span> of <span class=\"totalPages\"></span></div>"
+      }
+    }
+  }'
+```
+
+### Using a Template
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateId": "tpl_invoice_standard",
+    "templateData": {
+      "invoiceNumber": "INV-2024-0042",
+      "date": "2024-12-15",
+      "dueDate": "2025-01-14",
+      "customer": {
+        "name": "Acme Corporation",
+        "address": "123 Business Ave",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94102"
+      },
+      "items": [
+        {"description": "Consulting Services", "hours": 40, "rate": 150},
+        {"description": "Development", "hours": 80, "rate": 125}
+      ],
+      "subtotal": 16000,
+      "tax": 1440,
+      "total": 17440
+    }
+  }'
+```

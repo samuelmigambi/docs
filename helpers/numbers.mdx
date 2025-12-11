@@ -1,5 +1,270 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Number Formatting Helpers"
+description: "Format numbers as currency, percentages, file sizes, and more with formatNumber, currency, percentage, formatBytes, and ordinal."
 ---
 
+Number formatting helpers display numbers in human-readable formats.
+
+## formatNumber
+
+Formats a number with thousands separators and decimal places.
+```handlebars
+{{formatNumber 1234567.89}}
+{{formatNumber 1234567.89 0}}
+{{formatNumber 1234567.89 2 "," "."}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `number` | number | required | Number to format |
+| `decimals` | number | 2 | Decimal places |
+| `thousandsSep` | string | "," | Thousands separator |
+| `decimalSep` | string | "." | Decimal separator |
+
+**Examples:**
+```handlebars
+{{formatNumber 1234567}}
+```
+
+**Output:** `1,234,567.00`
+```handlebars
+{{formatNumber 1234567 0}}
+```
+
+**Output:** `1,234,567`
+```handlebars
+{{! European format }}
+{{formatNumber 1234567.89 2 "." ","}}
+```
+
+**Output:** `1.234.567,89`
+
+## currency
+
+Formats a number as currency with proper symbol and locale.
+```handlebars
+{{currency 1234.56 "USD"}}
+{{currency 1234.56 "EUR" "de-DE"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `amount` | number | required | Amount to format |
+| `currencyCode` | string | "USD" | ISO 4217 currency code |
+| `locale` | string | "en-US" | Locale for formatting |
+
+**Examples:**
+```handlebars
+{{currency 1234.56 "USD"}}
+```
+
+**Output:** `$1,234.56`
+```handlebars
+{{currency 1234.56 "EUR"}}
+```
+
+**Output:** `€1,234.56`
+```handlebars
+{{currency 1234.56 "GBP"}}
+```
+
+**Output:** `£1,234.56`
+```handlebars
+{{currency 1234.56 "JPY"}}
+```
+
+**Output:** `¥1,235` (JPY has no decimals)
+```handlebars
+{{! German locale }}
+{{currency 1234.56 "EUR" "de-DE"}}
+```
+
+**Output:** `1.234,56 €`
+
+### Supported Currency Codes
+
+Common currency codes include:
+
+| Code | Currency | Symbol |
+|------|----------|--------|
+| USD | US Dollar | $ |
+| EUR | Euro | € |
+| GBP | British Pound | £ |
+| JPY | Japanese Yen | ¥ |
+| CNY | Chinese Yuan | ¥ |
+| INR | Indian Rupee | ₹ |
+| CAD | Canadian Dollar | C$ |
+| AUD | Australian Dollar | A$ |
+| BRL | Brazilian Real | R$ |
+| KRW | Korean Won | ₩ |
+
+## percentage
+
+Calculates and formats a percentage.
+```handlebars
+{{percentage 75 100}}
+{{percentage 3 4 2}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `value` | number | required | The part |
+| `total` | number | 1 | The whole |
+| `decimals` | number | 1 | Decimal places |
+
+**Examples:**
+```handlebars
+{{percentage 75 100}}
+```
+
+**Output:** `75.0%`
+```handlebars
+{{percentage 1 3 2}}
+```
+
+**Output:** `33.33%`
+```handlebars
+{{percentage completed total 0}}
+<!-- 45 of 60 → Output: 75% -->
+```
+
+## formatBytes
+
+Formats bytes into human-readable file sizes.
+```handlebars
+{{formatBytes 1024}}
+{{formatBytes 1536000 1}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `bytes` | number | required | Size in bytes |
+| `decimals` | number | 2 | Decimal places |
+
+**Examples:**
+```handlebars
+{{formatBytes 0}}
+```
+
+**Output:** `0 Bytes`
+```handlebars
+{{formatBytes 1024}}
+```
+
+**Output:** `1 KB`
+```handlebars
+{{formatBytes 1536000}}
+```
+
+**Output:** `1.46 MB`
+```handlebars
+{{formatBytes 1073741824}}
+```
+
+**Output:** `1 GB`
+
+| Input | Output |
+|-------|--------|
+| 500 | 500 Bytes |
+| 1024 | 1 KB |
+| 1048576 | 1 MB |
+| 1073741824 | 1 GB |
+| 1099511627776 | 1 TB |
+
+## ordinal
+
+Adds ordinal suffix to a number (1st, 2nd, 3rd, etc.).
+```handlebars
+{{ordinal 1}}
+{{ordinal 2}}
+{{ordinal 3}}
+{{ordinal 4}}
+```
+
+**Output:** `1st`, `2nd`, `3rd`, `4th`
+
+**Examples:**
+```handlebars
+{{ordinal 21}}  <!-- 21st -->
+{{ordinal 22}}  <!-- 22nd -->
+{{ordinal 23}}  <!-- 23rd -->
+{{ordinal 24}}  <!-- 24th -->
+{{ordinal 11}}  <!-- 11th -->
+{{ordinal 12}}  <!-- 12th -->
+{{ordinal 13}}  <!-- 13th -->
+```
+
+**Use cases:**
+```handlebars
+<p>{{ordinal position}} place</p>
+<!-- Output: 1st place -->
+
+<p>{{ordinal day}} of {{monthName date}}</p>
+<!-- Output: 15th of December -->
+```
+
+## Practical Examples
+
+### Invoice Line Items
+```handlebars
+<table>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Qty</th>
+      <th>Unit Price</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each items}}
+    <tr>
+      <td>{{this.name}}</td>
+      <td>{{formatNumber this.quantity 0}}</td>
+      <td>{{currency this.unitPrice "USD"}}</td>
+      <td>{{currency (multiply this.quantity this.unitPrice) "USD"}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+```
+
+### File Information
+```handlebars
+<div class="file-info">
+  <span class="name">{{filename}}</span>
+  <span class="size">{{formatBytes fileSize}}</span>
+</div>
+```
+
+### Progress Report
+```handlebars
+<div class="progress-report">
+  <h3>Project Status</h3>
+  <p>Tasks: {{completed}} of {{total}} ({{percentage completed total 0}})</p>
+  <p>Budget: {{currency spent "USD"}} of {{currency budget "USD"}} ({{percentage spent budget 0}})</p>
+</div>
+```
+
+### Leaderboard
+```handlebars
+<ol class="leaderboard">
+  {{#each players}}
+  <li>
+    <span class="rank">{{ordinal (add @index 1)}}</span>
+    <span class="name">{{this.name}}</span>
+    <span class="score">{{formatNumber this.score 0}}</span>
+  </li>
+  {{/each}}
+</ol>
+```
+
+### Multi-Currency Invoice
+```handlebars
+<div class="totals">
+  <p>Subtotal: {{currency subtotal currency}}</p>
+  <p>Tax: {{currency tax currency}}</p>
+  <p class="grand-total">Total: {{currency total currency}}</p>
+</div>
+<!-- Works with any currency: USD, EUR, GBP, etc. -->
+```

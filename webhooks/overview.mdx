@@ -1,5 +1,419 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Webhooks"
+description: "Receive real-time HTTP notifications when PDFs are generated, fail, or when usage thresholds are reached."
 ---
 
+Webhooks send HTTP POST requests to your server when events occur in Fileloom, enabling real-time integrations and automated workflows.
+
+<Info>
+  Webhooks require a **Starter plan or higher**.
+</Info>
+
+## Supported Events
+
+| Event | Description |
+|-------|-------------|
+| `pdf.generated` | PDF successfully created |
+| `pdf.failed` | PDF generation failed |
+
+## Setting Up Webhooks
+
+<Steps>
+  <Step title="Open Webhook Settings">
+    Go to **Workspace Settings** → **Webhooks** in the dashboard.
+  </Step>
+  <Step title="Add Webhook">
+    Click **Add Webhook**.
+  </Step>
+  <Step title="Enter URL">
+    Enter your HTTPS endpoint URL.
+  </Step>
+  <Step title="Select Events">
+    Choose which events to receive.
+  </Step>
+  <Step title="Save">
+    Click **Save** and copy the generated secret.
+  </Step>
+</Steps>
+
+<Warning>
+  Webhook URLs must use **HTTPS**. HTTP endpoints are not supported for security reasons.
+</Warning>
+
+## Webhook Payload Structure
+
+All webhooks follow this structure:
+```json
+{
+  "id": "evt_abc123xyz",
+  "event": "pdf.generated",
+  "timestamp": "2024-12-15T10:30:00Z",
+  "workspace": {
+    "id": "ws_abc123",
+    "name": "My Workspace"
+  },
+  "data": {
+    // Event-specific data
+  }
+}
+```
+
+## Event Payloads
+
+### pdf.generated
+
+Sent when a PDF is successfully created.
+```json
+{
+  "id": "evt_abc123xyz",
+  "event": "pdf.generated",
+  "timestamp": "2024-12-15T10:30:00Z",
+  "workspace": {
+    "id": "ws_abc123",
+    "name": "My Workspace"
+  },
+  "data": {
+    "fileId": "file_xyz789",
+    "requestId": "req_abc123",
+    "url": "https://storage.googleapis.com/.../document.pdf",
+    "signedUrl": "https://storage.googleapis.com/...?token=...",
+    "filename": "invoice-001.pdf",
+    "sizeBytes": 45678,
+    "processingTimeMs": 1234,
+    "generationMethod": "template",
+    "templateId": "tpl_invoice_v2",
+    "templateName": "Professional Invoice",
+    "storageProvider": "firebase",
+    "storageMode": "both",
+    "externalCopies": [
+      {
+        "provider": "s3",
+        "name": "Production S3",
+        "url": "https://bucket.s3.amazonaws.com/..."
+      }
+    ]
+  }
+}
+```
+
+### pdf.failed
+
+Sent when PDF generation fails.
+```json
+{
+  "id": "evt_def456xyz",
+  "event": "pdf.failed",
+  "timestamp": "2024-12-15T10:30:00Z",
+  "workspace": {
+    "id": "ws_abc123",
+    "name": "My Workspace"
+  },
+  "data": {
+    "requestId": "req_def456",
+    "error": "Template compilation failed: Missing closing bracket",
+    "errorCode": "TEMPLATE_COMPILATION_ERROR",
+    "templateId": "tpl_broken",
+    "templateName": "Broken Template"
+  }
+}
+```
+
+## Verifying Webhook Signatures
+
+Fileloom signs all webhooks with HMAC-SHA256. **Always verify signatures** to ensure webhooks are authentic and haven't been tampered with.
+
+### Request Headers
+
+Fileloom sends these headers with every webhook:
+
+| Header | Description | Example |
+|--------|-------------|---------|
+| `Content-Type` | Always JSON | `application/json` |
+| `X-Fileloom-Event` | Event type | `pdf.generated` |
+| `X-Fileloom-Signature` | HMAC-SHA256 signature | `sha256=a1b2c3...` |
+| `X-Fileloom-Timestamp` | Unix timestamp | `1702634400` |
+| `X-Fileloom-Delivery-Id` | Unique delivery ID | `whd_1702634400_abc123` |
+| `User-Agent` | Fileloom identifier | `Fileloom-Webhook/1.0` |
+
+### Node.js Verification
+```javascript
+const crypto = require('crypto');
+
+function verifyWebhookSignature(payload, signature, secret) {
+  const expectedSignature = 'sha256=' + crypto
+    .createHmac('sha256', secret)
+    .update(payload, 'utf8')
+    .digest('hex');
+  
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  );
+}
+
+// Express.js example
+const express = require('express');
+const app = express();
+
+app.post('/webhooks/fileloom', 
+  express.raw({ type: 'application/json' }), 
+  (req, res) => {
+    const signature = req.headers['x-fileloom-signature'];
+    const payload = req.body.toString();
+    
+    if (!verifyWebhookSignature(payload, signature, process.env.WEBHOOK_SECRET)) {
+      console.error('Invalid webhook signature');
+      return res.status(401).send('Invalid signature');
+    }
+    
+    const event = JSON.parse(payload);
+    
+    // Handle the event
+    switch (event.event) {
+      case 'pdf.generated':
+        console.log('PDF generated:', event.data.fileId);
+        // Process the generated PDF...
+        break;
+        
+      case 'pdf.failed':
+        console.error('PDF generation failed:', event.data.error);
+        // Handle the failure...
+        break;
+    }
+    
+    res.status(200).send('OK');
+  }
+);
+```
+
+### Python Verification
+```python
+import hmac
+import hashlib
+import json
+from flask import Flask, request
+
+app = Flask(__name__)
+
+def verify_webhook_signature(payload: bytes, signature: str, secret: str) -> bool:
+    expected = 'sha256=' + hmac.new(
+        secret.encode('utf-8'),
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+    
+    return hmac.compare_digest(signature, expected)
+
+@app.route('/webhooks/fileloom', methods=['POST'])
+def handle_webhook():
+    signature = request.headers.get('X-Fileloom-Signature', '')
+    payload = request.get_data()
+    
+    if not verify_webhook_signature(payload, signature, WEBHOOK_SECRET):
+        return 'Invalid signature', 401
+    
+    event = json.loads(payload)
+    
+    # Handle the event
+    if event['event'] == 'pdf.generated':
+        print(f"PDF generated: {event['data']['fileId']}")
+        # Process the generated PDF...
+        
+    elif event['event'] == 'pdf.failed':
+        print(f"PDF generation failed: {event['data']['error']}")
+        # Handle the failure...
+    
+    return 'OK', 200
+```
+
+### PHP Verification
+```php
+<?php
+function verifyWebhookSignature($payload, $signature, $secret) {
+    $expected = 'sha256=' . hash_hmac('sha256', $payload, $secret);
+    return hash_equals($expected, $signature);
+}
+
+$payload = file_get_contents('php://input');
+$signature = $_SERVER['HTTP_X_FILELOOM_SIGNATURE'] ?? '';
+
+if (!verifyWebhookSignature($payload, $signature, WEBHOOK_SECRET)) {
+    http_response_code(401);
+    exit('Invalid signature');
+}
+
+$event = json_decode($payload, true);
+
+switch ($event['event']) {
+    case 'pdf.generated':
+        // Handle PDF generated
+        break;
+    case 'pdf.failed':
+        // Handle PDF failed
+        break;
+}
+
+http_response_code(200);
+echo 'OK';
+```
+
+## Retry Behavior
+
+Fileloom automatically retries failed webhook deliveries:
+
+| Attempt | Delay After Failure |
+|---------|---------------------|
+| 1 | Immediate |
+| 2 | 5 minutes |
+| 3 | 5 minutes |
+
+After 3 failed attempts, the webhook delivery is marked as failed and no further retries occur for that specific event.
+
+### What Counts as Failed?
+
+- HTTP status code 4xx or 5xx
+- Connection timeout (10 seconds)
+- DNS resolution failure
+- SSL/TLS errors
+
+### Successful Response
+
+Your endpoint must return an HTTP 2xx status code within 10 seconds.
+
+## Managing Webhooks
+
+### Viewing Activity
+
+In the dashboard, each webhook shows:
+- Total deliveries
+- Success rate
+- Recent delivery attempts
+- Error messages for failed deliveries
+
+### Testing Webhooks
+
+Click **Send Test** to send a test event to your endpoint:
+```json
+{
+  "id": "evt_test_123",
+  "event": "test",
+  "timestamp": "2024-12-15T10:30:00Z",
+  "workspace": {
+    "id": "ws_abc123",
+    "name": "My Workspace"
+  },
+  "data": {
+    "message": "This is a test webhook"
+  }
+}
+```
+
+### Disabling Webhooks
+
+Toggle the webhook to **Inactive** to temporarily stop receiving events without deleting the configuration.
+
+### Regenerating Secrets
+
+If your webhook secret is compromised:
+
+1. Click **Regenerate Secret** in the webhook settings
+2. Update your server with the new secret immediately
+3. The old secret is invalidated instantly
+
+## Best Practices
+
+### Always Verify Signatures
+
+Never trust webhook payloads without signature verification. This prevents:
+- Spoofed requests from attackers
+- Data tampering in transit
+
+### Respond Quickly, Process Async
+
+Return 200 immediately, then process the event asynchronously:
+```javascript
+app.post('/webhooks/fileloom', (req, res) => {
+  // Verify signature first...
+  
+  // Respond immediately
+  res.status(200).send('OK');
+  
+  // Process asynchronously
+  setImmediate(() => {
+    processWebhookEvent(JSON.parse(req.body));
+  });
+});
+```
+
+### Handle Duplicates (Idempotency)
+
+Webhooks may be delivered multiple times due to retries. Use the event `id` to deduplicate:
+```javascript
+const processedEvents = new Set();
+
+async function handleWebhook(event) {
+  // Skip if already processed
+  if (processedEvents.has(event.id)) {
+    console.log('Duplicate event, skipping:', event.id);
+    return;
+  }
+  
+  // Mark as processed
+  processedEvents.add(event.id);
+  
+  // Process the event...
+}
+```
+
+For production, store processed event IDs in a database with TTL.
+
+### Log All Events
+
+Log every webhook for debugging:
+```javascript
+function handleWebhook(event) {
+  console.log('Webhook received:', {
+    id: event.id,
+    event: event.event,
+    timestamp: event.timestamp,
+    workspaceId: event.workspace.id
+  });
+  
+  // Process event...
+}
+```
+
+### Monitor Delivery Health
+
+Set up alerts for:
+- High failure rates
+- Unusual event volumes
+- Missing expected events
+
+## Troubleshooting
+
+### Webhooks Not Arriving
+
+1. Verify endpoint URL is correct and uses HTTPS
+2. Check webhook is enabled (not set to Inactive)
+3. Verify firewall allows inbound connections
+4. Test endpoint manually with curl
+
+### Signature Verification Failing
+
+1. Ensure you're using the raw request body (not parsed JSON)
+2. Verify secret matches exactly (no extra whitespace)
+3. Check encoding (UTF-8)
+4. Ensure secret hasn't been regenerated
+
+### Timeouts
+
+1. Your endpoint must respond within 10 seconds
+2. Process events asynchronously after responding
+3. Optimize any database queries or external calls
+
+### Duplicate Events
+
+1. Implement idempotency using event ID
+2. Store processed event IDs with expiry
+3. Design handlers to be safe to run multiple times

@@ -1,5 +1,370 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Template Best Practices"
+description: "Tips and guidelines for creating professional, maintainable, and performant PDF templates."
 ---
 
+Follow these best practices to create templates that are reliable, maintainable, and produce professional results.
+
+## HTML Structure
+
+### Use Semantic HTML
+```html
+<!-- Good -->
+<header class="invoice-header">
+  <h1>Invoice #{{invoiceNumber}}</h1>
+</header>
+<main class="invoice-body">
+  <section class="customer-info">...</section>
+  <section class="line-items">...</section>
+</main>
+<footer class="invoice-footer">...</footer>
+
+<!-- Avoid -->
+<div class="div1">
+  <div class="div2">Invoice #{{invoiceNumber}}</div>
+</div>
+```
+
+### Keep Structure Flat
+
+Avoid deeply nested elements that complicate styling:
+```html
+<!-- Good -->
+<div class="card">
+  <h2 class="card-title">{{title}}</h2>
+  <p class="card-body">{{content}}</p>
+</div>
+
+<!-- Avoid -->
+<div class="wrapper">
+  <div class="container">
+    <div class="inner">
+      <div class="content">
+        <h2>{{title}}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+## CSS Guidelines
+
+### Use Classes, Not IDs
+
+Classes are reusable and have consistent specificity:
+```css
+/* Good */
+.invoice-total { font-weight: bold; }
+.highlight { background: #ffffcc; }
+
+/* Avoid */
+#main-total { font-weight: bold; }
+```
+
+### Define a Base Style
+
+Start with consistent defaults:
+```css
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #333;
+}
+
+h1, h2, h3 {
+  margin-bottom: 0.5em;
+}
+
+p {
+  margin-bottom: 1em;
+}
+```
+
+### Use CSS Variables
+
+Make theming and updates easier:
+```css
+:root {
+  --color-primary: #2563eb;
+  --color-secondary: #64748b;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-border: #e2e8f0;
+  --font-main: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+.header {
+  background: var(--color-primary);
+  color: white;
+}
+
+.total {
+  color: var(--color-success);
+}
+```
+
+### Print-Specific Styles
+
+Optimize for print output:
+```css
+/* Avoid page breaks inside elements */
+.item-row {
+  page-break-inside: avoid;
+}
+
+/* Force page break before element */
+.new-section {
+  page-break-before: always;
+}
+
+/* Keep heading with following content */
+h2 {
+  page-break-after: avoid;
+}
+```
+
+## Data Handling
+
+### Always Handle Missing Data
+
+Use defaults and conditionals:
+```handlebars
+{{! Use default helper }}
+{{default customer.name "Valued Customer"}}
+
+{{! Use conditional }}
+{{#if customer.phone}}
+  <p>Phone: {{customer.phone}}</p>
+{{/if}}
+
+{{! Handle empty arrays }}
+{{#each items}}
+  <tr>...</tr>
+{{else}}
+  <tr><td colspan="4">No items</td></tr>
+{{/each}}
+```
+
+### Validate Data Types
+
+Ensure data is the expected type:
+```handlebars
+{{! Numbers - use formatNumber to ensure formatting }}
+{{formatNumber quantity 0}}
+
+{{! Dates - use formatDate to ensure parsing }}
+{{formatDate date "YYYY-MM-DD"}}
+
+{{! Currency - always specify currency code }}
+{{currency amount "USD"}}
+```
+
+### Test Edge Cases
+
+Test your template with:
+
+- Empty strings and null values
+- Empty arrays
+- Very long text
+- Large numbers
+- Special characters
+- Missing optional fields
+
+## Performance
+
+### Optimize Images
+```html
+<!-- Specify dimensions to prevent layout shifts -->
+<img src="{{logoUrl}}" width="200" height="50" alt="Logo">
+
+<!-- Use appropriate formats -->
+<!-- PNG for logos with transparency -->
+<!-- JPEG for photographs -->
+<!-- SVG for icons and simple graphics -->
+```
+
+### Minimize External Resources
+```html
+<!-- Good: Inline critical styles -->
+<style>
+  .invoice { ... }
+</style>
+
+<!-- Avoid: Multiple external stylesheets -->
+<link href="https://..." rel="stylesheet">
+<link href="https://..." rel="stylesheet">
+<link href="https://..." rel="stylesheet">
+```
+
+### Keep Templates Focused
+
+Create separate templates for different document types rather than one complex template with many conditionals.
+
+## Fonts
+
+### Use Web-Safe Fonts or Google Fonts
+
+Fileloom automatically injects common fonts, but for custom fonts:
+```html
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+```
+
+### Provide Fallbacks
+```css
+body {
+  font-family: 'Custom Font', 'Inter', Arial, sans-serif;
+}
+```
+
+### Limit Font Weights
+
+Only load weights you need:
+```html
+<!-- Good: Only needed weights -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Avoid: All weights -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+```
+
+## Tables
+
+### Use Proper Table Structure
+```html
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Qty</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each items}}
+    <tr>
+      <td>{{this.description}}</td>
+      <td>{{this.quantity}}</td>
+      <td>{{currency this.price "USD"}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="2">Total</td>
+      <td>{{currency total "USD"}}</td>
+    </tr>
+  </tfoot>
+</table>
+```
+
+### Style Tables for Print
+```css
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+thead {
+  background: #f8fafc;
+}
+
+/* Repeat header on each page */
+thead {
+  display: table-header-group;
+}
+
+/* Keep rows together */
+tr {
+  page-break-inside: avoid;
+}
+```
+
+## Maintainability
+
+### Comment Complex Logic
+```handlebars
+{{! Calculate line total: quantity × unit price }}
+{{currency (multiply this.quantity this.unitPrice) "USD"}}
+
+{{!-- 
+  Payment status badge
+  - Green for paid
+  - Yellow for pending
+  - Red for overdue
+--}}
+{{#if isPaid}}
+  <span class="badge badge-success">Paid</span>
+{{else if isOverdue}}
+  <span class="badge badge-danger">Overdue</span>
+{{else}}
+  <span class="badge badge-warning">Pending</span>
+{{/if}}
+```
+
+### Use Consistent Naming
+```css
+/* BEM-style naming */
+.invoice { }
+.invoice__header { }
+.invoice__body { }
+.invoice__footer { }
+.invoice__total { }
+.invoice__total--highlighted { }
+
+/* Or simple descriptive names */
+.invoice-header { }
+.invoice-body { }
+.customer-info { }
+.line-items { }
+.payment-terms { }
+```
+
+### Document Your Templates
+
+Add a comment block at the top:
+```html
+{{!--
+  Template: Professional Invoice
+  Version: 2.1
+  Last Updated: 2024-12-15
+  
+  Required fields:
+  - invoiceNumber (string)
+  - date (ISO date string)
+  - customer (object: name, address, city, state, zip)
+  - items (array: description, quantity, unitPrice)
+  - subtotal, tax, total (numbers)
+  
+  Optional fields:
+  - customer.company
+  - notes
+  - paymentTerms
+--}}
+```
+
+## Checklist
+
+Before publishing a template:
+
+- [ ] Test with real data from your application
+- [ ] Verify all variables have default handling
+- [ ] Check empty array scenarios
+- [ ] Test with long text content
+- [ ] Verify page breaks look correct
+- [ ] Check on different paper sizes
+- [ ] Validate all links and images load
+- [ ] Review with fresh eyes or a colleague

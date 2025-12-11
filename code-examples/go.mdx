@@ -1,5 +1,164 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Go Examples"
+description: "Generate PDFs in Go using net/http."
 ---
 
+## Types and Client
+```go
+package fileloom
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+    "time"
+)
+
+type Client struct {
+    APIKey  string
+    BaseURL string
+    HTTP    *http.Client
+}
+
+type PdfRequest struct {
+    HTMLContent  string                 // json: htmlContent,omitempty
+    TemplateID   string                 // json: templateId,omitempty
+    TemplateData map[string]interface{} // json: templateData,omitempty
+    Filename     string                 // json: filename,omitempty
+}
+
+type Response struct {
+    Success bool
+    Data    PdfData
+    Usage   Usage
+}
+
+type PdfData struct {
+    FileID string
+    URL    string
+    Size   int64
+}
+
+type Usage struct {
+    Remaining int
+}
+
+type Error struct {
+    Code    string
+    Message string
+    Status  int
+}
+
+func (e *Error) Error() string {
+    return fmt.Sprintf("[%s] %s", e.Code, e.Message)
+}
+
+func NewClient(apiKey string) *Client {
+    return &Client{
+        APIKey:  apiKey,
+        BaseURL: "https://api.fileloom.io/v1",
+        HTTP:    &http.Client{Timeout: 60 * time.Second},
+    }
+}
+
+func (c *Client) GeneratePdf(req *PdfRequest) (*Response, error) {
+    body, _ := json.Marshal(req)
+    httpReq, _ := http.NewRequest("POST", c.BaseURL+"/pdf/generate", bytes.NewReader(body))
+    httpReq.Header.Set("X-API-Key", c.APIKey)
+    httpReq.Header.Set("Content-Type", "application/json")
+
+    resp, err := c.HTTP.Do(httpReq)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    respBody, _ := io.ReadAll(resp.Body)
+    if resp.StatusCode != 200 {
+        var errResp struct {
+            Error struct {
+                Code    string
+                Message string
+            }
+        }
+        json.Unmarshal(respBody, &errResp)
+        return nil, &Error{
+            Code:    errResp.Error.Code,
+            Message: errResp.Error.Message,
+            Status:  resp.StatusCode,
+        }
+    }
+
+    var result Response
+    json.Unmarshal(respBody, &result)
+    return &result, nil
+}
+```
+
+<Note>
+The struct fields use standard Go naming. The JSON marshaling uses field name mapping. 
+For production code, add proper struct tags for JSON field names.
+</Note>
+
+## Usage
+```go
+package main
+
+import (
+    "fmt"
+    "os"
+)
+
+func main() {
+    client := fileloom.NewClient(os.Getenv("FILELOOM_API_KEY"))
+
+    // From HTML
+    result, err := client.GeneratePdf(&fileloom.PdfRequest{
+        HTMLContent: "<h1>Hello</h1>",
+        Filename:    "hello.pdf",
+    })
+    if err != nil {
+        fmt.Println("Error:", err)
+        return
+    }
+    fmt.Println("URL:", result.Data.URL)
+
+    // From template
+    templateData := map[string]interface{}{
+        "invoiceNumber": "INV-001",
+        "customer":      map[string]interface{}{"name": "Acme Corp"},
+        "items": []map[string]interface{}{
+            {"description": "Web Dev", "quantity": 10, "price": 150},
+        },
+        "total": 1500,
+    }
+
+    result, _ = client.GeneratePdf(&fileloom.PdfRequest{
+        TemplateID:   "tpl_invoice_v2",
+        TemplateData: templateData,
+        Filename:     "invoice.pdf",
+    })
+}
+```
+
+## HTTP Handler
+```go
+func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
+    var data map[string]interface{}
+    json.NewDecoder(r.Body).Decode(&data)
+
+    result, err := client.GeneratePdf(&fileloom.PdfRequest{
+        TemplateID:   "tpl_invoice_v2",
+        TemplateData: data,
+    })
+    if err != nil {
+        http.Error(w, err.Error(), 500)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{"pdfUrl": result.Data.URL})
+}
+```

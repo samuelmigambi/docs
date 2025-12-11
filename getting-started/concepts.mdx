@@ -1,212 +1,232 @@
 ---
 title: "Core Concepts"
-sidebarTitle: "Concepts"
 description: "Understand the key concepts behind Fileloom: workspaces, templates, credits, and more."
-icon: "lightbulb"
 ---
-
-# Core Concepts
-
-Before diving deeper into Fileloom, let's understand the key concepts that make up the platform.
 
 ## Workspaces
 
-A **workspace** is your organization's container in Fileloom. Everything belongs to a workspace:
+A **workspace** is your isolated environment in Fileloom. Everything belongs to a workspace: templates, files, API keys, team members, and billing.
 
-- Templates
-- Generated files
-- API keys
-- Team members
-- Billing and usage
+<Info>
+  When you sign up, a default workspace is created automatically. You can create additional workspaces to separate projects or clients.
+</Info>
 
-<Note>
-  When you sign up, a default workspace is created for you. You can invite team members to collaborate.
-</Note>
+**Key points:**
 
-### Team Roles
-
-| Role | Permissions |
-|------|-------------|
-| **Owner** | Full access, billing, delete workspace |
-| **Editor** | Create/edit templates, generate PDFs, manage API keys |
-| **Viewer** | View templates and files, generate PDFs |
+- Each workspace has its own API keys, templates, and usage quota
+- Team members can be invited with different roles (owner, editor, viewer)
+- Billing and subscription are per-workspace
+- Switch between workspaces using the dropdown in the dashboard sidebar
 
 ## Templates
 
-A **template** is a reusable HTML document with placeholders for dynamic data. Templates are the recommended way to generate PDFs because they:
+**Templates** are reusable HTML documents with Handlebars placeholders for dynamic content.
 
-- **Separate design from data** - Update the design without changing code
-- **Ensure consistency** - Same template, same output every time
-- **Enable non-developers** - Designers can update templates without deployments
-- **Improve performance** - Templates are cached for faster generation
-
-### Template Structure
 ```html
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .invoice-header { font-size: 24px; font-weight: bold; }
-  </style>
-</head>
-<body>
-  <div class="invoice-header">Invoice #{{invoiceNumber}}</div>
-  <p>Customer: {{customerName}}</p>
-  <p>Date: {{formatDate invoiceDate "MMMM DD, YYYY"}}</p>
-  <p>Total: {{currency totalAmount "USD"}}</p>
-</body>
-</html>
+<div class="invoice">
+  <h1>Invoice #{{invoiceNumber}}</h1>
+  <p>Customer: {{customer.name}}</p>
+  <p>Total: {{currency total "USD"}}</p>
+</div>
 ```
 
-### Handlebars Syntax
+**Template components:**
 
-Fileloom uses Handlebars for templating. Key syntax:
+| Component | Description                                       |
+| --------- | ------------------------------------------------- |
+| HTML      | The document structure and content                |
+| CSS       | Styling (inline or in a separate tab)             |
+| Test Data | Sample JSON for preview                           |
+| Settings  | Paper size, margins, orientation, headers/footers |
 
-| Syntax | Description | Example |
-|--------|-------------|---------|
-| `{{variable}}` | Output a value | `{{customerName}}` |
-| `{{helper arg}}` | Use a helper | `{{uppercase status}}` |
-| `{{#each items}}` | Loop over array | `{{#each lineItems}}...{{/each}}` |
-| `{{#if condition}}` | Conditional | `{{#if isPaid}}Paid{{/if}}` |
+**Template lifecycle:**
 
-## Credits System
+1. **Draft** — Work in progress, auto-saved
+2. **Published** — Available for API use, version tracked
+3. **Versions** — Each publish creates a new version you can reference or rollback
 
-Fileloom uses a **credits system** for PDF generation:
+## Handlebars Templating
 
-### Monthly Quota
+Fileloom uses [Handlebars](https://handlebarsjs.com/) for dynamic content. Basic syntax:
 
-Each plan includes a monthly PDF quota that resets on your billing date:
+```handlebars
+{{! Variable output }}
+{{variableName}}
 
-| Plan | Monthly PDFs |
-|------|--------------|
-| Free | 100 |
-| Starter | 2,000 |
-| Growth | 10,000 |
-| Scale | 50,000 |
-| Scale Business | 500,000 |
-| Scale Enterprise | 1,000,000 |
+{{! Nested objects }}
+{{customer.address.city}}
 
-### Credit Packs
+{{! Helpers with arguments }}
+{{currency amount "EUR"}}
+{{formatDate date "MMMM D, YYYY"}}
 
-Need more PDFs? Purchase credit packs that never count against your monthly quota:
+{{! Conditionals }}
+{{#if isPaid}}
+  <span class="paid">PAID</span>
+{{else}}
+  <span class="unpaid">UNPAID</span>
+{{/if}}
 
-| Pack | PDFs | Price | Per PDF |
-|------|------|-------|---------|
-| Starter | 500 | $6 | $0.012 |
-| Professional | 2,000 | $20 | $0.010 |
-| Business | 5,000 | $45 | $0.009 |
-| Enterprise | 10,000 | $80 | $0.008 |
-| Mega | 25,000 | $175 | $0.007 |
+{{! Loops }}
+{{#each items}}
+  <tr>
+    <td>{{this.name}}</td>
+    <td>{{currency this.price "USD"}}</td>
+  </tr>
+{{/each}}
+```
 
-<Info>
-  Credit packs expire 90 days after purchase. Unused credits are lost.
-</Info>
-
-### Consumption Order (FIFO)
-
-When you generate a PDF, credits are consumed in this order:
-
-1. **Monthly quota first** - Use your plan's included PDFs
-2. **Credit packs second** - Oldest expiring pack is used first (FIFO)
-3. **Hard block** - If no credits available, the request fails
+Fileloom provides **70+ built-in helpers** for formatting, math, dates, and business logic. See the [Helpers Reference](/helpers/overview).
 
 ## API Keys
 
-**API keys** authenticate your requests to the Fileloom API. Each key has:
+**API keys** authenticate your requests to the Fileloom API.
 
-- **Name** - A friendly identifier (e.g., "Production", "Staging")
-- **Prefix** - First 8 characters shown for identification (e.g., `fl_abc123...`)
-- **Permissions** - What the key can do
+**Format:** `fl_xxxxxxxxxxxx`
 
-### Permissions
+**Best practices:**
 
-| Permission | Description |
-|------------|-------------|
-| `pdf.generate` | Generate PDFs |
-| `pdf.read` | View generated files |
-| `pdf.delete` | Delete files |
-| `template.read` | View templates |
-| `template.write` | Create/edit templates |
+- Create separate keys for different environments (development, staging, production)
+- Rotate keys periodically
+- Never expose keys in client-side code
+- Use environment variables to store keys
 
-<Warning>
-  API keys are shown only once when created. Store them securely in environment variables, never in code.
-</Warning>
+**Authentication methods:**
+
+```bash
+# Header (recommended)
+X-API-Key: fl_your_api_key
+
+# Bearer token
+Authorization: Bearer fl_your_api_key
+```
+
+## Credits & Quota
+
+Fileloom uses a **credit system** for PDF generation:
+
+**Monthly Quota:**
+
+- Each plan includes a monthly PDF allowance
+- Quota resets on your billing date
+- Unused quota does not roll over
+
+**Credit Packs:**
+
+- Purchase additional credits when you need more
+- Credits are consumed after monthly quota is exhausted
+- Credits expire 90 days after purchase
+- Consumed in FIFO order (oldest first)
+
+**Consumption order:**
+
+1. Monthly quota (from your plan)
+2. Purchased credit packs (oldest expiring first)
+3. Hard block when no credits remain
+
+<Tip>
+  Enable **Auto Top-Up** in workspace settings to automatically purchase credits when running low.
+</Tip>
 
 ## Files
 
-Every generated PDF creates a **file record** that includes:
+Every generated PDF is stored as a **file** in your workspace.
 
-- **File ID** - Unique identifier (e.g., `file_1234567890_abc`)
-- **URL** - Permanent public URL
-- **Signed URL** - Temporary URL (24 hours) for secure access
-- **Metadata** - Size, generation time, template used, etc.
+**File properties:**
 
-### Retention
+| Property    | Description                                        |
+| ----------- | -------------------------------------------------- |
+| `fileId`    | Unique identifier (e.g., `file_1234567890_abc123`) |
+| `url`       | Permanent public URL                               |
+| `signedUrl` | Temporary secure URL (24 hours)                    |
+| `filename`  | Original or generated filename                     |
+| `size`      | File size in bytes                                 |
+| `status`    | `generated`, `expired`, or `deleted`               |
 
-Files are automatically deleted after your plan's retention period:
+**Retention:**
 
-| Plan | Retention |
-|------|-----------|
-| Free | 7 days |
-| Starter | 30 days |
-| Growth | 90 days |
-| Scale | 180 days |
-| Scale Business+ | 365 days |
+- Files are retained based on your plan (7 days to 365 days)
+- After retention period, files are automatically deleted
+- You can manually delete files at any time
 
-## Storage Modes
+## Storage Options
 
-Choose where your PDFs are stored:
+By default, Fileloom stores your PDFs in Firebase Storage. You can also configure external storage:
 
-<CardGroup cols={3}>
-  <Card title="Fileloom" icon="cloud">
-    **Default** - We store your PDFs in our secure cloud storage. Simplest option.
-  </Card>
-  <Card title="External" icon="hard-drive">
-    **Your Storage** - PDFs go directly to your S3, Google Drive, or other provider.
-  </Card>
-  <Card title="Both" icon="copy">
-    **Redundant** - Store in both Fileloom and your external storage.
-  </Card>
-</CardGroup>
+**Storage modes:**
+
+| Mode       | Behavior                            |
+| ---------- | ----------------------------------- |
+| `fileloom` | Store in Fileloom only (default)    |
+| `external` | Store in your S3/Supabase only      |
+| `both`     | Store in both Fileloom and external |
+
+See [Integrations](/integrations/overview) to set up AWS S3 or Supabase storage.
 
 ## Webhooks
 
-**Webhooks** notify your application when events occur:
+**Webhooks** notify your server when events occur in Fileloom.
 
-| Event | Description |
-|-------|-------------|
-| `pdf.generated` | PDF was successfully created |
-| `pdf.failed` | PDF generation failed |
-| `quota.warning` | Approaching quota limit (90%) |
-| `quota.exceeded` | Quota exhausted |
-| `credits.purchased` | Credit pack purchased |
-| `credits.expiring` | Credits expiring soon |
+**Available events:**
+
+| Event           | Trigger                  |
+| --------------- | ------------------------ |
+| `pdf.generated` | PDF successfully created |
+| `pdf.failed`    | PDF generation failed    |
+
+Webhook payloads include file details, processing time, and error information (for failures). See [Webhooks](/webhooks/overview) for setup instructions.
 
 ## Rate Limits
 
-API requests are rate-limited per plan:
+API requests are rate-limited based on your plan:
 
-| Plan | Requests/Minute |
-|------|-----------------|
-| Free | 10 |
-| Starter | 120 |
-| Growth | 200 |
-| Scale | 400 |
-| Scale Business | 1,000 |
-| Scale Enterprise | Unlimited |
+| Plan             | Requests per Minute |
+| ---------------- | ------------------- |
+| Free             | 60                  |
+| Starter          | 120                 |
+| Growth           | 200                 |
+| Scale            | 400                 |
+| Scale Business   | 1,000               |
+| Scale Enterprise | Unlimited           |
 
-<Tip>
-  If you hit rate limits, implement exponential backoff in your code.
-</Tip>
+Rate limit headers are included in every response:
+
+```tsx
+X-RateLimit-Limit: 200
+X-RateLimit-Remaining: 198
+X-RateLimit-Reset: 1734012400
+```
+
+## Plan Limits Summary
+
+Each plan has limits on resources beyond PDF generation:
+
+| Resource      | Free   | Starter | Growth    | Scale     |
+| ------------- | ------ | ------- | --------- | --------- |
+| PDFs/month    | 200    | 2,000   | 10,000    | 50,000    |
+| Templates     | 5      | 50      | Unlimited | Unlimited |
+| Team Members  | 2      | 3       | 5         | 10        |
+| API Keys      | 1      | 2       | 5         | 10        |
+| Retention     | 7 days | 30 days | 90 days   | 180 days  |
+| Max HTML Size | 2 MB   | 5 MB    | 10 MB     | 50 MB     |
+| Max PDF Size  | 10 MB  | 25 MB   | 50 MB     | 50 MB     |
+| Timeout       | 15s    | 30s     | 45s       | 120s      |
+
+See [Plans & Pricing](/billing/plans) for full details.
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Create Your First Template" icon="file-code" href="/templates/creating-templates">
-    Build a reusable PDF template
-  </Card>
   <Card title="API Reference" icon="code" href="/api-reference/overview">
-    Explore all API endpoints and options
+    Complete API documentation
+  </Card>
+  <Card title="Template Helpers" icon="wand-magic-sparkles" href="/helpers/overview">
+    70+ built-in formatting helpers
+  </Card>
+  <Card title="Dashboard Guide" icon="browser" href="/dashboard/overview">
+    Navigate the Fileloom dashboard
+  </Card>
+  <Card title="Best Practices" icon="check" href="/templates/best-practices">
+    Tips for production templates
   </Card>
 </CardGroup>

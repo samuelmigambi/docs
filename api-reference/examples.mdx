@@ -1,5 +1,439 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Response Examples"
+description: "Sample API responses for various scenarios including success, errors, and edge cases."
 ---
 
+This page provides complete response examples for different API scenarios.
+
+## Successful Generation
+
+### Raw HTML Generation
+
+**Request:**
+```json
+{
+  "htmlContent": "<h1>Hello World</h1><p>This is a test PDF.</p>"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "requestId": "req_1734012345678_a1b2c3d4e",
+  "data": {
+    "fileId": "file_1734012345678_x9y8z7w6",
+    "url": "https://storage.googleapis.com/fileloom-prod/workspaces/ws_abc123/pdfs/2024/12/document-1734012345678.pdf",
+    "signedUrl": "https://storage.googleapis.com/fileloom-prod/workspaces/ws_abc123/pdfs/2024/12/document-1734012345678.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=...",
+    "filename": "document.pdf",
+    "size": 8234,
+    "expiresAt": "2024-12-16T10:30:00.000Z",
+    "storageProvider": "firebase",
+    "processingTimeMs": 623,
+    "generationMethod": "html",
+    "templateUsed": null
+  },
+  "usage": {
+    "remaining": 9847,
+    "quotaUsed": 153,
+    "quotaLimit": 10000
+  }
+}
+```
+
+### Template Generation
+
+**Request:**
+```json
+{
+  "templateId": "tpl_invoice_v2",
+  "templateData": {
+    "invoiceNumber": "INV-2024-0042",
+    "customerName": "Acme Corp",
+    "total": 1250.00
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "requestId": "req_1734012398765_f5g6h7i8",
+  "data": {
+    "fileId": "file_1734012398765_m3n4o5p6",
+    "url": "https://storage.googleapis.com/fileloom-prod/workspaces/ws_abc123/pdfs/2024/12/Invoice-INV-2024-0042-1734012398765.pdf",
+    "signedUrl": "https://storage.googleapis.com/fileloom-prod/workspaces/ws_abc123/pdfs/2024/12/Invoice-INV-2024-0042-1734012398765.pdf?X-Goog-Algorithm=...",
+    "filename": "Invoice-INV-2024-0042.pdf",
+    "size": 45678,
+    "expiresAt": "2024-12-16T10:33:18.000Z",
+    "storageProvider": "firebase",
+    "processingTimeMs": 1247,
+    "generationMethod": "template",
+    "templateUsed": {
+      "id": "tpl_invoice_v2",
+      "name": "Professional Invoice"
+    }
+  },
+  "usage": {
+    "remaining": 9846,
+    "quotaUsed": 154,
+    "quotaLimit": 10000
+  }
+}
+```
+
+### With External Storage
+
+**Response (storage mode: "both"):**
+```json
+{
+  "success": true,
+  "requestId": "req_1734012456789_j1k2l3m4",
+  "data": {
+    "fileId": "file_1734012456789_q7r8s9t0",
+    "url": "https://storage.googleapis.com/fileloom-prod/workspaces/ws_abc123/pdfs/2024/12/report-1734012456789.pdf",
+    "signedUrl": "https://storage.googleapis.com/fileloom-prod/...",
+    "filename": "report.pdf",
+    "size": 128456,
+    "expiresAt": "2024-12-16T10:40:56.000Z",
+    "storageProvider": "firebase",
+    "processingTimeMs": 2341,
+    "generationMethod": "template",
+    "templateUsed": {
+      "id": "tpl_report_monthly",
+      "name": "Monthly Report"
+    },
+    "externalCopies": [
+      {
+        "provider": "s3",
+        "name": "Production Backup",
+        "url": "https://acme-docs.s3.us-west-2.amazonaws.com/reports/2024/12/report-1734012456789.pdf",
+        "expiresAt": "2024-12-22T10:40:56.000Z"
+      }
+    ]
+  },
+  "usage": {
+    "remaining": 9845,
+    "quotaUsed": 155,
+    "quotaLimit": 10000
+  }
+}
+```
+
+### With Warnings
+
+When external storage partially fails:
+```json
+{
+  "success": true,
+  "requestId": "req_1734012567890_n5o6p7q8",
+  "data": {
+    "fileId": "file_1734012567890_u1v2w3x4",
+    "url": "https://storage.googleapis.com/fileloom-prod/...",
+    "signedUrl": "https://storage.googleapis.com/fileloom-prod/...",
+    "filename": "document.pdf",
+    "size": 23456,
+    "storageProvider": "firebase",
+    "processingTimeMs": 1567,
+    "generationMethod": "html",
+    "templateUsed": null
+  },
+  "warnings": [
+    {
+      "provider": "s3",
+      "name": "Backup Storage",
+      "error": "Access denied: invalid credentials"
+    }
+  ],
+  "usage": {
+    "remaining": 9844,
+    "quotaUsed": 156,
+    "quotaLimit": 10000
+  }
+}
+```
+
+## Error Responses
+
+### Validation Error
+
+**Request (missing required field):**
+```json
+{
+  "templateData": {
+    "name": "Test"
+  }
+}
+```
+
+**Response (400):**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Input validation failed",
+    "details": [
+      "Either htmlContent or templateId is required"
+    ],
+    "requestId": "req_1734012678901_r9s0t1u2",
+    "timestamp": "2024-12-15T10:51:18.901Z"
+  }
+}
+```
+
+### Invalid API Key
+
+**Response (401):**
+```json
+{
+  "error": {
+    "code": "INVALID_API_KEY",
+    "message": "Invalid API key",
+    "requestId": "req_1734012789012_v3w4x5y6",
+    "timestamp": "2024-12-15T10:53:09.012Z"
+  }
+}
+```
+
+### Template Not Found
+
+**Request:**
+```json
+{
+  "templateId": "tpl_nonexistent",
+  "templateData": {}
+}
+```
+
+**Response (404):**
+```json
+{
+  "error": {
+    "code": "TEMPLATE_NOT_FOUND",
+    "message": "Template not found",
+    "requestId": "req_1734012890123_z7a8b9c0",
+    "timestamp": "2024-12-15T10:54:50.123Z"
+  }
+}
+```
+
+### Template Compilation Error
+
+**Request (invalid Handlebars syntax):**
+```json
+{
+  "htmlContent": "<h1>{{#if}}</h1>"
+}
+```
+
+**Response (400):**
+```json
+{
+  "error": {
+    "code": "TEMPLATE_COMPILATION_ERROR",
+    "message": "Template compilation failed: Parse error on line 1: #if requires exactly one argument",
+    "requestId": "req_1734012901234_d1e2f3g4",
+    "timestamp": "2024-12-15T10:55:01.234Z"
+  }
+}
+```
+
+### No Credits Available
+
+**Response (429):**
+```json
+{
+  "error": {
+    "code": "NO_CREDITS_AVAILABLE",
+    "message": "No credits available. Quota: 2000/2000 used. Purchase credits or upgrade plan.",
+    "requestId": "req_1734013012345_h5i6j7k8",
+    "timestamp": "2024-12-15T10:56:52.345Z"
+  }
+}
+```
+
+### Rate Limit Exceeded
+
+**Response (429):**
+```json
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Rate limit exceeded. Please retry after 45 seconds.",
+    "requestId": "req_1734013123456_l9m0n1o2",
+    "timestamp": "2024-12-15T10:58:43.456Z"
+  }
+}
+```
+
+### Request Timeout
+
+**Response (408):**
+```json
+{
+  "error": {
+    "code": "REQUEST_TIMEOUT",
+    "message": "PDF generation timed out after 30 seconds",
+    "requestId": "req_1734013234567_p3q4r5s6",
+    "timestamp": "2024-12-15T11:00:34.567Z"
+  }
+}
+```
+
+### File Too Large
+
+**Response (413):**
+```json
+{
+  "error": {
+    "code": "FILE_TOO_LARGE",
+    "message": "Generated PDF exceeds size limit of 25MB",
+    "requestId": "req_1734013345678_t7u8v9w0",
+    "timestamp": "2024-12-15T11:02:25.678Z"
+  }
+}
+```
+
+### PDF Generation Failed
+
+**Response (502):**
+```json
+{
+  "error": {
+    "code": "PDF_GENERATION_FAILED",
+    "message": "PDF generation failed: Unable to load external resource",
+    "requestId": "req_1734013456789_x1y2z3a4",
+    "timestamp": "2024-12-15T11:04:16.789Z"
+  }
+}
+```
+
+### Internal Error
+
+**Response (500):**
+```json
+{
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "An unexpected error occurred. Please try again.",
+    "requestId": "req_1734013567890_b5c6d7e8",
+    "timestamp": "2024-12-15T11:06:07.890Z"
+  }
+}
+```
+
+## Handling Responses
+
+### JavaScript Example
+```javascript
+async function generatePdf(htmlContent, templateData) {
+  try {
+    const response = await fetch('https://api.fileloom.io/v1/pdf/generate', {
+      method: 'POST',
+      headers: {
+        'X-API-Key': process.env.FILELOOM_API_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ htmlContent, templateData })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      // Handle error response
+      console.error(`Error ${result.error.code}: ${result.error.message}`);
+      throw new Error(result.error.message);
+    }
+
+    // Handle success
+    console.log(`PDF generated: ${result.data.url}`);
+    console.log(`Credits remaining: ${result.usage.remaining}`);
+    
+    return result.data;
+  } catch (error) {
+    console.error('Failed to generate PDF:', error);
+    throw error;
+  }
+}
+```
+
+### Python Example
+```python
+import requests
+import os
+
+def generate_pdf(html_content, template_data=None):
+    response = requests.post(
+        'https://api.fileloom.io/v1/pdf/generate',
+        headers={
+            'X-API-Key': os.environ['FILELOOM_API_KEY'],
+            'Content-Type': 'application/json'
+        },
+        json={
+            'htmlContent': html_content,
+            'templateData': template_data or {}
+        }
+    )
+    
+    result = response.json()
+    
+    if not response.ok:
+        error = result.get('error', {})
+        raise Exception(f"{error.get('code')}: {error.get('message')}")
+    
+    print(f"PDF generated: {result['data']['url']}")
+    print(f"Credits remaining: {result['usage']['remaining']}")
+    
+    return result['data']
+```
+
+## Webhook Payloads
+
+When webhooks are configured, you'll receive these payloads:
+
+### pdf.generated
+```json
+{
+  "event": "pdf.generated",
+  "timestamp": "2024-12-15T11:10:00.000Z",
+  "data": {
+    "fileId": "file_1734013800000_abc123",
+    "requestId": "req_1734013800000_xyz789",
+    "url": "https://storage.googleapis.com/fileloom-prod/...",
+    "signedUrl": "https://storage.googleapis.com/fileloom-prod/...",
+    "filename": "invoice.pdf",
+    "sizeBytes": 45678,
+    "processingTimeMs": 1234,
+    "generationMethod": "template",
+    "templateId": "tpl_invoice_v2",
+    "templateName": "Professional Invoice",
+    "storageProvider": "firebase",
+    "storageMode": "fileloom",
+    "externalCopies": []
+  },
+  "workspace": {
+    "id": "ws_abc123xyz",
+    "name": "Acme Corp"
+  }
+}
+```
+
+### pdf.failed
+```json
+{
+  "event": "pdf.failed",
+  "timestamp": "2024-12-15T11:12:00.000Z",
+  "data": {
+    "requestId": "req_1734013920000_def456",
+    "error": "Template compilation failed: Unexpected token",
+    "errorCode": "TEMPLATE_COMPILATION_ERROR",
+    "templateId": "tpl_broken_template",
+    "templateName": "Broken Template"
+  },
+  "workspace": {
+    "id": "ws_abc123xyz",
+    "name": "Acme Corp"
+  }
+}
+```

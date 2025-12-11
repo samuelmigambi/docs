@@ -1,5 +1,209 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Template Editor Overview"
+description: "Design professional PDF templates with Fileloom's visual editor featuring live preview, HTML/CSS tabs, and test data."
 ---
 
+The Fileloom Template Editor is a powerful visual environment for creating PDF templates. Access it by clicking any template or creating a new one from the Templates page.
+
+## Editor Layout
+
+The template editor consists of three main areas:
+
+| Area | Description |
+|------|-------------|
+| **Settings Panel** | Template name, output settings, paper configuration (left side) |
+| **Code Tabs** | HTML, CSS, and Test Data editors (center) |
+| **Live Preview** | Real-time PDF preview (right side) |
+
+## Settings Panel
+
+The left panel contains template configuration:
+
+- **Template Name** — Identifying name for the template
+- **Output Name** — Dynamic filename pattern (supports Handlebars)
+- **Print Background** — Include background colors/images
+- **Orientation** — Portrait or Landscape
+- **Paper Size** — A4, Letter, Legal, and more
+- **Margins** — Top, right, bottom, left (in millimeters)
+- **Header/Footer** — Enable and configure page headers/footers
+
+See [Settings](/template-editor/settings) for detailed configuration options.
+
+## Code Tabs
+
+The editor provides three tabs for template content:
+
+### HTML Tab
+
+Write your template markup with Handlebars syntax:
+```html
+<div class="invoice">
+  <header>
+    <h1>Invoice #{{invoiceNumber}}</h1>
+    <p>Date: {{formatDate date "MMMM D, YYYY"}}</p>
+  </header>
+  
+  <section class="customer">
+    <h2>Bill To:</h2>
+    <p>{{customer.name}}</p>
+    <p>{{customer.address}}</p>
+  </section>
+  
+  <table class="items">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each items}}
+      <tr>
+        <td>{{this.name}}</td>
+        <td>{{this.quantity}}</td>
+        <td>{{currency this.price "USD"}}</td>
+        <td>{{currency (multiply this.price this.quantity) "USD"}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  
+  <footer>
+    <p class="total">Total: {{currency total "USD"}}</p>
+  </footer>
+</div>
+```
+
+### CSS Tab
+
+Style your template with CSS:
+```css
+.invoice {
+  font-family: 'Inter', sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+header {
+  border-bottom: 2px solid #000;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+h1 {
+  font-size: 28px;
+  margin: 0;
+}
+
+.items {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 30px 0;
+}
+
+.items th,
+.items td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.items th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+.total {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: right;
+}
+```
+
+<Tip>
+  CSS is automatically injected into your HTML. You don't need to add `<style>` tags — just write pure CSS.
+</Tip>
+
+### Test Data Tab
+
+Enter sample JSON to test your template:
+```json
+{
+  "invoiceNumber": "INV-2024-001",
+  "date": "2024-12-15",
+  "customer": {
+    "name": "Acme Corporation",
+    "address": "123 Business Ave, Suite 100, San Francisco, CA 94102"
+  },
+  "items": [
+    {"name": "Web Development", "quantity": 40, "price": 150},
+    {"name": "UI Design", "quantity": 20, "price": 125},
+    {"name": "Consulting", "quantity": 10, "price": 200}
+  ],
+  "total": 10500
+}
+```
+
+## Live Preview
+
+The right panel shows a real-time preview of your PDF:
+
+- **Automatic Updates** — Preview refreshes as you type
+- **Actual Rendering** — Uses the same Handlebars engine as the API
+- **Page Simulation** — Shows page breaks, headers, and footers
+- **Zoom Controls** — Zoom in/out to inspect details
+
+<Info>
+  The preview uses the same rendering engine as the API, so what you see is exactly what you'll get.
+</Info>
+
+## Auto-Save & Publishing
+
+### Auto-Save (Drafts)
+
+Your work is automatically saved as a draft:
+
+- Changes save every few seconds
+- "Draft" indicator shows unsaved changes
+- Drafts are not available via API
+
+### Publishing
+
+Click **Publish** to make your template available via API:
+
+- Creates a new version
+- Previous versions are preserved
+- Published templates can be used immediately
+
+See [Version History](/template-editor/version-history) for version management.
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl/Cmd + S` | Save draft |
+| `Ctrl/Cmd + Enter` | Publish template |
+| `Ctrl/Cmd + P` | Preview PDF |
+| `Ctrl/Cmd + /` | Toggle comment |
+| `Ctrl/Cmd + F` | Find in editor |
+| `Ctrl/Cmd + H` | Find and replace |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Settings" icon="gear" href="/template-editor/settings">
+    Configure paper size, margins, and output options
+  </Card>
+  <Card title="Headers & Footers" icon="heading" href="/template-editor/headers-footers">
+    Add page numbers and repeated content
+  </Card>
+  <Card title="Version History" icon="clock-rotate-left" href="/template-editor/version-history">
+    Manage template versions
+  </Card>
+  <Card title="Handlebars Basics" icon="code" href="/templates/handlebars-basics">
+    Learn template syntax
+  </Card>
+</CardGroup>

@@ -1,5 +1,156 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Version History"
+description: "Track changes, restore previous versions, and manage template publications."
 ---
 
+Fileloom maintains a complete version history of your templates, allowing you to track changes and restore previous versions.
+
+## How Versioning Works
+
+### Drafts
+
+- Changes are auto-saved as a draft
+- Drafts are **not** available via API
+- Only one draft exists at a time (your current work)
+- Draft shows as "Current Draft" in version history
+
+### Published Versions
+
+- Created when you click **Publish**
+- Each publish creates a new version number
+- Published versions are available via API
+- All versions are preserved indefinitely
+
+## Version History Panel
+
+Access version history from the template editor:
+
+1. Click the **Version History** button (clock icon)
+2. View all versions with timestamps
+3. Click any version to preview it
+
+### Version List
+
+| Column | Description |
+|--------|-------------|
+| **Version** | Version number (v1, v2, v3...) |
+| **Published** | When the version was published |
+| **Published By** | Team member who published |
+| **Status** | Current (active) or Previous |
+
+## Viewing Previous Versions
+
+Click on any version to see:
+
+- HTML content at that version
+- CSS content at that version
+- Settings at that version
+- Preview of the rendered PDF
+
+<Info>
+  Viewing a previous version doesn't affect your current draft or the active published version.
+</Info>
+
+## Restoring a Version
+
+To restore a previous version:
+
+<Steps>
+  <Step title="Open Version History">
+    Click the Version History button in the editor.
+  </Step>
+  <Step title="Select Version">
+    Click on the version you want to restore.
+  </Step>
+  <Step title="Click Restore">
+    Click "Restore This Version" to load it into the editor.
+  </Step>
+  <Step title="Review Changes">
+    The restored content becomes your current draft. Review and make any adjustments.
+  </Step>
+  <Step title="Publish">
+    Click Publish to make the restored version active. This creates a new version number.
+  </Step>
+</Steps>
+
+<Warning>
+  Restoring a version replaces your current draft. If you have unsaved work, save or publish it first.
+</Warning>
+
+## Version Comparison
+
+Compare two versions to see what changed:
+
+1. Open Version History
+2. Select the first version
+3. Click "Compare with..." and select the second version
+4. View highlighted differences in HTML, CSS, and settings
+
+## API and Versions
+
+### Default Behavior
+
+API requests use the **latest published version** of a template:
+```json
+{
+  "templateId": "tpl_abc123",
+  "templateData": { ... }
+}
+```
+
+### Current Draft
+
+Drafts are never used by the API. Always publish your template to make changes available.
+
+## Best Practices
+
+### Meaningful Publishes
+
+Don't publish after every small change. Instead:
+
+- Make a series of related changes
+- Test thoroughly with different data
+- Publish when the template is ready for use
+
+### Document Changes
+
+While Fileloom doesn't have built-in change notes, consider:
+
+- Adding a comment in your HTML: `<!-- v3: Added tax calculation -->`
+- Maintaining a changelog in your project documentation
+
+### Test Before Publishing
+
+Always test your template with various data scenarios:
+
+- Empty arrays
+- Long text that might wrap
+- Missing optional fields
+- Edge cases (zero amounts, special characters)
+
+## Version Limits
+
+There are no limits on the number of versions. All published versions are retained for the lifetime of the template.
+
+## Deleting Templates
+
+When you delete a template:
+
+- All versions are permanently deleted
+- The template ID becomes invalid
+- API requests using that template will fail
+
+<Warning>
+  Template deletion cannot be undone. Consider exporting important templates before deletion.
+</Warning>
+
+## Exporting Templates
+
+To back up a template:
+
+1. Open the template in the editor
+2. Copy the HTML content
+3. Copy the CSS content
+4. Save both locally or in version control
+
+For programmatic backup, you can fetch template content via the dashboard and store in your own version control system.

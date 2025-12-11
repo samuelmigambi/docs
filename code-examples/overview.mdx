@@ -1,5 +1,108 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Code Examples Overview"
+description: "Learn how to integrate Fileloom PDF generation into your application with examples in 11 programming languages."
 ---
 
+Fileloom's REST API works with any programming language that can make HTTP requests. This section provides complete, copy-paste examples for popular languages.
+
+## Available Examples
+
+<CardGroup cols={3}>
+  <Card title="cURL" icon="terminal" href="/code-examples/curl">
+    Command line
+  </Card>
+  <Card title="JavaScript" icon="js" href="/code-examples/javascript">
+    Node.js
+  </Card>
+  <Card title="TypeScript" icon="code" href="/code-examples/typescript">
+    Type-safe
+  </Card>
+  <Card title="Python" icon="python" href="/code-examples/python">
+    requests
+  </Card>
+  <Card title="Flutter" icon="mobile" href="/code-examples/flutter">
+    Dart
+  </Card>
+  <Card title="PHP" icon="php" href="/code-examples/php">
+    cURL/Guzzle
+  </Card>
+  <Card title=".NET" icon="microsoft" href="/code-examples/dotnet">
+    C#
+  </Card>
+  <Card title="Go" icon="golang" href="/code-examples/go">
+    net/http
+  </Card>
+  <Card title="Java" icon="java" href="/code-examples/java">
+    HttpClient
+  </Card>
+  <Card title="Ruby" icon="gem" href="/code-examples/ruby">
+    Net::HTTP
+  </Card>
+  <Card title="Rust" icon="rust" href="/code-examples/rust">
+    reqwest
+  </Card>
+</CardGroup>
+
+## API Basics
+
+| Setting | Value |
+|---------|-------|
+| **Base URL** | `https://api.fileloom.io/v1` |
+| **Endpoint** | `POST /pdf/generate` |
+| **Content-Type** | `application/json` |
+| **Authentication** | `X-API-Key: fl_your_api_key` |
+
+## Request Structure
+```json
+{
+  "htmlContent": "<html>...</html>",
+  "templateData": { },
+  "filename": "document.pdf",
+  "options": {
+    "format": "A4",
+    "margin": { "top": 10, "right": 10, "bottom": 10, "left": 10 }
+  }
+}
+```
+
+Or with a template:
+```json
+{
+  "templateId": "tpl_your_template_id",
+  "templateData": { },
+  "filename": "document.pdf"
+}
+```
+
+## Response Structure
+```json
+{
+  "success": true,
+  "requestId": "req_abc123",
+  "data": {
+    "fileId": "file_xyz789",
+    "url": "https://storage.googleapis.com/.../document.pdf",
+    "signedUrl": "https://storage.googleapis.com/...?token=...",
+    "filename": "document.pdf",
+    "size": 45678,
+    "processingTimeMs": 1234
+  },
+  "usage": {
+    "remaining": 9500,
+    "quotaUsed": 500,
+    "quotaLimit": 10000
+  }
+}
+```
+
+## Error Handling
+
+| Error Code | Description |
+|------------|-------------|
+| 400 | Invalid request |
+| 401 | Invalid API key |
+| 404 | Template not found |
+| 408 | Request timeout |
+| 413 | File too large |
+| 429 | Rate limit or no credits |
+| 500 | Server error |

@@ -1,5 +1,185 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Text Transformation Helpers"
+description: "Transform text case and format with uppercase, lowercase, capitalize, titleCase, slugify, and more."
 ---
 
+Text transformation helpers change the case and format of text strings.
+
+## uppercase
+
+Converts text to UPPERCASE.
+```handlebars
+{{uppercase "hello world"}}
+```
+
+**Output:** `HELLO WORLD`
+
+**Use cases:**
+- Headers and titles
+- Status badges
+- Emphasis text
+```handlebars
+<span class="badge">{{uppercase status}}</span>
+<!-- Output: <span class="badge">ACTIVE</span> -->
+```
+
+## lowercase
+
+Converts text to lowercase.
+```handlebars
+{{lowercase "Hello World"}}
+```
+
+**Output:** `hello world`
+
+**Use cases:**
+- Email addresses
+- URLs
+- Normalizing user input
+```handlebars
+<a href="mailto:{{lowercase email}}">{{email}}</a>
+```
+
+## capitalize
+
+Capitalizes the first letter, lowercases the rest.
+```handlebars
+{{capitalize "hello WORLD"}}
+```
+
+**Output:** `Hello world`
+
+**Use cases:**
+- Sentence beginnings
+- Single-word labels
+```handlebars
+<p>Status: {{capitalize status}}</p>
+<!-- Input: "PENDING" → Output: "Pending" -->
+```
+
+## titleCase
+
+Capitalizes the first letter of each word.
+```handlebars
+{{titleCase "hello world example"}}
+```
+
+**Output:** `Hello World Example`
+
+**Use cases:**
+- Names
+- Titles
+- Headings
+```handlebars
+<h2>{{titleCase documentTitle}}</h2>
+<!-- Input: "annual report 2024" → Output: "Annual Report 2024" -->
+```
+
+## slugify
+
+Converts text to URL-friendly slug format.
+```handlebars
+{{slugify "Hello World! This is a Test"}}
+```
+
+**Output:** `hello-world-this-is-a-test`
+
+**Use cases:**
+- URL generation
+- File names
+- Identifiers
+```handlebars
+<a href="/products/{{slugify productName}}">{{productName}}</a>
+<!-- Input: "Premium Widget Pro" → href="/products/premium-widget-pro" -->
+```
+
+## camelCase
+
+Converts text to camelCase format.
+```handlebars
+{{camelCase "hello world example"}}
+```
+
+**Output:** `helloWorldExample`
+
+**Use cases:**
+- Variable names
+- JSON keys
+- Programming identifiers
+```handlebars
+data-field="{{camelCase fieldName}}"
+<!-- Input: "First Name" → data-field="firstName" -->
+```
+
+## snakeCase
+
+Converts text to snake_case format.
+```handlebars
+{{snakeCase "Hello World Example"}}
+```
+
+**Output:** `hello_world_example`
+
+**Use cases:**
+- Database column names
+- File names
+- API parameters
+```handlebars
+{{snakeCase "Product Name"}}
+<!-- Output: product_name -->
+```
+
+## initials
+
+Extracts the first letter of each word.
+```handlebars
+{{initials "John David Smith"}}
+```
+
+**Output:** `JDS`
+
+**Use cases:**
+- Avatars
+- Abbreviations
+- Monograms
+```handlebars
+<div class="avatar">{{initials customerName}}</div>
+<!-- Input: "Alice Johnson" → Output: "AJ" -->
+```
+
+## Combining Text Helpers
+```handlebars
+{{! Uppercase initials }}
+{{uppercase (initials name)}}
+
+{{! Slug from title case }}
+{{slugify (titleCase rawTitle)}}
+
+{{! Capitalize then truncate }}
+{{truncate (capitalize description) 50}}
+```
+
+## Examples
+
+### Status Badge
+```handlebars
+<span class="badge badge-{{lowercase status}}">
+  {{uppercase status}}
+</span>
+<!-- Input: status = "Active" -->
+<!-- Output: <span class="badge badge-active">ACTIVE</span> -->
+```
+
+### User Avatar
+```handlebars
+<div class="avatar" title="{{titleCase name}}">
+  {{initials name}}
+</div>
+```
+
+### URL-Safe Links
+```handlebars
+<a href="/category/{{slugify category}}/{{slugify productName}}">
+  {{titleCase productName}}
+</a>
+```

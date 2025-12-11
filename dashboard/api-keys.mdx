@@ -1,5 +1,131 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "API Keys"
+description: "Create and manage API keys for authenticating with the Fileloom API."
 ---
 
+**API keys** authenticate your applications with the Fileloom API. Each key is tied to a specific workspace.
+
+## API Key Format
+
+Fileloom API keys follow this format:
+```
+fl_xxxxxxxxxxxxxxxxxxxx
+```
+
+The `fl_` prefix identifies it as a Fileloom key.
+
+## Creating an API Key
+
+<Steps>
+  <Step title="Navigate to API Keys">
+    Go to **API Keys** in the sidebar, or **Workspace Settings** → **API Keys**.
+  </Step>
+  <Step title="Click Create Key">
+    Click the "Create API Key" button.
+  </Step>
+  <Step title="Name Your Key">
+    Enter a descriptive name (e.g., "Production Server", "Development").
+  </Step>
+  <Step title="Copy the Key">
+    Copy the key immediately — it won't be shown again.
+  </Step>
+</Steps>
+
+<Warning>
+  API keys are shown only once at creation. Store them securely. If you lose a key, you'll need to create a new one.
+</Warning>
+
+## Using API Keys
+
+Include your API key in requests using one of these methods:
+
+**Header (Recommended):**
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"htmlContent": "<h1>Hello</h1>"}'
+```
+
+**Bearer Token:**
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "Authorization: Bearer fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"htmlContent": "<h1>Hello</h1>"}'
+```
+
+## API Key Details
+
+Each API key displays:
+
+| Field | Description |
+|-------|-------------|
+| **Name** | Your chosen identifier |
+| **Key Prefix** | First 8 characters (for identification) |
+| **Created** | Creation date |
+| **Last Used** | Most recent API request |
+| **Total Requests** | Lifetime request count |
+| **Status** | Active or Inactive |
+
+## Managing Keys
+
+### Rename a Key
+
+1. Click on the API key
+2. Edit the name field
+3. Save changes
+
+### Deactivate a Key
+
+Deactivating a key immediately blocks all requests using it:
+
+1. Click on the API key
+2. Toggle the "Active" switch off
+3. Confirm deactivation
+
+Reactivate anytime by toggling the switch back on.
+
+### Delete a Key
+
+<Warning>
+  Deleting an API key is permanent. Any applications using the key will stop working immediately.
+</Warning>
+
+1. Click on the API key
+2. Click "Delete"
+3. Confirm deletion
+
+## API Key Limits
+
+| Plan | Max API Keys |
+|------|--------------|
+| Free | 1 |
+| Starter | 2 |
+| Growth | 5 |
+| Scale | 10 |
+| Scale Business | 25 |
+| Scale Enterprise | Unlimited |
+
+## Security Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Environment Variables" icon="lock">
+    Store keys in environment variables, never in code
+  </Card>
+  <Card title="Separate Keys" icon="key">
+    Use different keys for dev, staging, and production
+  </Card>
+  <Card title="Regular Rotation" icon="rotate">
+    Rotate keys periodically for security
+  </Card>
+  <Card title="Monitor Usage" icon="chart-line">
+    Check "Last Used" to detect unauthorized access
+  </Card>
+</CardGroup>
+
+**Never expose API keys in:**
+- Client-side JavaScript
+- Public repositories
+- Mobile app bundles
+- Browser network requests

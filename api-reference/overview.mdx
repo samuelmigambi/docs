@@ -1,5 +1,190 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "API Overview"
+description: "Fileloom API basics: base URL, authentication, rate limits, and request format."
 ---
 
+The Fileloom API lets you generate PDFs programmatically from HTML templates or raw HTML content.
+
+## Base URL
+
+All API requests use the following base URL:
+
+```
+https://api.fileloom.io/v1
+```
+
+## Authentication
+
+Authenticate requests using your API key in one of two ways:
+
+**X-API-Key Header (Recommended):**
+
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"htmlContent": "<h1>Hello</h1>"}'
+```
+
+**Authorization Bearer Token:**
+
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "Authorization: Bearer fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"htmlContent": "<h1>Hello</h1>"}'
+```
+
+<Warning>
+  Keep your API key secure. Never expose it in client-side code, public repositories, or browser requests.
+</Warning>
+
+## Available Endpoints
+
+| Method | Endpoint        | Description                          |
+| ------ | --------------- | ------------------------------------ |
+| `POST` | `/pdf/generate` | Generate a PDF from HTML or template |
+
+## Request Format
+
+All requests must:
+
+- Use `POST` method
+- Include `Content-Type: application/json` header
+- Send a JSON body
+
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<h1>Hello World</h1>"
+  }'
+```
+
+## Response Format
+
+All responses are JSON with this structure:
+
+**Success Response:**
+
+```json
+{
+  "success": true,
+  "requestId": "req_1734012345_abc123",
+  "data": {
+    "fileId": "file_1734012345_xyz789",
+    "url": "https://storage.googleapis.com/...",
+    "signedUrl": "https://storage.googleapis.com/...",
+    "filename": "document.pdf",
+    "size": 12847,
+    "processingTimeMs": 847,
+    "generationMethod": "html"
+  },
+  "usage": {
+    "remaining": 1999,
+    "quotaUsed": 1,
+    "quotaLimit": 2000
+  }
+}
+```
+
+**Error Response:**
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Either htmlContent or templateId is required",
+    "requestId": "req_1734012345_abc123",
+    "timestamp": "2024-12-15T10:30:00.000Z"
+  }
+}
+```
+
+## Rate Limits
+
+Requests are rate-limited based on your plan:
+
+| Plan             | Requests per Minute |
+| ---------------- | ------------------- |
+| Free             | 60                  |
+| Starter          | 120                 |
+| Growth           | 200                 |
+| Scale            | 400                 |
+| Scale Business   | 1,000               |
+| Scale Enterprise | Unlimited           |
+
+### Rate Limit Headers
+
+Every response includes rate limit information:
+
+```tsx
+X-RateLimit-Limit: 200
+X-RateLimit-Remaining: 198
+X-RateLimit-Reset: 1734012400
+```
+
+| Header                  | Description                          |
+| ----------------------- | ------------------------------------ |
+| `X-RateLimit-Limit`     | Maximum requests per minute          |
+| `X-RateLimit-Remaining` | Requests remaining in current window |
+| `X-RateLimit-Reset`     | Unix timestamp when the limit resets |
+
+### Rate Limit Exceeded
+
+When you exceed the rate limit, you'll receive a `429 Too Many Requests` response:
+
+```json
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Rate limit exceeded. Please retry after 45 seconds.",
+    "requestId": "req_1734012345_abc123",
+    "timestamp": "2024-12-15T10:30:00.000Z"
+  }
+}
+```
+
+## Timeouts
+
+PDF generation timeouts vary by plan:
+
+| Plan             | Timeout     |
+| ---------------- | ----------- |
+| Free             | 15 seconds  |
+| Starter          | 30 seconds  |
+| Growth           | 45 seconds  |
+| Scale            | 120 seconds |
+| Scale Business   | 240 seconds |
+| Scale Enterprise | 300 seconds |
+
+Complex documents with large images or external resources may require higher-tier plans.
+
+## Content Limits
+
+| Limit         | Free  | Starter | Growth | Scale | Scale Business | Scale Enterprise |
+| ------------- | ----- | ------- | ------ | ----- | -------------- | ---------------- |
+| Max HTML Size | 2 MB  | 5 MB    | 10 MB  | 50 MB | 100 MB         | 250 MB           |
+| Max PDF Size  | 10 MB | 25 MB   | 50 MB  | 50 MB | 100 MB         | 250 MB           |
+
+## CORS
+
+The API supports CORS for browser-based requests. However, we strongly recommend making API calls from your server to protect your API key.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Generate PDF" icon="file-pdf" href="/api-reference/generate-pdf">
+    Complete endpoint documentation
+  </Card>
+  <Card title="Response Examples" icon="code" href="/api-reference/examples">
+    Sample responses for all scenarios
+  </Card>
+  <Card title="Code Examples" icon="file-code" href="/code-examples/overview">
+    Examples in 12 languages
+  </Card>
+  <Card title="Error Handling" icon="triangle-exclamation" href="/api-reference/generate-pdf#error-codes">
+    Handle errors gracefully
+  </Card>
+</CardGroup>

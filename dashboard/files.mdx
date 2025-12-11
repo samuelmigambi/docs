@@ -1,5 +1,110 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Files"
+description: "View, download, and manage generated PDF files in your Fileloom workspace."
 ---
 
+The **Files** section displays all PDFs generated in your workspace.
+
+## Files List
+
+Each file shows:
+
+| Column | Description |
+|--------|-------------|
+| **Filename** | Name of the generated PDF |
+| **Template** | Template used (or "Raw HTML") |
+| **Size** | File size |
+| **Created** | Generation timestamp |
+| **Status** | Generated, Expired, or Deleted |
+
+## Viewing Files
+
+Click on any file to see detailed information:
+
+**File Details:**
+- File ID
+- Public URL
+- Signed URL (24-hour validity)
+- Generation method (template or raw HTML)
+- Processing time
+- Paper size and orientation
+- Margins used
+
+**Generation Info:**
+- Template ID and name (if applicable)
+- API key used
+- Request ID
+- HTML input size
+- Template data (JSON)
+
+**Storage Info:**
+- Storage provider
+- Storage path
+- Retention period
+- Expiration date
+
+## Downloading Files
+
+To download a PDF:
+
+1. Click on the file in the list
+2. Click the **Download** button, or
+3. Copy the **Public URL** and open in a new tab
+
+<Info>
+  PDFs open in your browser's built-in PDF reader. Use the browser's download function to save locally.
+</Info>
+
+## File URLs
+
+Each file has two URLs:
+
+| URL Type | Validity | Use Case |
+|----------|----------|----------|
+| **Public URL** | Until retention expires | Embedding, sharing, long-term access |
+| **Signed URL** | 24 hours | Secure, temporary access |
+
+## File Retention
+
+Files are automatically deleted after the retention period:
+
+| Plan | Retention |
+|------|-----------|
+| Free | 7 days |
+| Starter | 30 days |
+| Growth | 90 days |
+| Scale | 180 days |
+| Scale Business | 365 days |
+| Scale Enterprise | 365 days |
+
+<Warning>
+  Deleted files cannot be recovered. Download important files before they expire.
+</Warning>
+
+## Deleting Files
+
+To manually delete a file:
+
+1. Click on the file to open details
+2. Click the **Delete** button
+3. Confirm deletion
+
+Deleted files are permanently removed from storage.
+
+## Filtering Files
+
+Filter the files list by:
+
+- **Date range** — Show files from specific time period
+- **Template** — Filter by template used
+- **Status** — Show generated, expired, or all files
+
+## External Storage
+
+If you've configured external storage (AWS S3 or Supabase), files show additional information:
+
+- External storage provider
+- External URL
+- Sync status
+
+See [Integrations](/integrations/overview) for setup instructions.

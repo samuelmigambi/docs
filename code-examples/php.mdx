@@ -1,5 +1,141 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "PHP Examples"
+description: "Generate PDFs in PHP using cURL or Guzzle."
 ---
 
+## Using cURL
+```php
+<?php
+function generatePdf(string $html, ?string $filename = null): array {
+    $apiKey = getenv('FILELOOM_API_KEY');
+    $payload = ['htmlContent' => $html];
+    if ($filename) $payload['filename'] = $filename;
+
+    $ch = curl_init('https://api.fileloom.io/v1/pdf/generate');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_HTTPHEADER => [
+            'X-API-Key: ' . $apiKey,
+            'Content-Type: application/json',
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 60,
+    ]);
+
+    $response = curl_exec($ch);
+    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+    if ($statusCode !== 200) {
+        throw new Exception($data['error']['message'] ?? 'Unknown error');
+    }
+    return $data;
+}
+
+$result = generatePdf('<h1>Hello</h1>', 'hello.pdf');
+echo "URL: " . $result['data']['url'];
+```
+
+## With Template
+```php
+<?php
+function generateFromTemplate(string $templateId, array $data, ?string $filename = null): array {
+    $payload = ['templateId' => $templateId, 'templateData' => $data];
+    if ($filename) $payload['filename'] = $filename;
+
+    $ch = curl_init('https://api.fileloom.io/v1/pdf/generate');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_HTTPHEADER => [
+            'X-API-Key: ' . getenv('FILELOOM_API_KEY'),
+            'Content-Type: application/json',
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+    ]);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($response, true);
+}
+
+$result = generateFromTemplate('tpl_invoice_v2', [
+    'invoiceNumber' => 'INV-001',
+    'customer' => ['name' => 'Acme Corp'],
+    'items' => [['description' => 'Web Dev', 'quantity' => 10, 'price' => 150]],
+    'total' => 1500,
+], 'invoice.pdf');
+```
+
+## Using Guzzle
+```php
+<?php
+use GuzzleHttp\Client;
+
+class FileloomClient {
+    private Client $client;
+
+    public function __construct(string $apiKey) {
+        $this->client = new Client([
+            'base_uri' => 'https://api.fileloom.io/v1/',
+            'headers' => ['X-API-Key' => $apiKey],
+            'timeout' => 60,
+        ]);
+    }
+
+    public function generatePdf(?string $html = null, ?string $templateId = null, 
+                                ?array $templateData = null, ?string $filename = null): array {
+        $payload = [];
+        if ($templateId) $payload['templateId'] = $templateId;
+        elseif ($html) $payload['htmlContent'] = $html;
+        if ($templateData) $payload['templateData'] = $templateData;
+        if ($filename) $payload['filename'] = $filename;
+
+        $response = $this->client->post('pdf/generate', ['json' => $payload]);
+        return json_decode($response->getBody(), true);
+    }
+}
+
+$client = new FileloomClient(getenv('FILELOOM_API_KEY'));
+$result = $client->generatePdf(
+    templateId: 'tpl_invoice_v2',
+    templateData: ['invoiceNumber' => 'INV-001'],
+    filename: 'invoice.pdf'
+);
+```
+
+## Laravel Integration
+```php
+<?php
+// app/Services/FileloomService.php
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+
+class FileloomService {
+    public function generatePdf(array $params): array {
+        $response = Http::withHeaders([
+            'X-API-Key' => config('services.fileloom.api_key'),
+        ])
+        ->timeout(60)
+        ->post('https://api.fileloom.io/v1/pdf/generate', $params);
+
+        if (!$response->successful()) {
+            throw new \Exception($response->json('error.message', 'Failed'));
+        }
+        return $response->json();
+    }
+}
+
+// Controller
+public function downloadPdf(Invoice $invoice, FileloomService $fileloom) {
+    $result = $fileloom->generatePdf([
+        'templateId' => 'tpl_invoice_v2',
+        'templateData' => $invoice->toArray(),
+        'filename' => "invoice-{$invoice->number}.pdf",
+    ]);
+    return response()->json(['pdfUrl' => $result['data']['url']]);
+}
+```

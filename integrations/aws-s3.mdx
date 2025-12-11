@@ -1,5 +1,262 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "AWS S3 Integration"
+description: "Store generated PDFs in your Amazon S3 bucket with full control over regions, paths, and access."
 ---
 
+Connect Fileloom to Amazon S3 to store generated PDFs in your own AWS infrastructure.
+
+<Info>
+  AWS S3 integration requires a **Starter plan or higher**.
+</Info>
+
+## Prerequisites
+
+Before configuring S3 integration, you need:
+
+1. An AWS account
+2. An S3 bucket created
+3. IAM credentials with appropriate permissions
+
+## Creating an S3 Bucket
+
+If you don't have a bucket yet:
+
+<Steps>
+  <Step title="Open S3 Console">
+    Go to the [AWS S3 Console](https://s3.console.aws.amazon.com/).
+  </Step>
+  <Step title="Create Bucket">
+    Click **Create bucket**.
+  </Step>
+  <Step title="Configure Bucket">
+    - Enter a unique bucket name
+    - Select your preferred region
+    - Keep "Block all public access" enabled (recommended)
+  </Step>
+  <Step title="Create">
+    Click **Create bucket**.
+  </Step>
+</Steps>
+
+## Creating IAM Credentials
+
+Fileloom needs IAM credentials with permission to upload files:
+
+<Steps>
+  <Step title="Open IAM Console">
+    Go to the [AWS IAM Console](https://console.aws.amazon.com/iam/).
+  </Step>
+  <Step title="Create Policy">
+    Go to **Policies** → **Create policy** and use the JSON below.
+  </Step>
+  <Step title="Create User">
+    Go to **Users** → **Create user**.
+  </Step>
+  <Step title="Attach Policy">
+    Attach the policy you created to the user.
+  </Step>
+  <Step title="Create Access Key">
+    Under the user's **Security credentials**, create an access key for "Application running outside AWS".
+  </Step>
+  <Step title="Save Credentials">
+    Copy and securely store the Access Key ID and Secret Access Key.
+  </Step>
+</Steps>
+
+### Minimum IAM Policy
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "FileloomS3Access",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::YOUR-BUCKET-NAME/*"
+    }
+  ]
+}
+```
+
+Replace `YOUR-BUCKET-NAME` with your actual bucket name.
+
+<Warning>
+  Never use root account credentials. Always create a dedicated IAM user with minimal permissions.
+</Warning>
+
+## Configuring in Fileloom
+
+<Steps>
+  <Step title="Open Storage Settings">
+    Go to **Workspace Settings** → **Storage**.
+  </Step>
+  <Step title="Select Mode">
+    Choose **External** or **Both** storage mode.
+  </Step>
+  <Step title="Add Connection">
+    Click **Add Connection** → **AWS S3**.
+  </Step>
+  <Step title="Enter Configuration">
+    Fill in the required fields (see below).
+  </Step>
+  <Step title="Test Connection">
+    Click **Test Connection** to verify.
+  </Step>
+  <Step title="Save">
+    Click **Save** to activate.
+  </Step>
+</Steps>
+
+### Configuration Fields
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Connection Name** | Friendly name for this connection | Production S3 |
+| **Bucket Name** | Your S3 bucket name | my-company-pdfs |
+| **Region** | AWS region where bucket is located | us-east-1 |
+| **Access Key ID** | IAM access key | AKIA... |
+| **Secret Access Key** | IAM secret key | wJalr... |
+| **Path Pattern** | File organization pattern | pdfs/{year}/{month}/{filename} |
+
+### AWS Regions
+
+Common regions:
+
+| Region Code | Location |
+|-------------|----------|
+| us-east-1 | N. Virginia |
+| us-west-2 | Oregon |
+| eu-west-1 | Ireland |
+| eu-central-1 | Frankfurt |
+| ap-southeast-1 | Singapore |
+| ap-northeast-1 | Tokyo |
+
+## Path Pattern Examples
+
+Organize files in your bucket using path patterns:
+```
+# By date
+pdfs/{year}/{month}/{day}/{filename}
+→ pdfs/2024/12/15/invoice-001.pdf
+
+# By workspace
+{workspace}/documents/{filename}
+→ ws_abc123/documents/invoice-001.pdf
+
+# By template type
+generated/{template}/{year}-{month}/{filename}
+→ generated/tpl_invoice/2024-12/invoice-001.pdf
+
+# Flat structure with unique IDs
+files/{fileid}.pdf
+→ files/file_abc123xyz.pdf
+```
+
+## URL Format
+
+Files uploaded to S3 are accessible via presigned URLs:
+```
+https://my-bucket.s3.us-east-1.amazonaws.com/pdfs/2024/12/invoice.pdf?X-Amz-...
+```
+
+- URLs are presigned for secure access
+- Default expiration: 24 hours
+- Included in API response as `externalCopies[].url`
+
+## Public Access (Optional)
+
+If you need permanent public URLs instead of presigned URLs:
+
+1. Disable "Block all public access" on the bucket
+2. Add a bucket policy:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::YOUR-BUCKET-NAME/pdfs/*"
+    }
+  ]
+}
+```
+
+<Warning>
+  Public buckets make all files accessible to anyone with the URL. Only enable if your use case requires it.
+</Warning>
+
+## Troubleshooting
+
+### Access Denied
+
+**Symptoms:** Test connection fails with "Access Denied"
+
+**Solutions:**
+- Verify Access Key ID and Secret Access Key are correct
+- Check IAM policy includes your bucket name
+- Ensure IAM user has the policy attached
+- Verify bucket region matches configuration
+
+### Bucket Not Found
+
+**Symptoms:** Error mentions bucket doesn't exist
+
+**Solutions:**
+- Check bucket name spelling (case-sensitive)
+- Verify bucket exists in the specified region
+- Ensure you have `s3:GetBucketLocation` permission if using a different region
+
+### Invalid Credentials
+
+**Symptoms:** Authentication errors
+
+**Solutions:**
+- Regenerate access keys if expired
+- Check for extra spaces in credentials
+- Verify credentials are for correct AWS account
+
+### Upload Timeout
+
+**Symptoms:** Uploads fail intermittently
+
+**Solutions:**
+- Check bucket region is geographically close to Fileloom servers (us-central1)
+- Verify no network restrictions on bucket
+- Check bucket isn't near storage limits
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Dedicated Credentials" icon="key">
+    Create IAM user specifically for Fileloom with minimal permissions
+  </Card>
+  <Card title="Enable Versioning" icon="clock-rotate-left">
+    Turn on S3 versioning for accidental deletion protection
+  </Card>
+  <Card title="Set Lifecycle Rules" icon="calendar">
+    Configure automatic deletion of old files to manage costs
+  </Card>
+  <Card title="Monitor Usage" icon="chart-line">
+    Set up CloudWatch alerts for unusual activity
+  </Card>
+</CardGroup>
+
+## Cost Considerations
+
+S3 pricing factors:
+- **Storage:** ~$0.023/GB/month (varies by region)
+- **PUT requests:** ~$0.005 per 1,000 requests
+- **GET requests:** ~$0.0004 per 1,000 requests
+- **Data transfer:** First 100GB/month free, then ~$0.09/GB
+
+For 10,000 PDFs averaging 100KB each:
+- Storage: ~1GB = ~$0.02/month
+- PUT requests: $0.05
+- **Total: ~$0.07/month**

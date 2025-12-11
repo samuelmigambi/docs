@@ -1,5 +1,120 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Templates"
+description: "Create, manage, and organize PDF templates in the Fileloom dashboard."
 ---
 
+The **Templates** section lets you create reusable PDF templates with HTML, CSS, and dynamic Handlebars variables.
+
+## Templates List
+
+The templates page displays all templates in your workspace:
+
+| Column | Description |
+|--------|-------------|
+| **Name** | Template name (click to edit) |
+| **Category** | Template type (invoice, receipt, etc.) |
+| **Last Modified** | When the template was last updated |
+| **Generations** | Total PDFs generated from this template |
+| **Status** | Published or Draft |
+
+## Creating a Template
+
+<Steps>
+  <Step title="Click Create Template">
+    From the Templates page, click the "Create Template" button.
+  </Step>
+  <Step title="Choose Starting Point">
+    Start from scratch or select a starter template.
+  </Step>
+  <Step title="Design in Editor">
+    Use the template editor to write HTML, CSS, and configure settings.
+  </Step>
+  <Step title="Test with Data">
+    Enter sample JSON in the Test Data tab and preview your PDF.
+  </Step>
+  <Step title="Publish">
+    Click "Publish" to make the template available via API.
+  </Step>
+</Steps>
+
+See [Template Editor](/template-editor/overview) for detailed editing instructions.
+
+## Template Categories
+
+Organize templates by category:
+
+- **Invoice** — Billing and payment documents
+- **Receipt** — Transaction confirmations
+- **Contract** — Agreements and legal documents
+- **Report** — Data reports and analytics
+- **Certificate** — Awards, completions, credentials
+- **Ticket** — Event tickets and passes
+- **Label** — Shipping and product labels
+- **Custom** — Any other document type
+
+## Using Templates via API
+
+Reference a template by its ID in API requests:
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateId": "tpl_abc123xyz",
+    "templateData": {
+      "customerName": "Acme Corp",
+      "invoiceNumber": "INV-2024-001",
+      "items": [
+        {"name": "Widget", "price": 29.99, "quantity": 2},
+        {"name": "Gadget", "price": 49.99, "quantity": 1}
+      ]
+    }
+  }'
+```
+
+Find the template ID in the template editor or templates list.
+
+## Template Actions
+
+| Action | Description |
+|--------|-------------|
+| **Edit** | Open in template editor |
+| **Duplicate** | Create a copy of the template |
+| **Export** | Download template HTML/CSS |
+| **Delete** | Remove template permanently |
+
+## Starter Templates
+
+Fileloom provides 50+ professionally designed starter templates:
+
+<CardGroup cols={3}>
+  <Card title="Invoices" icon="file-invoice">
+    Professional billing templates
+  </Card>
+  <Card title="Receipts" icon="receipt">
+    Transaction confirmations
+  </Card>
+  <Card title="Reports" icon="chart-bar">
+    Data visualization layouts
+  </Card>
+  <Card title="Contracts" icon="file-contract">
+    Legal document templates
+  </Card>
+  <Card title="Certificates" icon="certificate">
+    Awards and credentials
+  </Card>
+  <Card title="Tickets" icon="ticket">
+    Event passes with QR codes
+  </Card>
+</CardGroup>
+
+Browse starter templates from the "Create Template" menu and click "Use Template" to add one to your workspace.
+
+## Template Limits
+
+| Plan | Max Templates |
+|------|---------------|
+| Free | 5 |
+| Starter | 50 |
+| Growth | Unlimited |
+| Scale+ | Unlimited |

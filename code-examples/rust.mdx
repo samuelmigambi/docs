@@ -1,5 +1,169 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Rust Examples"
+description: "Generate PDFs in Rust using reqwest."
 ---
 
+## Dependencies
+
+Add to `Cargo.toml`:
+```toml
+[dependencies]
+reqwest = { version = "0.11", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+thiserror = "1.0"
+```
+
+## Types
+```rust
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+#[derive(Debug, Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct PdfRequest {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub html_content: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub template_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub template_data: Option<HashMap<String, serde_json::Value>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub filename: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FileloomResponse {
+    pub success: bool,
+    pub request_id: String,
+    pub data: PdfData,
+    pub usage: UsageInfo,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PdfData {
+    pub file_id: String,
+    pub url: String,
+    pub signed_url: String,
+    pub filename: String,
+    pub size: i64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UsageInfo {
+    pub remaining: i32,
+    pub quota_used: i32,
+    pub quota_limit: i32,
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum FileloomError {
+    #[error("API error [{code}]: {message}")]
+    ApiError { code: String, message: String, status_code: u16 },
+    #[error("Request failed: {0}")]
+    RequestError(#[from] reqwest::Error),
+}
+```
+
+## Client
+```rust
+use reqwest::Client;
+use std::time::Duration;
+
+pub struct FileloomClient {
+    api_key: String,
+    base_url: String,
+    client: Client,
+}
+
+impl FileloomClient {
+    pub fn new(api_key: impl Into<String>) -> Self {
+        Self {
+            api_key: api_key.into(),
+            base_url: "https://api.fileloom.io/v1".to_string(),
+            client: Client::builder()
+                .timeout(Duration::from_secs(60))
+                .build()
+                .expect("Failed to create HTTP client"),
+        }
+    }
+
+    pub async fn generate_pdf(&self, request: PdfRequest) -> Result<FileloomResponse, FileloomError> {
+        let response = self.client
+            .post(format!("{}/pdf/generate", self.base_url))
+            .header("X-API-Key", &self.api_key)
+            .json(&request)
+            .send()
+            .await?;
+
+        let status = response.status();
+        if !status.is_success() {
+            #[derive(Deserialize)]
+            struct ErrorResponse { error: ErrorDetail }
+            #[derive(Deserialize)]
+            struct ErrorDetail { code: String, message: String }
+
+            let error: ErrorResponse = response.json().await?;
+            return Err(FileloomError::ApiError {
+                code: error.error.code,
+                message: error.error.message,
+                status_code: status.as_u16(),
+            });
+        }
+        Ok(response.json().await?)
+    }
+}
+```
+
+## Usage
+```rust
+use serde_json::json;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = FileloomClient::new(std::env::var("FILELOOM_API_KEY")?);
+
+    // From HTML
+    let result = client.generate_pdf(PdfRequest {
+        html_content: Some("<h1>Hello</h1>".to_string()),
+        filename: Some("hello.pdf".to_string()),
+        ..Default::default()
+    }).await?;
+    println!("URL: {}", result.data.url);
+
+    // From template
+    let mut data = HashMap::new();
+    data.insert("invoiceNumber".to_string(), json!("INV-001"));
+    data.insert("customer".to_string(), json!({"name": "Acme Corp"}));
+    data.insert("items".to_string(), json!([{"description": "Web Dev", "quantity": 10, "price": 150}]));
+    data.insert("total".to_string(), json!(1500));
+
+    let invoice = client.generate_pdf(PdfRequest {
+        template_id: Some("tpl_invoice_v2".to_string()),
+        template_data: Some(data),
+        filename: Some("invoice.pdf".to_string()),
+        ..Default::default()
+    }).await?;
+
+    Ok(())
+}
+```
+
+## Error Handling
+```rust
+match client.generate_pdf(request).await {
+    Ok(result) => println!("Success: {}", result.data.url),
+    Err(FileloomError::ApiError { code, message, .. }) => {
+        match code.as_str() {
+            "TEMPLATE_NOT_FOUND" => println!("Template does not exist"),
+            "NO_CREDITS_AVAILABLE" => println!("Out of credits"),
+            _ => println!("API Error [{}]: {}", code, message),
+        }
+    }
+    Err(FileloomError::RequestError(e)) => println!("Network error: {}", e),
+}
+```

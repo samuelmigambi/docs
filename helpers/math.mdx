@@ -1,5 +1,249 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Math Operation Helpers"
+description: "Perform arithmetic operations with add, subtract, multiply, divide, round, and more."
 ---
 
+Math helpers perform arithmetic operations on numbers.
+
+## add
+
+Adds two numbers.
+```handlebars
+{{add 10 5}}
+```
+
+**Output:** `15`
+```handlebars
+{{add price shippingCost}}
+{{add subtotal tax}}
+```
+
+## subtract
+
+Subtracts the second number from the first.
+```handlebars
+{{subtract 10 3}}
+```
+
+**Output:** `7`
+```handlebars
+{{subtract grossAmount discount}}
+{{subtract total paid}}
+```
+
+## multiply
+
+Multiplies two numbers.
+```handlebars
+{{multiply 10 5}}
+```
+
+**Output:** `50`
+```handlebars
+{{multiply quantity unitPrice}}
+{{multiply hours rate}}
+```
+
+## divide
+
+Divides the first number by the second.
+```handlebars
+{{divide 20 4}}
+```
+
+**Output:** `5`
+```handlebars
+{{divide total itemCount}}
+{{divide annualSalary 12}}
+```
+
+<Info>
+  Division by zero returns `0` to prevent errors.
+</Info>
+
+## modulo
+
+Returns the remainder of division.
+```handlebars
+{{modulo 17 5}}
+```
+
+**Output:** `2`
+
+**Use cases:**
+- Alternating row colors
+- Checking even/odd
+```handlebars
+{{#each items}}
+  <tr class="{{#if (eq (modulo @index 2) 0)}}even{{else}}odd{{/if}}">
+    ...
+  </tr>
+{{/each}}
+```
+
+## power
+
+Raises a number to a power.
+```handlebars
+{{power 2 3}}
+```
+
+**Output:** `8`
+```handlebars
+{{power base exponent}}
+{{power 10 2}}  <!-- 100 -->
+```
+
+## sqrt
+
+Returns the square root of a number.
+```handlebars
+{{sqrt 16}}
+```
+
+**Output:** `4`
+
+## round
+
+Rounds a number to specified decimal places.
+```handlebars
+{{round 3.7}}
+{{round 3.14159 2}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `number` | number | required | Number to round |
+| `decimals` | number | 0 | Decimal places |
+
+**Examples:**
+```handlebars
+{{round 3.7}}        <!-- Output: 4 -->
+{{round 3.14159 2}}  <!-- Output: 3.14 -->
+{{round 3.14159 4}}  <!-- Output: 3.1416 -->
+```
+
+## ceil
+
+Rounds up to the nearest integer.
+```handlebars
+{{ceil 3.2}}
+```
+
+**Output:** `4`
+
+**Use cases:**
+- Page counts
+- Minimum quantities
+```handlebars
+Pages: {{ceil (divide totalItems itemsPerPage)}}
+```
+
+## floor
+
+Rounds down to the nearest integer.
+```handlebars
+{{floor 3.9}}
+```
+
+**Output:** `3`
+
+## abs
+
+Returns the absolute value.
+```handlebars
+{{abs -42}}
+```
+
+**Output:** `42`
+
+**Use cases:**
+- Displaying differences
+- Ensuring positive values
+```handlebars
+Difference: {{abs (subtract actual expected)}}
+```
+
+## random
+
+Generates a random number between min and max.
+```handlebars
+{{random}}
+{{random 1 100}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `min` | number | 0 | Minimum value |
+| `max` | number | 1 | Maximum value |
+
+<Warning>
+  Random values change on each render. Use carefully in templates where consistency matters.
+</Warning>
+
+## Combining Math Helpers
+
+### Calculate Line Total
+```handlebars
+{{currency (multiply quantity unitPrice) "USD"}}
+```
+
+### Calculate Discount
+```handlebars
+{{! 20% discount }}
+{{currency (subtract price (multiply price 0.2)) "USD"}}
+```
+
+### Calculate Tax
+```handlebars
+{{! 8.5% tax }}
+{{currency (multiply subtotal 0.085) "USD"}}
+```
+
+### Calculate Grand Total
+```handlebars
+{{currency (add (add subtotal tax) shipping) "USD"}}
+```
+
+### Average Price
+```handlebars
+{{currency (divide totalRevenue orderCount) "USD"}}
+```
+
+## Practical Examples
+
+### Invoice Calculations
+```handlebars
+<table>
+  {{#each items}}
+  <tr>
+    <td>{{this.name}}</td>
+    <td>{{this.quantity}}</td>
+    <td>{{currency this.unitPrice "USD"}}</td>
+    <td>{{currency (multiply this.quantity this.unitPrice) "USD"}}</td>
+  </tr>
+  {{/each}}
+</table>
+
+<div class="totals">
+  <p>Subtotal: {{currency subtotal "USD"}}</p>
+  <p>Tax ({{multiply taxRate 100}}%): {{currency (multiply subtotal taxRate) "USD"}}</p>
+  <p>Shipping: {{currency shipping "USD"}}</p>
+  <p class="grand-total">
+    Total: {{currency (add (add subtotal (multiply subtotal taxRate)) shipping) "USD"}}
+  </p>
+</div>
+```
+
+### Progress Percentage
+```handlebars
+<div class="progress">
+  <div class="bar" style="width: {{round (multiply (divide completed total) 100)}}%"></div>
+</div>
+<p>{{round (multiply (divide completed total) 100)}}% complete</p>
+```
+
+### Pagination
+```handlebars
+Page {{currentPage}} of {{ceil (divide totalItems itemsPerPage)}}
+```

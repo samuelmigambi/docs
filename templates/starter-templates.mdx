@@ -1,5 +1,245 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Starter Templates"
+description: "Get started quickly with 50+ professionally designed PDF templates for invoices, receipts, reports, and more."
 ---
 
+Fileloom provides a library of professionally designed starter templates to help you get started quickly.
+
+## Browsing Starter Templates
+
+<Steps>
+  <Step title="Open Create Template">
+    Go to **Templates** → **Create Template** in the dashboard.
+  </Step>
+  <Step title="Browse Categories">
+    Select a category or browse all templates.
+  </Step>
+  <Step title="Preview">
+    Click any template to see a full preview.
+  </Step>
+  <Step title="Use Template">
+    Click **Use Template** to add it to your workspace.
+  </Step>
+</Steps>
+
+## Template Categories
+
+### Invoices
+
+Professional billing templates for various industries:
+
+| Template | Description |
+|----------|-------------|
+| **Simple Invoice** | Clean, minimal invoice design |
+| **Professional Invoice** | Full-featured with logo, payment terms |
+| **Service Invoice** | Hourly/project-based billing |
+| **Product Invoice** | Line items with quantities and SKUs |
+| **Freelance Invoice** | Personal branding focused |
+| **Agency Invoice** | Multi-project format |
+
+**Common data fields:**
+- Invoice number, date, due date
+- Customer details (name, address, email)
+- Line items (description, quantity, price)
+- Subtotal, tax, discounts, total
+- Payment terms and methods
+
+### Receipts
+
+Transaction confirmations and payment records:
+
+| Template | Description |
+|----------|-------------|
+| **Payment Receipt** | General payment confirmation |
+| **Sales Receipt** | Retail/e-commerce transactions |
+| **Donation Receipt** | Non-profit contributions |
+| **Rental Receipt** | Property/equipment rental |
+| **Service Receipt** | Service completion confirmation |
+
+### Reports
+
+Data presentation and analytics:
+
+| Template | Description |
+|----------|-------------|
+| **Monthly Report** | Period summary with sections |
+| **Financial Report** | Revenue, expenses, metrics |
+| **Project Report** | Status, milestones, deliverables |
+| **Analytics Report** | Charts and data tables |
+| **Executive Summary** | High-level overview format |
+
+### Contracts & Agreements
+
+Legal and business documents:
+
+| Template | Description |
+|----------|-------------|
+| **Service Agreement** | General service terms |
+| **NDA** | Non-disclosure agreement |
+| **Employment Contract** | Hiring documentation |
+| **Freelance Contract** | Independent contractor terms |
+| **Lease Agreement** | Property rental contract |
+
+### Certificates
+
+Awards, credentials, and completions:
+
+| Template | Description |
+|----------|-------------|
+| **Completion Certificate** | Course/training completion |
+| **Achievement Certificate** | Awards and recognition |
+| **Membership Certificate** | Organization membership |
+| **Professional Certificate** | Credentials and licenses |
+| **Gift Certificate** | Vouchers and gift cards |
+
+### Tickets & Passes
+
+Event access and identification:
+
+| Template | Description |
+|----------|-------------|
+| **Event Ticket** | Concert, conference, show |
+| **Boarding Pass** | Travel documentation |
+| **Admission Pass** | General entry |
+| **VIP Pass** | Special access |
+| **Parking Permit** | Vehicle authorization |
+
+### Labels
+
+Shipping and product identification:
+
+| Template | Description |
+|----------|-------------|
+| **Shipping Label** | Standard 4x6 format |
+| **Product Label** | Item identification |
+| **Address Label** | Mailing labels |
+| **Barcode Label** | Inventory management |
+| **Return Label** | Pre-paid return shipping |
+
+## Customizing Starter Templates
+
+After adding a starter template to your workspace:
+
+### 1. Update Branding
+
+Replace placeholder branding with yours:
+```html
+<!-- Change logo -->
+<img src="https://your-domain.com/logo.png" alt="Your Company">
+
+<!-- Update company info -->
+<div class="company-info">
+  <h1>Your Company Name</h1>
+  <p>123 Your Street, Your City</p>
+  <p>contact@yourcompany.com</p>
+</div>
+```
+
+### 2. Modify Colors
+
+Update the CSS to match your brand:
+```css
+:root {
+  --primary-color: #your-brand-color;
+  --secondary-color: #your-secondary-color;
+  --text-color: #333333;
+}
+
+.header {
+  background: var(--primary-color);
+}
+
+.accent {
+  color: var(--secondary-color);
+}
+```
+
+### 3. Adjust Layout
+
+Modify the HTML structure for your needs:
+
+- Add or remove sections
+- Rearrange content order
+- Include additional fields
+- Change table columns
+
+### 4. Update Fields
+
+Modify Handlebars placeholders to match your data:
+```handlebars
+<!-- Original -->
+{{customer.name}}
+
+<!-- Your version -->
+{{client.fullName}}
+```
+
+## Template Data Examples
+
+Each starter template includes sample test data. Here's an example for the Professional Invoice:
+```json
+{
+  "invoiceNumber": "INV-2024-0042",
+  "date": "2024-12-15",
+  "dueDate": "2025-01-14",
+  "company": {
+    "name": "Your Company",
+    "address": "123 Business Ave",
+    "city": "San Francisco",
+    "state": "CA",
+    "zip": "94102",
+    "email": "billing@yourcompany.com",
+    "phone": "(555) 123-4567",
+    "logo": "https://yourcompany.com/logo.png"
+  },
+  "customer": {
+    "name": "Acme Corporation",
+    "address": "456 Client Street",
+    "city": "Los Angeles",
+    "state": "CA",
+    "zip": "90001",
+    "email": "accounts@acme.com"
+  },
+  "items": [
+    {
+      "description": "Web Development Services",
+      "quantity": 40,
+      "unitPrice": 150,
+      "total": 6000
+    },
+    {
+      "description": "UI/UX Design",
+      "quantity": 20,
+      "unitPrice": 125,
+      "total": 2500
+    }
+  ],
+  "subtotal": 8500,
+  "taxRate": 8.5,
+  "tax": 722.50,
+  "total": 9222.50,
+  "notes": "Payment is due within 30 days. Thank you for your business!",
+  "paymentMethods": [
+    "Bank Transfer",
+    "Credit Card",
+    "PayPal"
+  ]
+}
+```
+
+## Tips for Starter Templates
+
+<CardGroup cols={2}>
+  <Card title="Start Simple" icon="seedling">
+    Begin with a template close to your needs, then customize
+  </Card>
+  <Card title="Keep Originals" icon="copy">
+    Duplicate before heavy customization to preserve the original
+  </Card>
+  <Card title="Test Thoroughly" icon="vial">
+    Test with your actual data before using in production
+  </Card>
+  <Card title="Version Control" icon="code-branch">
+    Publish versions as you make significant changes
+  </Card>
+</CardGroup>

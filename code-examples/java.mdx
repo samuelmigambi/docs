@@ -1,5 +1,113 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Java Examples"
+description: "Generate PDFs in Java using HttpClient."
 ---
 
+## Dependencies
+```xml
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.10.1</version>
+</dependency>
+```
+
+## Client and Models
+```java
+import com.google.gson.Gson;
+import java.net.URI;
+import java.net.http.*;
+import java.time.Duration;
+import java.util.Map;
+
+public class FileloomClient {
+    private final String apiKey;
+    private final HttpClient http;
+    private final Gson gson = new Gson();
+
+    public FileloomClient(String apiKey) {
+        this.apiKey = apiKey;
+        this.http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+    }
+
+    public FileloomResponse generatePdf(PdfRequest request) throws Exception {
+        HttpRequest httpReq = HttpRequest.newBuilder()
+            .uri(URI.create("https://api.fileloom.io/v1/pdf/generate"))
+            .header("X-API-Key", apiKey)
+            .header("Content-Type", "application/json")
+            .timeout(Duration.ofSeconds(60))
+            .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(request)))
+            .build();
+
+        HttpResponse<String> resp = http.send(httpReq, HttpResponse.BodyHandlers.ofString());
+        
+        if (resp.statusCode() != 200) {
+            ErrorResponse err = gson.fromJson(resp.body(), ErrorResponse.class);
+            throw new FileloomException(err.error.message, err.error.code, resp.statusCode());
+        }
+        return gson.fromJson(resp.body(), FileloomResponse.class);
+    }
+}
+
+class PdfRequest {
+    String htmlContent, templateId, filename;
+    Map<String, Object> templateData;
+}
+
+class FileloomResponse { boolean success; PdfData data; Usage usage; }
+class PdfData { String fileId, url, filename; long size; }
+class Usage { int remaining, quotaUsed, quotaLimit; }
+class ErrorResponse { ErrorDetail error; }
+class ErrorDetail { String code, message; }
+
+class FileloomException extends Exception {
+    String code; int statusCode;
+    FileloomException(String msg, String code, int status) {
+        super(msg); this.code = code; this.statusCode = status;
+    }
+}
+```
+
+## Usage
+```java
+FileloomClient client = new FileloomClient(System.getenv("FILELOOM_API_KEY"));
+
+// From HTML
+PdfRequest req = new PdfRequest();
+req.htmlContent = "<h1>Hello</h1>";
+req.filename = "hello.pdf";
+FileloomResponse result = client.generatePdf(req);
+System.out.println("URL: " + result.data.url);
+
+// From template
+PdfRequest templateReq = new PdfRequest();
+templateReq.templateId = "tpl_invoice_v2";
+templateReq.templateData = Map.of(
+    "invoiceNumber", "INV-001",
+    "customer", Map.of("name", "Acme Corp"),
+    "items", List.of(Map.of("description", "Web Dev", "quantity", 10, "price", 150)),
+    "total", 1500
+);
+templateReq.filename = "invoice.pdf";
+FileloomResponse invoiceResult = client.generatePdf(templateReq);
+```
+
+## Spring Boot
+```java
+@Service
+public class FileloomService {
+    private final FileloomClient client;
+    
+    public FileloomService(@Value("${fileloom.api-key}") String apiKey) {
+        this.client = new FileloomClient(apiKey);
+    }
+
+    public String generateInvoicePdf(Invoice invoice) throws Exception {
+        PdfRequest req = new PdfRequest();
+        req.templateId = "tpl_invoice_v2";
+        req.templateData = invoice.toMap();
+        req.filename = "invoice-" + invoice.getNumber() + ".pdf";
+        return client.generatePdf(req).data.url;
+    }
+}
+```

@@ -1,92 +1,35 @@
 ---
 title: "Introduction"
-sidebarTitle: "Introduction"
-description: "The developer-first PDF generation API. Generate beautiful PDFs from HTML templates in milliseconds."
-icon: "house"
+description: "Fileloom is a developer-first PDF generation API that transforms HTML templates into pixel-perfect PDFs in under 2 seconds."
 ---
 
-# Welcome to Fileloom
+<Info>
+  **Quick Start** — Generate your first PDF in under 5 minutes. [Jump to Quickstart](/getting-started/quickstart)
+</Info>
 
-Fileloom is a powerful, developer-first PDF generation API that transforms HTML templates into beautiful PDFs in under 2 seconds. Built for scale, designed for simplicity.
+## What is Fileloom?
 
-<CardGroup cols={2}>
-  <Card title="Quickstart" icon="rocket" href="/getting-started/quickstart">
-    Generate your first PDF in under 5 minutes
-  </Card>
-  <Card title="API Reference" icon="code" href="/api-reference/overview">
-    Explore the complete API documentation
-  </Card>
-  <Card title="Templates" icon="file-code" href="/templates/overview">
-    Learn how to create reusable PDF templates
-  </Card>
-  <Card title="Helpers" icon="wand-magic-sparkles" href="/helpers/overview">
-    70+ Handlebars helpers for dynamic content
-  </Card>
-</CardGroup>
+Fileloom is a PDF generation API built for developers who need reliable, fast, and scalable document generation. Send HTML with dynamic data, get back a professionally formatted PDF.
+
+**One endpoint. Endless possibilities.**
+```bash
+POST https://api.fileloom.io/v1/pdf/generate
+```
 
 ## Why Fileloom?
 
-<CardGroup cols={3}>
-  <Card title="Fast" icon="bolt">
-    Sub-2-second PDF generation with intelligent caching
-  </Card>
-  <Card title="Simple" icon="sparkles">
-    One API call to generate PDFs - no complex setup
-  </Card>
-  <Card title="Scalable" icon="chart-line">
-    From 100 to 1,000,000+ PDFs per month
-  </Card>
-</CardGroup>
-
-## The Problem
-
-Generating PDFs programmatically is painful:
-
-- **Puppeteer/Playwright** - Complex setup, resource-heavy, difficult to scale
-- **wkhtmltopdf** - Outdated rendering, inconsistent results
-- **Native libraries** - Low-level APIs, steep learning curve
-- **Self-hosted solutions** - Infrastructure overhead, maintenance burden
-
-## The Solution
-
-Fileloom provides a simple API that:
-
-1. **Accepts HTML** - Use the web technologies you already know
-2. **Returns PDFs** - High-quality, print-ready documents
-3. **Scales automatically** - From 100 to 1,000,000+ PDFs per month
-4. **Handles the complexity** - Fonts, page breaks, headers, footers - all handled
-
-## Quick Example
-
-```bash
-curl -X POST https://api.fileloom.io/v1/pdf \
-  -H "X-API-Key: your_api_key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "templateId": "tpl_invoice_001",
-    "templateData": {
-      "customerName": "Acme Corp",
-      "items": [
-        {"name": "Widget", "quantity": 5, "price": 29.99}
-      ]
-    }
-  }'
-```
-
-## Key Features
-
 <CardGroup cols={2}>
-  <Card title="Template Engine" icon="file-code">
-    Create reusable templates with 70+ Handlebars helpers for dynamic content
+  <Card title="Lightning Fast" icon="bolt">
+    Sub-2-second generation times. No cold starts, no waiting.
   </Card>
-  <Card title="Sub-2s Generation" icon="bolt">
-    Fast PDF generation with intelligent caching for repeated templates
+  <Card title="Developer First" icon="code">
+    Clean API, comprehensive docs, and code examples in 12+ languages.
   </Card>
-  <Card title="Flexible Storage" icon="hard-drive">
-    Store PDFs in Fileloom, your own S3, Google Drive, or multiple destinations
+  <Card title="Template Engine" icon="wand-magic-sparkles">
+    70+ Handlebars helpers for dynamic content, calculations, and formatting.
   </Card>
-  <Card title="Real-time Webhooks" icon="webhook">
-    Get notified when PDFs are generated, failed, or when quotas are low
+  <Card title="Enterprise Ready" icon="building">
+    99.99% uptime SLA, external storage integration, and team collaboration.
   </Card>
 </CardGroup>
 
@@ -94,43 +37,68 @@ curl -X POST https://api.fileloom.io/v1/pdf \
 
 <Steps>
   <Step title="Create a Template">
-    Design your PDF using HTML and CSS. Add dynamic placeholders using Handlebars syntax like `{{customerName}}` or `{{formatDate invoiceDate "MMMM DD, YYYY"}}`.
+    Design your PDF using HTML and CSS in our visual editor, or send raw HTML via the API.
   </Step>
-  <Step title="Send Data via API">
-    Make a POST request to our API with your template ID and the data to populate it.
+  <Step title="Send Data">
+    Make an API request with your template ID and dynamic data (JSON).
   </Step>
-  <Step title="Receive Your PDF">
-    Get back a URL to your generated PDF, ready to download, embed, or send to customers.
+  <Step title="Get Your PDF">
+    Receive a URL to your generated PDF, ready to download, embed, or store.
   </Step>
 </Steps>
 
-## Popular Use Cases
+## Use Cases
 
-- **Invoices & Receipts** - Generate professional financial documents
-- **Reports** - Create data-driven reports with charts and tables
-- **Certificates** - Award certificates, completion certificates
-- **Contracts** - Legal documents with dynamic content
-- **Tickets** - Event tickets, boarding passes
+Fileloom powers document generation for:
 
-## Comparison
+- **Invoices & Receipts** — Dynamic line items, tax calculations, payment terms
+- **Contracts & Agreements** — Merge customer data, e-signatures ready
+- **Reports & Analytics** — Charts, tables, data visualizations
+- **Certificates** — Event tickets, course completions, awards
+- **Shipping Labels** — Barcodes, QR codes, address formatting
 
-| Feature         | Fileloom                | Puppeteer    | wkhtmltopdf |
-| --------------- | ----------------------- | ------------ | ----------- |
-| Setup Time      | 5 minutes               | Hours        | Hours       |
-| Scaling         | Automatic               | Manual       | Manual      |
-| Font Support    | ✅ Google Fonts + Custom | Manual setup | Limited     |
-| Emoji Support   | ✅ Built-in              | Manual setup | ❌           |
-| Headers/Footers | ✅ Easy                  | Complex      | Limited     |
-| Template Engine | ✅ 70+ helpers           | None         | None        |
-| Maintenance     | Zero                    | High         | Medium      |
+## Quick Example
 
-## Getting Help
+Generate a PDF with a single API call:
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<h1>Hello, {{name}}!</h1><p>Welcome to Fileloom.</p>",
+    "templateData": {
+      "name": "World"
+    }
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "fileId": "file_1234567890_abc123",
+    "url": "https://storage.googleapis.com/fileloom/...",
+    "filename": "document.pdf",
+    "size": 12847,
+    "processingTimeMs": 847
+  }
+}
+```
+
+## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Discord Community" icon="discord" href="https://discord.gg/fileloom">
-    Join our community for help and discussions
+  <Card title="Quickstart" icon="rocket" href="/getting-started/quickstart">
+    Generate your first PDF in 5 minutes
   </Card>
-  <Card title="Email Support" icon="envelope" href="mailto:support@fileloom.io">
-    Contact our support team directly
+  <Card title="Core Concepts" icon="lightbulb" href="/getting-started/concepts">
+    Understand templates, helpers, and workspaces
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Complete endpoint documentation
+  </Card>
+  <Card title="Template Helpers" icon="wand-magic-sparkles" href="/helpers/overview">
+    70+ built-in formatting helpers
   </Card>
 </CardGroup>

@@ -1,5 +1,116 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "TypeScript Examples"
+description: "Type-safe PDF generation with TypeScript."
 ---
 
+## Type Definitions
+```typescript
+interface PdfOptions {
+  format?: 'A4' | 'A3' | 'Letter' | 'Legal';
+  orientation?: 'portrait' | 'landscape';
+  margin?: { top?: number; right?: number; bottom?: number; left?: number };
+  printBackground?: boolean;
+}
+
+interface GeneratePdfRequest {
+  htmlContent?: string;
+  templateId?: string;
+  templateData?: Record<string, unknown>;
+  filename?: string;
+  options?: PdfOptions;
+}
+
+interface PdfData {
+  fileId: string;
+  url: string;
+  signedUrl: string;
+  filename: string;
+  size: number;
+  processingTimeMs: number;
+}
+
+interface FileloomResponse {
+  success: true;
+  requestId: string;
+  data: PdfData;
+  usage: { remaining: number; quotaUsed: number; quotaLimit: number };
+}
+```
+
+## Client Class
+```typescript
+class FileloomClient {
+  constructor(private apiKey: string, private baseUrl = 'https://api.fileloom.io/v1') {}
+
+  async generatePdf(request: GeneratePdfRequest): Promise<FileloomResponse> {
+    const response = await fetch(`${this.baseUrl}/pdf/generate`, {
+      method: 'POST',
+      headers: {
+        'X-API-Key': this.apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(request)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new FileloomApiError(error.error.message, error.error.code, response.status);
+    }
+
+    return response.json();
+  }
+}
+
+class FileloomApiError extends Error {
+  constructor(message: string, public code: string, public status: number) {
+    super(message);
+  }
+}
+```
+
+## Usage
+```typescript
+const client = new FileloomClient(process.env.FILELOOM_API_KEY!);
+
+// HTML generation
+const result = await client.generatePdf({
+  htmlContent: '<h1>Hello</h1>',
+  filename: 'hello.pdf'
+});
+
+// Template with typed data
+interface InvoiceData {
+  invoiceNumber: string;
+  customer: { name: string; email: string };
+  items: Array<{ description: string; quantity: number; unitPrice: number }>;
+  total: number;
+}
+
+const invoice: InvoiceData = {
+  invoiceNumber: 'INV-001',
+  customer: { name: 'Acme', email: 'billing@acme.com' },
+  items: [{ description: 'Web Dev', quantity: 10, unitPrice: 150 }],
+  total: 1500
+};
+
+const result = await client.generatePdf({
+  templateId: 'tpl_invoice_v2',
+  templateData: invoice,
+  filename: 'invoice.pdf'
+});
+```
+
+## Error Handling
+```typescript
+try {
+  await client.generatePdf({ templateId: 'invalid' });
+} catch (error) {
+  if (error instanceof FileloomApiError) {
+    switch (error.code) {
+      case 'TEMPLATE_NOT_FOUND': console.error('Template missing'); break;
+      case 'NO_CREDITS_AVAILABLE': console.error('Out of credits'); break;
+      default: console.error(`Error [${error.code}]: ${error.message}`);
+    }
+  }
+}
+```

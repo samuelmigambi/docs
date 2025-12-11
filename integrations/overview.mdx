@@ -1,5 +1,167 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Integrations Overview"
+description: "Connect Fileloom to external storage providers like AWS S3 and Supabase to store generated PDFs in your own infrastructure."
 ---
 
+Fileloom integrates with external storage providers, giving you flexibility in where your generated PDFs are stored.
+
+## Why External Storage?
+
+By default, Fileloom stores generated PDFs in Firebase Storage with permanent public URLs. External storage lets you:
+
+- **Keep PDFs in your infrastructure** — Meet compliance and data residency requirements
+- **Integrate with existing workflows** — Use your current storage systems
+- **Control access** — Manage permissions with your own policies
+- **Reduce costs** — Leverage existing storage allocations
+
+## Supported Providers
+
+<CardGroup cols={2}>
+  <Card title="AWS S3" icon="aws" href="/integrations/aws-s3">
+    Store PDFs in Amazon S3 buckets with full control over regions, paths, and permissions
+  </Card>
+  <Card title="Supabase Storage" icon="database" href="/integrations/supabase">
+    S3-compatible storage integrated with your Supabase project
+  </Card>
+</CardGroup>
+
+## Storage Modes
+
+Configure how Fileloom handles PDF storage in **Workspace Settings** → **Storage**:
+
+| Mode | Fileloom Storage | External Storage | Best For |
+|------|------------------|------------------|----------|
+| **Fileloom** | ✅ | ❌ | Simple setup, getting started |
+| **External** | ❌ | ✅ | Compliance, existing infrastructure |
+| **Both** | ✅ | ✅ | Redundancy, migration period |
+
+### Mode Behaviors
+
+**Fileloom Mode (Default)**
+- PDFs stored in Firebase Storage
+- Permanent public URLs
+- 24-hour signed URLs for secure access
+- No configuration needed
+
+**External Mode**
+- PDFs stored only in your external provider
+- URLs from your storage provider
+- If external upload fails, falls back to Fileloom to prevent data loss
+
+**Both Mode**
+- PDFs stored in Fileloom AND external provider
+- Primary URL from Fileloom
+- External copies listed in API response
+- Best for gradual migration or backup
+
+## Plan Requirements
+
+| Feature | Free | Starter | Growth | Scale+ |
+|---------|------|---------|--------|--------|
+| External Storage | ❌ | ✅ | ✅ | ✅ |
+| Multiple Connections | ❌ | ❌ | ✅ | ✅ |
+
+<Info>
+  External storage requires a **Starter plan or higher**.
+</Info>
+
+## Quick Setup
+
+<Steps>
+  <Step title="Go to Storage Settings">
+    Open **Workspace Settings** → **Storage** in the dashboard.
+  </Step>
+  <Step title="Select Storage Mode">
+    Choose **External** or **Both**.
+  </Step>
+  <Step title="Add Connection">
+    Click **Add Connection** and select your provider.
+  </Step>
+  <Step title="Enter Credentials">
+    Provide the required credentials for your provider.
+  </Step>
+  <Step title="Configure Path Pattern">
+    Set how files should be organized in your storage.
+  </Step>
+  <Step title="Test Connection">
+    Click **Test Connection** to verify everything works.
+  </Step>
+  <Step title="Save">
+    Save your configuration.
+  </Step>
+</Steps>
+
+## Path Patterns
+
+Customize file organization with path pattern variables:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `{year}` | Current year | 2024 |
+| `{month}` | Current month (01-12) | 12 |
+| `{day}` | Current day (01-31) | 15 |
+| `{workspace}` | Workspace ID | ws_abc123 |
+| `{template}` | Template ID | tpl_xyz789 |
+| `{filename}` | Generated filename | invoice-001.pdf |
+| `{fileid}` | Unique file ID | file_abc123 |
+
+**Example Patterns:**
+```
+pdfs/{year}/{month}/{filename}
+→ pdfs/2024/12/invoice-001.pdf
+
+{workspace}/{year}-{month}-{day}/{filename}
+→ ws_abc123/2024-12-15/invoice-001.pdf
+
+invoices/{template}/{fileid}.pdf
+→ invoices/tpl_invoice_v2/file_abc123.pdf
+```
+
+## API Response
+
+When external storage is configured, the API response includes external copy information:
+```json
+{
+  "success": true,
+  "data": {
+    "fileId": "file_abc123",
+    "url": "https://storage.googleapis.com/...",
+    "storageProvider": "firebase",
+    "externalCopies": [
+      {
+        "provider": "s3",
+        "name": "Production S3",
+        "url": "https://my-bucket.s3.amazonaws.com/pdfs/2024/12/invoice.pdf",
+        "expiresAt": "2024-12-16T10:30:00Z"
+      }
+    ]
+  }
+}
+```
+
+## Connection Status
+
+Monitor connections in the dashboard:
+
+| Status | Description |
+|--------|-------------|
+| **Active** | Working normally |
+| **Error** | Recent upload failed |
+| **Disabled** | Manually disabled |
+
+Each connection shows:
+- Total uploads
+- Success rate
+- Last successful upload
+- Recent errors
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="AWS S3" icon="aws" href="/integrations/aws-s3">
+    Set up Amazon S3 storage
+  </Card>
+  <Card title="Supabase" icon="database" href="/integrations/supabase">
+    Set up Supabase storage
+  </Card>
+</CardGroup>

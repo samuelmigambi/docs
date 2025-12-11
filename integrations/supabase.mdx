@@ -1,5 +1,269 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Supabase Storage Integration"
+description: "Store generated PDFs in Supabase Storage, fully integrated with your Supabase project."
 ---
 
+Connect Fileloom to Supabase Storage to keep generated PDFs alongside your application data.
+
+<Info>
+  Supabase integration requires a **Starter plan or higher**.
+</Info>
+
+## Prerequisites
+
+Before configuring Supabase integration, you need:
+
+1. A Supabase project
+2. Storage enabled on your project
+3. A storage bucket created
+4. Service role key (for server-side access)
+
+## Setting Up Supabase Storage
+
+<Steps>
+  <Step title="Open Supabase Dashboard">
+    Go to your [Supabase project dashboard](https://supabase.com/dashboard).
+  </Step>
+  <Step title="Enable Storage">
+    Navigate to **Storage** in the sidebar.
+  </Step>
+  <Step title="Create Bucket">
+    Click **New bucket** and configure:
+    - Name: `fileloom-pdfs` (or your preference)
+    - Public: Off (recommended)
+  </Step>
+  <Step title="Get Credentials">
+    Go to **Settings** → **API** to find your project URL and service key.
+  </Step>
+</Steps>
+
+## Getting Your Credentials
+
+### Project URL
+
+Found in **Settings** → **API** → **Project URL**:
+```
+https://xyzabcdef.supabase.co
+```
+
+### Service Role Key
+
+Found in **Settings** → **API** → **Service role key** (secret):
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+<Warning>
+  The service role key bypasses Row Level Security. Keep it secret and never expose it in client-side code.
+</Warning>
+
+## Configuring in Fileloom
+
+<Steps>
+  <Step title="Open Storage Settings">
+    Go to **Workspace Settings** → **Storage**.
+  </Step>
+  <Step title="Select Mode">
+    Choose **External** or **Both** storage mode.
+  </Step>
+  <Step title="Add Connection">
+    Click **Add Connection** → **Supabase**.
+  </Step>
+  <Step title="Enter Configuration">
+    Fill in the required fields (see below).
+  </Step>
+  <Step title="Test Connection">
+    Click **Test Connection** to verify.
+  </Step>
+  <Step title="Save">
+    Click **Save** to activate.
+  </Step>
+</Steps>
+
+### Configuration Fields
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Connection Name** | Friendly name | Production Supabase |
+| **Project URL** | Your Supabase project URL | https://xyz.supabase.co |
+| **Bucket Name** | Storage bucket name | fileloom-pdfs |
+| **Service Role Key** | Service role API key | eyJhbG... |
+| **Path Pattern** | File organization pattern | {year}/{month}/{filename} |
+
+## Path Pattern Examples
+
+Organize files in your bucket:
+```
+# By date
+{year}/{month}/{filename}
+→ 2024/12/invoice-001.pdf
+
+# By workspace and date
+{workspace}/{year}-{month}-{day}/{filename}
+→ ws_abc123/2024-12-15/invoice-001.pdf
+
+# Flat with unique IDs
+{fileid}.pdf
+→ file_abc123xyz.pdf
+```
+
+## URL Format
+
+Files are accessible via Supabase Storage URLs:
+
+**Private bucket (signed URL):**
+```
+https://xyz.supabase.co/storage/v1/object/sign/fileloom-pdfs/2024/12/invoice.pdf?token=...
+```
+
+**Public bucket:**
+```
+https://xyz.supabase.co/storage/v1/object/public/fileloom-pdfs/2024/12/invoice.pdf
+```
+
+## Bucket Policies
+
+### Private Bucket (Recommended)
+
+For private access, no additional policies needed. Files accessed via signed URLs.
+
+### Public Bucket
+
+If you need public access, create the bucket as public or add a policy:
+
+1. Go to **Storage** → **Policies**
+2. Click **New Policy** on your bucket
+3. Select **For full customization**
+4. Add policy:
+```sql
+-- Allow public read access
+CREATE POLICY "Public read access"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'fileloom-pdfs');
+```
+
+## Row Level Security
+
+Supabase Storage supports RLS for fine-grained access control.
+
+### Example: User-specific folders
+```sql
+-- Allow users to read their own files
+CREATE POLICY "Users can read own files"
+ON storage.objects FOR SELECT
+USING (
+  bucket_id = 'fileloom-pdfs' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
+```
+
+For Fileloom integration, the service role key bypasses RLS, so files are always uploaded successfully.
+
+## Troubleshooting
+
+### Connection Failed
+
+**Symptoms:** Test connection fails
+
+**Solutions:**
+- Verify project URL is correct (no trailing slash)
+- Check service role key is the full key, not truncated
+- Ensure bucket exists with exact name
+- Verify project is not paused
+
+### Upload Failed
+
+**Symptoms:** PDFs not appearing in bucket
+
+**Solutions:**
+- Check bucket name matches exactly (case-sensitive)
+- Verify service role key has not been regenerated
+- Check Supabase project is on a plan with sufficient storage
+- Review path pattern for invalid characters
+
+### Access Denied
+
+**Symptoms:** 403 errors when accessing files
+
+**Solutions:**
+- For private buckets, ensure you're using signed URLs
+- For public buckets, verify bucket is set to public
+- Check RLS policies aren't blocking access
+
+### File Not Found
+
+**Symptoms:** 404 errors for uploaded files
+
+**Solutions:**
+- Verify path pattern doesn't create deeply nested folders
+- Check for special characters in filename
+- Ensure file wasn't deleted by Supabase lifecycle rules
+
+## Storage Limits
+
+Supabase storage limits by plan:
+
+| Plan | Storage | Bandwidth |
+|------|---------|-----------|
+| Free | 1 GB | 2 GB/month |
+| Pro | 100 GB | 200 GB/month |
+| Team | 100 GB | 200 GB/month |
+| Enterprise | Custom | Custom |
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Private Buckets" icon="lock">
+    Keep buckets private and use signed URLs for access
+  </Card>
+  <Card title="Organize by Date" icon="folder">
+    Use date-based paths for easier management and cleanup
+  </Card>
+  <Card title="Monitor Storage" icon="chart-pie">
+    Set up alerts before hitting storage limits
+  </Card>
+  <Card title="Backup Keys" icon="key">
+    Store service role key securely; regenerating invalidates the old one
+  </Card>
+</CardGroup>
+
+## Integration with Your App
+
+Since files are in your Supabase project, you can access them directly:
+
+### JavaScript/TypeScript
+```javascript
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+// Get signed URL for private file
+const { data, error } = await supabase.storage
+  .from('fileloom-pdfs')
+  .createSignedUrl('2024/12/invoice-001.pdf', 3600) // 1 hour expiry
+
+console.log(data.signedUrl)
+
+// Download file
+const { data: fileData, error: downloadError } = await supabase.storage
+  .from('fileloom-pdfs')
+  .download('2024/12/invoice-001.pdf')
+```
+
+### List Files
+```javascript
+const { data, error } = await supabase.storage
+  .from('fileloom-pdfs')
+  .list('2024/12', {
+    limit: 100,
+    offset: 0,
+    sortBy: { column: 'created_at', order: 'desc' }
+  })
+```
+
+### Delete Files
+```javascript
+const { error } = await supabase.storage
+  .from('fileloom-pdfs')
+  .remove(['2024/12/invoice-001.pdf'])
+```

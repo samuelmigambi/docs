@@ -1,5 +1,249 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Logic Helpers"
+description: "Perform boolean operations with and, or, not, isEmpty, isNotEmpty, ternary, and default."
 ---
 
+Logic helpers perform boolean operations and provide fallback values.
+
+## and
+
+Returns `true` if ALL arguments are truthy.
+```handlebars
+{{and true true}}
+```
+
+**Output:** `true`
+```handlebars
+{{and true false}}
+```
+
+**Output:** `false`
+```handlebars
+{{#if (and isActive isPaid hasStock)}}
+  <button>Buy Now</button>
+{{/if}}
+```
+
+**Multiple arguments:**
+```handlebars
+{{#if (and condition1 condition2 condition3 condition4)}}
+  All conditions met!
+{{/if}}
+```
+
+## or
+
+Returns `true` if ANY argument is truthy.
+```handlebars
+{{or false true}}
+```
+
+**Output:** `true`
+```handlebars
+{{#if (or isAdmin isModerator isOwner)}}
+  <button>Edit</button>
+{{/if}}
+```
+
+## not
+
+Inverts a boolean value.
+```handlebars
+{{not true}}
+```
+
+**Output:** `false`
+```handlebars
+{{#if (not isDeleted)}}
+  <div class="item">...</div>
+{{/if}}
+
+{{#if (not (eq status "archived"))}}
+  <button>Archive</button>
+{{/if}}
+```
+
+## isEmpty
+
+Returns `true` if the value is empty (null, undefined, empty string, empty array, or empty object).
+```handlebars
+{{isEmpty ""}}
+```
+
+**Output:** `true`
+```handlebars
+{{isEmpty []}}
+```
+
+**Output:** `true`
+```handlebars
+{{#if (isEmpty items)}}
+  <p>No items found.</p>
+{{else}}
+  {{#each items}}...{{/each}}
+{{/if}}
+
+{{#if (isEmpty notes)}}
+  <p class="no-notes">No additional notes</p>
+{{else}}
+  <p>{{notes}}</p>
+{{/if}}
+```
+
+## isNotEmpty
+
+Returns `true` if the value is NOT empty.
+```handlebars
+{{isNotEmpty "hello"}}
+```
+
+**Output:** `true`
+```handlebars
+{{#if (isNotEmpty customer.phone)}}
+  <p>Phone: {{customer.phone}}</p>
+{{/if}}
+
+{{#if (isNotEmpty attachments)}}
+  <h3>Attachments</h3>
+  {{#each attachments}}...{{/each}}
+{{/if}}
+```
+
+## ternary
+
+Returns one value if condition is true, another if false (inline if-else).
+```handlebars
+{{ternary condition "yes" "no"}}
+```
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| `condition` | any | Value to test for truthiness |
+| `ifTrue` | any | Value to return if true |
+| `ifFalse` | any | Value to return if false |
+
+**Examples:**
+```handlebars
+{{ternary isPaid "Paid" "Unpaid"}}
+```
+```handlebars
+<span class="{{ternary isActive 'active' 'inactive'}}">
+  {{ternary isActive "Active" "Inactive"}}
+</span>
+```
+```handlebars
+<tr class="{{ternary (eq (modulo @index 2) 0) 'even' 'odd'}}">
+```
+
+## default
+
+Returns a default value if the primary value is null, undefined, or empty string.
+```handlebars
+{{default value "fallback"}}
+```
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| `value` | any | Primary value to check |
+| `defaultValue` | any | Fallback if primary is empty |
+
+**Examples:**
+```handlebars
+{{default customer.nickname customer.name}}
+```
+```handlebars
+<p>Notes: {{default notes "No additional notes"}}</p>
+```
+```handlebars
+<img src="{{default user.avatar '/images/default-avatar.png'}}" alt="Avatar">
+```
+
+## Combining Logic Helpers
+
+### Complex Conditions
+```handlebars
+{{! Show button if active AND (admin OR owner) }}
+{{#if (and isActive (or isAdmin isOwner))}}
+  <button>Manage</button>
+{{/if}}
+
+{{! Show if not empty and not archived }}
+{{#if (and (isNotEmpty items) (not isArchived))}}
+  <ul>{{#each items}}<li>{{this}}</li>{{/each}}</ul>
+{{/if}}
+```
+
+### Nested Ternary
+```handlebars
+{{ternary isPaid "Paid" (ternary isOverdue "Overdue" "Pending")}}
+```
+
+## Practical Examples
+
+### Status with Fallback
+```handlebars
+<span class="status">
+  {{default status "Unknown"}}
+</span>
+```
+
+### Conditional CSS Classes
+```handlebars
+<div class="card {{ternary isHighlighted 'highlighted' ''}} {{ternary isUrgent 'urgent' ''}}">
+  ...
+</div>
+```
+
+### Empty State Handling
+```handlebars
+{{#if (isNotEmpty orders)}}
+  <table>
+    <thead>...</thead>
+    <tbody>
+      {{#each orders}}
+        <tr>...</tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{else}}
+  <div class="empty-state">
+    <p>No orders yet.</p>
+    <a href="/products">Start shopping</a>
+  </div>
+{{/if}}
+```
+
+### Permission-Based UI
+```handlebars
+{{#if (or isAdmin (and isEditor (not isLocked)))}}
+  <button class="edit-btn">Edit</button>
+{{/if}}
+
+{{#if (and isOwner (not isArchived))}}
+  <button class="delete-btn">Delete</button>
+{{/if}}
+```
+
+### Optional Sections
+```handlebars
+{{#if (isNotEmpty customer.company)}}
+  <p class="company">{{customer.company}}</p>
+{{/if}}
+
+{{#if (isNotEmpty billingAddress)}}
+  <div class="billing-address">
+    <h4>Billing Address</h4>
+    {{billingAddress}}
+  </div>
+{{/if}}
+```
+
+### Row Striping
+```handlebars
+{{#each items}}
+  <tr class="{{ternary (eq (modulo @index 2) 0) 'row-even' 'row-odd'}}">
+    <td>{{this.name}}</td>
+    <td>{{currency this.price "USD"}}</td>
+  </tr>
+{{/each}}
+```

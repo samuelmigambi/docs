@@ -1,5 +1,168 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Glossary"
+description: "Definitions of terms and concepts used throughout Fileloom documentation."
 ---
 
+## A
+
+### API Key
+A secret credential used to authenticate requests to the Fileloom API. Format: `fl_` followed by a random string. API keys should never be exposed in client-side code.
+
+### Auto Top-Up
+A feature that automatically purchases credit packs when your usage reaches a configured threshold, preventing service interruption.
+
+## B
+
+### Billing Period
+The recurring time interval for subscription charges. Fileloom offers monthly and annual billing periods, with annual billing providing a 20% discount.
+
+## C
+
+### Credit Pack
+A one-time purchase of additional PDF generation credits. Credit packs expire 90 days after purchase and are consumed after monthly quota is exhausted.
+
+### Credits
+Units representing the ability to generate PDFs. One credit = one PDF generation. Credits come from either monthly quota (subscription) or purchased credit packs.
+
+## D
+
+### Document ID
+A unique identifier assigned to each record in the database. Prefixed by type: `ws_` (workspace), `tpl_` (template), `file_` (file), `key_` (API key), `usr_` (user).
+
+## E
+
+### External Storage
+The ability to save generated PDFs to third-party storage providers (AWS S3, Supabase) in addition to or instead of Fileloom's storage.
+
+## F
+
+### FIFO (First In, First Out)
+The consumption order for credits. Monthly quota is used first, then the oldest purchased credit pack (by expiration date).
+
+### File Retention
+The duration that generated PDFs are stored before automatic deletion. Varies by plan from 7 days (Free) to 365 days (Enterprise).
+
+## G
+
+### Generation Method
+How a PDF is created: either from raw `htmlContent` or from a saved `templateId` with `templateData`.
+
+## H
+
+### Handlebars
+The templating engine used by Fileloom. Supports variables (`{{name}}`), conditionals (`{{#if}}`), loops (`{{#each}}`), and helper functions.
+
+### Helper Function
+A built-in Handlebars function that transforms data. Fileloom provides 70+ helpers for text formatting, math, dates, currency, and more.
+
+### HMAC-SHA256
+The cryptographic algorithm used to sign webhook payloads, allowing you to verify that webhooks genuinely came from Fileloom.
+
+## I
+
+### Idempotency
+The property where making the same request multiple times produces the same result. Use the `requestId` to track unique generations.
+
+## M
+
+### Margins
+The space between page content and the page edge, specified in millimeters. Can be set per-side (top, right, bottom, left).
+
+### Monthly Quota
+The number of PDFs included with your subscription plan each month. Resets to full allocation on the 1st of each month.
+
+## O
+
+### Orientation
+The page layout direction: `portrait` (taller than wide) or `landscape` (wider than tall).
+
+### Output Name
+A Handlebars template for generating dynamic filenames based on template data. Example: `invoice-{{invoiceNumber}}.pdf`
+
+## P
+
+### Page Format
+Standard page sizes supported by Fileloom: A0-A6, Letter, Legal, Tabloid, Ledger, or Custom dimensions.
+
+### Plan
+A subscription tier that determines your monthly quota, rate limits, and available features. Plans range from Free to Scale Enterprise.
+
+### Polar.sh
+Fileloom's payment processor, handling subscriptions and credit pack purchases.
+
+### Print Background
+An option that includes background colors and images in the generated PDF. Enabled by default.
+
+## Q
+
+### Quota
+See [Monthly Quota](#monthly-quota).
+
+## R
+
+### Rate Limit
+The maximum number of API requests allowed per time period. Varies by plan from 10/minute (Free) to unlimited (Enterprise).
+
+### Request ID
+A unique identifier assigned to each API request. Format: `req_` followed by timestamp and random string. Used for debugging and support.
+
+### Retention
+See [File Retention](#file-retention).
+
+## S
+
+### Signed URL
+A temporary URL with embedded authentication that expires after a set time (24 hours for Fileloom). Used for secure file access.
+
+### SLA (Service Level Agreement)
+A commitment to uptime availability. Scale plans include SLA guarantees: 99.5% (Scale), 99.9% (Business), 99.99% (Enterprise).
+
+### Storage Mode
+Configuration for where generated PDFs are saved:
+- `fileloom` - Fileloom storage only (default)
+- `external` - External storage only
+- `both` - Both Fileloom and external storage
+
+## T
+
+### Template
+A reusable HTML document with Handlebars placeholders that can be populated with dynamic data to generate PDFs.
+
+### Template Data
+A JSON object containing values to populate template placeholders. Passed via `templateData` in the API request.
+
+### Timeout
+The maximum time allowed for PDF generation before the request fails. Varies by plan from 15 seconds (Free) to 300 seconds (Enterprise).
+
+### Twemoji
+Twitter's open-source emoji library, automatically injected by Fileloom to ensure consistent emoji rendering across platforms.
+
+## U
+
+### Usage
+Metrics tracking your PDF generation activity: PDFs generated, quota consumed, credits used, storage used.
+
+## W
+
+### Webhook
+An HTTP callback that Fileloom sends to your server when specific events occur (e.g., PDF generated, PDF failed).
+
+### Webhook Secret
+A random string used to sign webhook payloads with HMAC-SHA256. Used to verify webhook authenticity.
+
+### Workspace
+The top-level organizational unit in Fileloom. Contains templates, API keys, files, team members, and billing. Each workspace has its own quota and settings.
+
+### Workspace Member
+A user with access to a workspace. Roles include:
+- **Owner** - Full access, can delete workspace
+- **Editor** - Can create/edit templates and generate PDFs
+- **Viewer** - Read-only access
+
+## X
+
+### X-API-Key
+The HTTP header used to pass your API key for authentication. Alternative: `Authorization: Bearer <api_key>`
+
+### X-Fileloom-Signature
+The HTTP header containing the HMAC-SHA256 signature of a webhook payload.

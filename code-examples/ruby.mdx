@@ -1,5 +1,120 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Ruby Examples"
+description: "Generate PDFs in Ruby using Net::HTTP."
 ---
 
+## Client
+```ruby
+require 'net/http'
+require 'json'
+
+class FileloomClient
+  def initialize(api_key)
+    @api_key = api_key
+    @base_url = 'https://api.fileloom.io/v1'
+  end
+
+  def generate_pdf(html: nil, template_id: nil, template_data: nil, filename: nil)
+    payload = {}
+    payload[:htmlContent] = html if html
+    payload[:templateId] = template_id if template_id
+    payload[:templateData] = template_data if template_data
+    payload[:filename] = filename if filename
+
+    uri = URI("#{@base_url}/pdf/generate")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    request = Net::HTTP::Post.new(uri)
+    request['X-API-Key'] = @api_key
+    request['Content-Type'] = 'application/json'
+    request.body = payload.to_json
+
+    response = http.request(request)
+    data = JSON.parse(response.body)
+
+    unless response.is_a?(Net::HTTPSuccess)
+      raise FileloomError.new(data.dig('error', 'message') || 'Unknown',
+        data.dig('error', 'code') || 'UNKNOWN', response.code.to_i)
+    end
+    data
+  end
+
+  def download_pdf(url, path)
+    response = Net::HTTP.get_response(URI(url))
+    File.binwrite(path, response.body)
+  end
+end
+
+class FileloomError < StandardError
+  attr_reader :code, :status
+  def initialize(msg, code, status)
+    super(msg)
+    @code = code
+    @status = status
+  end
+end
+```
+
+## Usage
+```ruby
+client = FileloomClient.new(ENV['FILELOOM_API_KEY'])
+
+# From HTML
+result = client.generate_pdf(html: '<h1>Hello</h1>', filename: 'hello.pdf')
+puts "URL: #{result['data']['url']}"
+
+# From template
+result = client.generate_pdf(
+  template_id: 'tpl_invoice_v2',
+  template_data: {
+    invoiceNumber: 'INV-001',
+    customer: { name: 'Acme Corp' },
+    items: [{ description: 'Web Dev', quantity: 10, price: 150 }],
+    total: 1500
+  },
+  filename: 'invoice.pdf'
+)
+
+# Download
+client.download_pdf(result['data']['url'], './invoice.pdf')
+```
+
+## Rails Integration
+```ruby
+# app/services/fileloom_service.rb
+class FileloomService
+  def initialize
+    @client = FileloomClient.new(Rails.application.credentials.fileloom_api_key)
+  end
+
+  def generate_invoice_pdf(invoice)
+    @client.generate_pdf(
+      template_id: 'tpl_invoice_v2',
+      template_data: invoice.as_fileloom_data,
+      filename: "invoice-#{invoice.number}.pdf"
+    )
+  end
+end
+
+# app/models/invoice.rb
+class Invoice < ApplicationRecord
+  def as_fileloom_data
+    {
+      invoiceNumber: number,
+      customer: { name: customer.name, email: customer.email },
+      items: line_items.map { |i| { description: i.description, quantity: i.quantity, price: i.unit_price } },
+      total: total.to_f
+    }
+  end
+end
+
+# app/controllers/invoices_controller.rb
+class InvoicesController < ApplicationController
+  def generate_pdf
+    invoice = Invoice.find(params[:id])
+    result = FileloomService.new.generate_invoice_pdf(invoice)
+    render json: { pdf_url: result['data']['url'] }
+  end
+end
+```

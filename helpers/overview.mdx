@@ -1,5 +1,132 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Helpers Overview"
+description: "Fileloom provides 70+ built-in Handlebars helpers for text formatting, math, dates, currency, and more."
 ---
 
+Helpers are functions you can use inside your templates to transform and format data. Fileloom includes 70+ built-in helpers organized into categories.
+
+## Using Helpers
+
+Call helpers inside Handlebars expressions:
+```handlebars
+{{! Single argument }}
+{{uppercase name}}
+
+{{! Multiple arguments }}
+{{currency amount "USD"}}
+
+{{! With string literals }}
+{{formatDate date "MMMM D, YYYY"}}
+
+{{! Nested helpers (inner executes first) }}
+{{currency (multiply price quantity) "USD"}}
+```
+
+## Helper Categories
+
+<CardGroup cols={2}>
+  <Card title="Text Transformation" icon="font" href="/helpers/text">
+    uppercase, lowercase, capitalize, titleCase, slugify, camelCase, snakeCase, initials
+  </Card>
+  <Card title="String Manipulation" icon="scissors" href="/helpers/string">
+    trim, truncate, substring, replace, repeat, padStart, padEnd, reverse, removeSpaces
+  </Card>
+  <Card title="Math Operations" icon="calculator" href="/helpers/math">
+    add, subtract, multiply, divide, modulo, power, sqrt, round, ceil, floor, abs, random
+  </Card>
+  <Card title="Number Formatting" icon="hashtag" href="/helpers/numbers">
+    formatNumber, currency, percentage, formatBytes, ordinal
+  </Card>
+  <Card title="Date & Time" icon="calendar" href="/helpers/dates">
+    formatDate, formatTime, formatDateTime, now, addDays, daysBetween, monthName, dayName
+  </Card>
+  <Card title="Comparison" icon="code-compare" href="/helpers/comparison">
+    gt, lt, gte, lte, eq, neq
+  </Card>
+  <Card title="Logic" icon="diagram-project" href="/helpers/logic">
+    and, or, not, isEmpty, isNotEmpty, ternary, default
+  </Card>
+  <Card title="Arrays" icon="list" href="/helpers/arrays">
+    first, last, at, join, length, contains, sum, average, max, min
+  </Card>
+  <Card title="Business" icon="briefcase" href="/helpers/business">
+    calculateTax, calculateDiscount, netAmount, invoiceNumber, dueDate
+  </Card>
+</CardGroup>
+
+## Quick Reference
+
+### Most Used Helpers
+
+| Helper | Example | Result |
+|--------|---------|--------|
+| `currency` | `{{currency 1234.5 "USD"}}` | $1,234.50 |
+| `formatDate` | `{{formatDate date "MMM D, YYYY"}}` | Dec 15, 2024 |
+| `uppercase` | `{{uppercase "hello"}}` | HELLO |
+| `add` | `{{add 10 5}}` | 15 |
+| `multiply` | `{{multiply 10 5}}` | 50 |
+| `formatNumber` | `{{formatNumber 1234567}}` | 1,234,567.00 |
+
+### Combining Helpers
+
+Nest helpers to perform multiple operations:
+```handlebars
+{{! Calculate and format total }}
+{{currency (multiply quantity unitPrice) "USD"}}
+
+{{! Format uppercase date }}
+{{uppercase (formatDate date "MMMM")}}
+
+{{! Round then format }}
+{{formatNumber (round value 2) 2}}
+```
+
+### Helpers in Conditionals
+
+Use comparison helpers with `#if`:
+```handlebars
+{{#if (gt total 1000)}}
+  <p class="discount">Eligible for bulk discount!</p>
+{{/if}}
+
+{{#if (and isPaid (not isRefunded))}}
+  <span class="badge">Payment Complete</span>
+{{/if}}
+
+{{#if (eq status "active")}}
+  <span class="active">Active</span>
+{{/if}}
+```
+
+### Helpers in Loops
+
+Use helpers inside `#each`:
+```handlebars
+{{#each items}}
+  <tr>
+    <td>{{uppercase this.name}}</td>
+    <td>{{formatNumber this.quantity 0}}</td>
+    <td>{{currency this.price "USD"}}</td>
+    <td>{{currency (multiply this.quantity this.price) "USD"}}</td>
+  </tr>
+{{/each}}
+
+<tr class="totals">
+  <td colspan="3">Total</td>
+  <td>{{currency (sum items "price") "USD"}}</td>
+</tr>
+```
+
+## Next Steps
+
+Explore each helper category for detailed documentation and examples:
+
+- [Text Transformation](/helpers/text) — Change text case and format
+- [String Manipulation](/helpers/string) — Trim, truncate, replace text
+- [Math Operations](/helpers/math) — Arithmetic and rounding
+- [Number Formatting](/helpers/numbers) — Currency, percentages, bytes
+- [Date & Time](/helpers/dates) — Format and manipulate dates
+- [Comparison](/helpers/comparison) — Compare values
+- [Logic](/helpers/logic) — Boolean operations
+- [Arrays](/helpers/arrays) — Work with lists
+- [Business](/helpers/business) — Invoices, tax, discounts

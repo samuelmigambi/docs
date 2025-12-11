@@ -1,5 +1,177 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Headers & Footers"
+description: "Add page numbers, dates, and repeated content to every page of your PDF."
 ---
 
+Headers and footers appear on every page of your generated PDF. They're ideal for page numbers, document titles, dates, and branding.
+
+## Enabling Headers & Footers
+
+In the Settings panel:
+
+1. Toggle **Header** or **Footer** to enabled
+2. Set the **Height** in millimeters
+3. Enter the **Content** (HTML)
+
+## Header Configuration
+
+| Setting | Description |
+|---------|-------------|
+| **Enabled** | Toggle header on/off |
+| **Height** | Header height in mm (default: 15mm) |
+| **Content** | HTML template for header |
+
+## Footer Configuration
+
+| Setting | Description |
+|---------|-------------|
+| **Enabled** | Toggle footer on/off |
+| **Height** | Footer height in mm (default: 10mm) |
+| **Content** | HTML template for footer |
+
+## Special CSS Classes
+
+Fileloom provides special CSS classes that are automatically populated:
+
+| Class | Value |
+|-------|-------|
+| `pageNumber` | Current page number |
+| `totalPages` | Total number of pages |
+| `date` | Current date |
+| `title` | Document title |
+| `url` | Document URL |
+
+### Example: Page Numbers
+```html
+<div style="font-size: 10px; text-align: center; width: 100%;">
+  Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+</div>
+```
+
+**Output:** Page 1 of 5
+
+### Example: Header with Logo and Title
+```html
+<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 20px; font-size: 10px;">
+  <img src="https://yoursite.com/logo.png" style="height: 20px;" />
+  <span>Invoice #INV-2024-001</span>
+  <span class="date"></span>
+</div>
+```
+
+### Example: Footer with Page Numbers and Copyright
+```html
+<div style="display: flex; justify-content: space-between; width: 100%; padding: 0 20px; font-size: 9px; color: #666;">
+  <span>© 2024 Your Company</span>
+  <span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
+  <span>Confidential</span>
+</div>
+```
+
+## Styling Headers & Footers
+
+Headers and footers support inline CSS:
+```html
+<div style="
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 10px;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  width: 100%;
+">
+  <strong>Company Name</strong> | Document Title
+</div>
+```
+
+<Warning>
+  Headers and footers have a **separate rendering context** from the main document. External stylesheets and CSS from the main template don't apply. Use inline styles.
+</Warning>
+
+## Important Notes
+
+### Margin Requirements
+
+The top margin must accommodate the header height, and the bottom margin must accommodate the footer height. Fileloom automatically adjusts margins if they're too small.
+
+**Example:**
+- Header height: 15mm
+- Footer height: 10mm
+- Minimum top margin: 15mm
+- Minimum bottom margin: 10mm
+
+### Font Loading
+
+For consistent fonts in headers/footers, use web-safe fonts or inline the font:
+```html
+<div style="font-family: Arial, Helvetica, sans-serif;">
+  Page <span class="pageNumber"></span>
+</div>
+```
+
+Or reference Google Fonts directly:
+```html
+<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+<div style="font-family: 'Inter', sans-serif;">
+  Page <span class="pageNumber"></span>
+</div>
+```
+
+### Dynamic Content
+
+You **cannot** use Handlebars variables directly in header/footer content. The special classes (`pageNumber`, `totalPages`, etc.) are the only dynamic values available.
+
+For document-specific content in headers/footers, include it in the main HTML body positioned at the top/bottom of each page using CSS.
+
+## Headers & Footers via API
+
+When using raw HTML, configure headers and footers in the options:
+```json
+{
+  "htmlContent": "<h1>My Document</h1><p>Content here...</p>",
+  "options": {
+    "header": {
+      "enabled": true,
+      "height": 15,
+      "content": "<div style='text-align: center; font-size: 10px;'>Company Name</div>"
+    },
+    "footer": {
+      "enabled": true,
+      "height": 10,
+      "content": "<div style='text-align: center; font-size: 9px;'>Page <span class='pageNumber'></span> of <span class='totalPages'></span></div>"
+    }
+  }
+}
+```
+
+## Common Patterns
+
+### Centered Page Numbers
+```html
+<div style="text-align: center; font-size: 10px; width: 100%;">
+  <span class="pageNumber"></span>
+</div>
+```
+
+### Right-Aligned Page Numbers
+```html
+<div style="text-align: right; font-size: 10px; width: 100%; padding-right: 20px;">
+  <span class="pageNumber"></span> / <span class="totalPages"></span>
+</div>
+```
+
+### Three-Column Footer
+```html
+<div style="display: flex; justify-content: space-between; font-size: 9px; width: 100%; padding: 0 20px;">
+  <span>Left Content</span>
+  <span>Center Content</span>
+  <span>Right Content</span>
+</div>
+```
+
+### Date in Header
+```html
+<div style="text-align: right; font-size: 10px; width: 100%; padding-right: 20px;">
+  Generated: <span class="date"></span>
+</div>
+```

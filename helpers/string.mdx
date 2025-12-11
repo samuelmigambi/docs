@@ -1,5 +1,211 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "String Manipulation Helpers"
+description: "Manipulate strings with trim, truncate, substring, replace, repeat, pad, and more."
 ---
 
+String manipulation helpers modify and transform text content.
+
+## trim
+
+Removes whitespace from both ends of a string.
+```handlebars
+{{trim "  hello world  "}}
+```
+
+**Output:** `hello world`
+
+## truncate
+
+Shortens text to a specified length with optional suffix.
+```handlebars
+{{truncate text 50}}
+{{truncate text 50 "..."}}
+{{truncate text 50 " [more]"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `text` | string | required | Text to truncate |
+| `length` | number | 100 | Maximum length |
+| `suffix` | string | "..." | Suffix when truncated |
+
+**Examples:**
+```handlebars
+{{truncate "This is a very long description that needs to be shortened" 30}}
+```
+
+**Output:** `This is a very long descriptio...`
+```handlebars
+{{truncate description 100 " [read more]"}}
+```
+
+## substring
+
+Extracts a portion of a string.
+```handlebars
+{{substring text 0 10}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `text` | string | required | Source text |
+| `start` | number | 0 | Start index |
+| `end` | number | end of string | End index |
+
+**Examples:**
+```handlebars
+{{substring "Hello World" 0 5}}
+```
+
+**Output:** `Hello`
+```handlebars
+{{substring "Hello World" 6}}
+```
+
+**Output:** `World`
+
+## replace
+
+Replaces all occurrences of a string with another.
+```handlebars
+{{replace text "find" "replace"}}
+```
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| `text` | string | Source text |
+| `find` | string | String to find |
+| `replace` | string | Replacement string |
+
+**Examples:**
+```handlebars
+{{replace "Hello World" "World" "Universe"}}
+```
+
+**Output:** `Hello Universe`
+```handlebars
+{{replace phoneNumber "-" ""}}
+<!-- Input: "555-123-4567" → Output: "5551234567" -->
+```
+
+## repeat
+
+Repeats a string a specified number of times.
+```handlebars
+{{repeat "=" 50}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `text` | string | required | Text to repeat |
+| `times` | number | 1 | Number of repetitions |
+
+**Examples:**
+```handlebars
+{{repeat "*" 5}}
+```
+
+**Output:** `*****`
+```handlebars
+<div class="separator">{{repeat "─" 40}}</div>
+```
+
+## padStart
+
+Pads the beginning of a string to reach a specified length.
+```handlebars
+{{padStart value 6 "0"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `text` | string | required | Text to pad |
+| `length` | number | 2 | Target length |
+| `padString` | string | " " | Padding character |
+
+**Examples:**
+```handlebars
+{{padStart "42" 6 "0"}}
+```
+
+**Output:** `000042`
+```handlebars
+Invoice #{{padStart invoiceNumber 8 "0"}}
+<!-- Input: 123 → Output: Invoice #00000123 -->
+```
+
+## padEnd
+
+Pads the end of a string to reach a specified length.
+```handlebars
+{{padEnd value 10 "."}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `text` | string | required | Text to pad |
+| `length` | number | 2 | Target length |
+| `padString` | string | " " | Padding character |
+
+**Examples:**
+```handlebars
+{{padEnd "Price" 20 "."}}${{price}}
+```
+
+**Output:** `Price...............$99.00`
+
+## reverse
+
+Reverses the characters in a string.
+```handlebars
+{{reverse "hello"}}
+```
+
+**Output:** `olleh`
+
+## removeSpaces
+
+Removes all whitespace from a string.
+```handlebars
+{{removeSpaces "hello world example"}}
+```
+
+**Output:** `helloworldexample`
+
+**Use cases:**
+- Phone numbers
+- Credit card numbers (for processing)
+- Compact identifiers
+```handlebars
+{{removeSpaces "1234 5678 9012 3456"}}
+<!-- Output: 1234567890123456 -->
+```
+
+## Practical Examples
+
+### Invoice Number Formatting
+```handlebars
+INV-{{padStart year 4 "0"}}-{{padStart month 2 "0"}}-{{padStart number 6 "0"}}
+<!-- Output: INV-2024-12-000042 -->
+```
+
+### Description Preview
+```handlebars
+<p class="preview">{{truncate description 150}}</p>
+<a href="/full">Read more</a>
+```
+
+### Clean Phone Display
+```handlebars
+{{! Format: (555) 123-4567 from 5551234567 }}
+({{substring phone 0 3}}) {{substring phone 3 6}}-{{substring phone 6 10}}
+```
+
+### Text Separator
+```handlebars
+<pre>
+{{repeat "=" 60}}
+  {{padEnd "Item" 30}}{{padStart "Amount" 25}}
+{{repeat "=" 60}}
+</pre>
+```

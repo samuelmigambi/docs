@@ -1,5 +1,327 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Handlebars Basics"
+description: "Learn Handlebars templating syntax for creating dynamic PDF content in Fileloom."
 ---
 
+Fileloom uses [Handlebars](https://handlebarsjs.com/) as its templating engine. This guide covers the syntax you need to create dynamic PDFs.
+
+## Basic Output
+
+Output variables using double curly braces:
+```handlebars
+<h1>Hello, {{name}}!</h1>
+<p>Your order #{{orderNumber}} is confirmed.</p>
+```
+
+With data `{"name": "John", "orderNumber": "12345"}`:
+```html
+<h1>Hello, John!</h1>
+<p>Your order #12345 is confirmed.</p>
+```
+
+## Nested Properties
+
+Access nested object properties with dot notation:
+```handlebars
+<p>{{customer.name}}</p>
+<p>{{customer.address.street}}</p>
+<p>{{customer.address.city}}, {{customer.address.state}} {{customer.address.zip}}</p>
+```
+
+With data:
+```json
+{
+  "customer": {
+    "name": "Acme Corp",
+    "address": {
+      "street": "123 Main St",
+      "city": "San Francisco",
+      "state": "CA",
+      "zip": "94102"
+    }
+  }
+}
+```
+
+## HTML Escaping
+
+By default, Handlebars escapes HTML characters for security:
+```handlebars
+{{description}}
+```
+
+Input: `<script>alert('xss')</script>`
+Output: `&lt;script&gt;alert('xss')&lt;/script&gt;`
+
+To output raw HTML (use carefully):
+```handlebars
+{{{rawHtml}}}
+```
+
+<Warning>
+  Only use triple braces `{{{` for HTML you trust. Never use it with user-generated content.
+</Warning>
+
+## Conditionals
+
+### Simple If
+```handlebars
+{{#if isPaid}}
+  <span class="badge paid">PAID</span>
+{{/if}}
+```
+
+### If-Else
+```handlebars
+{{#if isPaid}}
+  <span class="badge paid">PAID</span>
+{{else}}
+  <span class="badge unpaid">UNPAID</span>
+{{/if}}
+```
+
+### If-Else-If
+```handlebars
+{{#if isOverdue}}
+  <span class="badge overdue">OVERDUE</span>
+{{else if isPending}}
+  <span class="badge pending">PENDING</span>
+{{else}}
+  <span class="badge paid">PAID</span>
+{{/if}}
+```
+
+### Falsy Values
+
+`{{#if}}` treats these as false:
+- `false`
+- `undefined`
+- `null`
+- `""` (empty string)
+- `0`
+- `[]` (empty array)
+
+### Unless (Inverse If)
+```handlebars
+{{#unless isPaid}}
+  <p class="warning">Payment required</p>
+{{/unless}}
+```
+
+## Loops
+
+### Each
+
+Iterate over arrays:
+```handlebars
+<table>
+  {{#each items}}
+    <tr>
+      <td>{{this.name}}</td>
+      <td>{{this.quantity}}</td>
+      <td>{{currency this.price "USD"}}</td>
+    </tr>
+  {{/each}}
+</table>
+```
+
+With data:
+```json
+{
+  "items": [
+    {"name": "Widget", "quantity": 2, "price": 29.99},
+    {"name": "Gadget", "quantity": 1, "price": 49.99}
+  ]
+}
+```
+
+### Loop Variables
+
+Inside `{{#each}}`, special variables are available:
+
+| Variable | Description |
+|----------|-------------|
+| `this` | Current item |
+| `@index` | Zero-based index (0, 1, 2...) |
+| `@first` | True if first item |
+| `@last` | True if last item |
+| `@key` | Property name (for objects) |
+```handlebars
+{{#each items}}
+  <tr class="{{#if @first}}first-row{{/if}} {{#if @last}}last-row{{/if}}">
+    <td>{{add @index 1}}.</td>
+    <td>{{this.name}}</td>
+  </tr>
+{{/each}}
+```
+
+### Empty Arrays
+
+Handle empty arrays with `{{else}}`:
+```handlebars
+{{#each items}}
+  <tr><td>{{this.name}}</td></tr>
+{{else}}
+  <tr><td>No items found</td></tr>
+{{/each}}
+```
+
+### Iterating Objects
+
+Loop through object properties:
+```handlebars
+{{#each person}}
+  <p>{{@key}}: {{this}}</p>
+{{/each}}
+```
+
+With data `{"person": {"name": "John", "age": 30}}`:
+```html
+<p>name: John</p>
+<p>age: 30</p>
+```
+
+## Using Helpers
+
+Helpers transform or format data:
+```handlebars
+{{! Single argument }}
+{{uppercase name}}
+
+{{! Multiple arguments }}
+{{currency amount "EUR"}}
+
+{{! With string literals }}
+{{formatDate date "MMMM D, YYYY"}}
+
+{{! Nested helpers }}
+{{currency (multiply price quantity) "USD"}}
+```
+
+### Common Helpers
+```handlebars
+{{! Text }}
+{{uppercase "hello"}}              → HELLO
+{{lowercase "HELLO"}}              → hello
+{{capitalize "john doe"}}          → John doe
+{{titleCase "john doe"}}           → John Doe
+
+{{! Numbers }}
+{{currency 1234.5 "USD"}}          → $1,234.50
+{{formatNumber 1234567 0}}         → 1,234,567
+{{percentage 75 100}}              → 75.0%
+
+{{! Dates }}
+{{formatDate date "YYYY-MM-DD"}}   → 2024-12-15
+{{formatDate date "MMMM D, YYYY"}} → December 15, 2024
+{{now "YYYY"}}                     → 2024
+
+{{! Math }}
+{{add 10 5}}                       → 15
+{{multiply 10 5}}                  → 50
+{{round 3.7}}                      → 4
+```
+
+See [Helpers Reference](/helpers/overview) for all 70+ helpers.
+
+## Comments
+
+Add comments that won't appear in output:
+```handlebars
+{{! This is a comment }}
+
+{{!-- 
+  This is a 
+  multi-line comment 
+--}}
+```
+
+## Whitespace Control
+
+Control whitespace with `~`:
+```handlebars
+{{#each items ~}}
+  {{this.name}}
+{{~/each}}
+```
+
+The `~` removes whitespace on that side of the tag.
+
+## Partials (Reusable Snippets)
+
+While Fileloom doesn't support custom partials, you can achieve reusability with:
+
+1. **CSS classes** for consistent styling
+2. **Helper functions** for data transformation
+3. **Template duplication** for similar documents
+
+## Practical Examples
+
+### Invoice Line Items with Totals
+```handlebars
+<table class="items">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Qty</th>
+      <th>Price</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each items}}
+    <tr>
+      <td>{{this.description}}</td>
+      <td>{{this.quantity}}</td>
+      <td>{{currency this.unitPrice "USD"}}</td>
+      <td>{{currency (multiply this.quantity this.unitPrice) "USD"}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3">Subtotal</td>
+      <td>{{currency subtotal "USD"}}</td>
+    </tr>
+    <tr>
+      <td colspan="3">Tax ({{percentage taxRate 1 0}})</td>
+      <td>{{currency tax "USD"}}</td>
+    </tr>
+    <tr class="total">
+      <td colspan="3">Total</td>
+      <td>{{currency total "USD"}}</td>
+    </tr>
+  </tfoot>
+</table>
+```
+
+### Conditional Sections
+```handlebars
+<div class="invoice-header">
+  <h1>Invoice #{{invoiceNumber}}</h1>
+  
+  {{#if isPaid}}
+    <div class="stamp paid">
+      PAID
+      <span class="date">{{formatDate paidDate "MMM D, YYYY"}}</span>
+    </div>
+  {{else if isOverdue}}
+    <div class="stamp overdue">
+      OVERDUE
+      <span class="days">{{daysBetween dueDate}} days</span>
+    </div>
+  {{/if}}
+</div>
+```
+
+### Address Formatting
+```handlebars
+<address>
+  {{customer.name}}<br>
+  {{#if customer.company}}{{customer.company}}<br>{{/if}}
+  {{customer.address.street}}<br>
+  {{#if customer.address.unit}}{{customer.address.unit}}<br>{{/if}}
+  {{customer.address.city}}, {{customer.address.state}} {{customer.address.zip}}<br>
+  {{#if customer.address.country}}{{customer.address.country}}{{/if}}
+</address>
+```

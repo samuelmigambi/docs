@@ -1,5 +1,274 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Date & Time Helpers"
+description: "Format and manipulate dates with formatDate, formatTime, now, addDays, daysBetween, and more."
 ---
 
+Date and time helpers format and manipulate date values.
+
+## formatDate
+
+Formats a date according to a pattern.
+```handlebars
+{{formatDate date "YYYY-MM-DD"}}
+{{formatDate date "MMMM D, YYYY"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `date` | string/Date | required | Date to format |
+| `format` | string | "YYYY-MM-DD" | Format pattern |
+
+### Format Tokens
+
+| Token | Output | Example |
+|-------|--------|---------|
+| `YYYY` | 4-digit year | 2024 |
+| `YY` | 2-digit year | 24 |
+| `MMMM` | Full month name | December |
+| `MMM` | Short month name | Dec |
+| `MM` | 2-digit month | 12 |
+| `M` | Month number | 12 |
+| `DD` | 2-digit day | 05 |
+| `D` | Day number | 5 |
+
+### Examples
+```handlebars
+{{formatDate "2024-12-15" "YYYY-MM-DD"}}
+```
+
+**Output:** `2024-12-15`
+```handlebars
+{{formatDate "2024-12-15" "MMMM D, YYYY"}}
+```
+
+**Output:** `December 15, 2024`
+```handlebars
+{{formatDate "2024-12-15" "MMM D, YYYY"}}
+```
+
+**Output:** `Dec 15, 2024`
+```handlebars
+{{formatDate "2024-12-15" "MM/DD/YYYY"}}
+```
+
+**Output:** `12/15/2024`
+```handlebars
+{{formatDate "2024-12-15" "D MMMM YYYY"}}
+```
+
+**Output:** `15 December 2024`
+
+## formatTime
+
+Formats the time portion of a date.
+```handlebars
+{{formatTime datetime "24"}}
+{{formatTime datetime "12"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `date` | string/Date | required | Date/time to format |
+| `format` | string | "24" | "12" or "24" hour format |
+
+**Examples:**
+```handlebars
+{{formatTime "2024-12-15T14:30:00" "24"}}
+```
+
+**Output:** `14:30`
+```handlebars
+{{formatTime "2024-12-15T14:30:00" "12"}}
+```
+
+**Output:** `2:30 PM`
+
+## formatDateTime
+
+Combines date and time formatting.
+```handlebars
+{{formatDateTime datetime "MMMM D, YYYY" "12"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `date` | string/Date | required | Date/time to format |
+| `dateFormat` | string | "YYYY-MM-DD" | Date format pattern |
+| `timeFormat` | string | "24" | "12" or "24" hour format |
+
+**Examples:**
+```handlebars
+{{formatDateTime "2024-12-15T14:30:00" "MMM D, YYYY" "12"}}
+```
+
+**Output:** `Dec 15, 2024 2:30 PM`
+
+## now
+
+Returns the current date/time formatted.
+```handlebars
+{{now}}
+{{now "MMMM D, YYYY"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `format` | string | "YYYY-MM-DD" | Format pattern |
+
+**Examples:**
+```handlebars
+{{now}}
+```
+
+**Output:** `2024-12-15`
+```handlebars
+{{now "MMMM D, YYYY"}}
+```
+
+**Output:** `December 15, 2024`
+```handlebars
+Generated on: {{now "MMM D, YYYY"}}
+```
+
+## addDays
+
+Adds days to a date.
+```handlebars
+{{addDays date 30}}
+{{addDays date -7}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `date` | string/Date | required | Starting date |
+| `days` | number | 0 | Days to add (negative to subtract) |
+
+**Examples:**
+```handlebars
+{{addDays "2024-12-15" 30}}
+```
+
+**Output:** `2025-01-14`
+```handlebars
+{{addDays "2024-12-15" -7}}
+```
+
+**Output:** `2024-12-08`
+
+**Use case - Due dates:**
+```handlebars
+<p>Invoice Date: {{formatDate invoiceDate "MMM D, YYYY"}}</p>
+<p>Due Date: {{formatDate (addDays invoiceDate 30) "MMM D, YYYY"}}</p>
+```
+
+## daysBetween
+
+Calculates the number of days between two dates.
+```handlebars
+{{daysBetween startDate endDate}}
+{{daysBetween startDate}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `date1` | string/Date | required | First date |
+| `date2` | string/Date | now | Second date |
+
+**Examples:**
+```handlebars
+{{daysBetween "2024-12-01" "2024-12-15"}}
+```
+
+**Output:** `14`
+```handlebars
+{{! Days until due date }}
+{{daysBetween (now) dueDate}} days remaining
+```
+
+## monthName
+
+Returns the full name of the month.
+```handlebars
+{{monthName date}}
+```
+
+**Examples:**
+```handlebars
+{{monthName "2024-12-15"}}
+```
+
+**Output:** `December`
+
+## dayName
+
+Returns the name of the day of the week.
+```handlebars
+{{dayName date}}
+```
+
+**Examples:**
+```handlebars
+{{dayName "2024-12-15"}}
+```
+
+**Output:** `Sunday`
+
+## Practical Examples
+
+### Invoice Header
+```handlebars
+<div class="invoice-header">
+  <h1>Invoice #{{invoiceNumber}}</h1>
+  <div class="dates">
+    <p><strong>Invoice Date:</strong> {{formatDate invoiceDate "MMMM D, YYYY"}}</p>
+    <p><strong>Due Date:</strong> {{formatDate dueDate "MMMM D, YYYY"}}</p>
+  </div>
+</div>
+```
+
+### Payment Terms
+```handlebars
+<div class="payment-terms">
+  <p>Payment due within 30 days</p>
+  <p>Invoice Date: {{formatDate invoiceDate "MMM D, YYYY"}}</p>
+  <p>Due Date: {{formatDate (addDays invoiceDate 30) "MMM D, YYYY"}}</p>
+</div>
+```
+
+### Document Footer
+```handlebars
+<footer>
+  <p>Generated on {{now "MMMM D, YYYY"}} at {{formatTime (now) "12"}}</p>
+</footer>
+```
+
+### Event Details
+```handlebars
+<div class="event">
+  <h2>{{eventName}}</h2>
+  <p class="date">
+    {{dayName eventDate}}, {{formatDate eventDate "MMMM D, YYYY"}}
+  </p>
+  <p class="time">
+    {{formatTime startTime "12"}} - {{formatTime endTime "12"}}
+  </p>
+</div>
+```
+
+### Overdue Notice
+```handlebars
+{{#if (gt (daysBetween dueDate) 0)}}
+  <div class="overdue-notice">
+    <p>This invoice is {{daysBetween dueDate}} days overdue.</p>
+  </div>
+{{/if}}
+```
+
+### Report Period
+```handlebars
+<div class="report-header">
+  <h1>Monthly Report</h1>
+  <p>{{monthName periodStart}} {{formatDate periodStart "YYYY"}}</p>
+  <p>{{formatDate periodStart "MMM D"}} - {{formatDate periodEnd "MMM D, YYYY"}}</p>
+</div>
+```

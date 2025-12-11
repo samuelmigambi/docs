@@ -1,5 +1,242 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Support"
+description: "Get help with Fileloom - contact support, browse FAQs, and find troubleshooting guides."
 ---
 
+## Getting Help
+
+We're here to help you succeed with Fileloom. Choose the support channel that best fits your needs.
+
+## Support Channels
+
+<CardGroup cols={2}>
+  <Card title="Documentation" icon="book" href="/getting-started/introduction">
+    Comprehensive guides and API reference
+  </Card>
+  <Card title="Email Support" icon="envelope" href="mailto:support@fileloom.io">
+    support@fileloom.io
+  </Card>
+  <Card title="Status Page" icon="signal" href="https://status.fileloom.io">
+    Service status and incidents
+  </Card>
+  <Card title="Feature Requests" icon="lightbulb" href="mailto:feedback@fileloom.io">
+    feedback@fileloom.io
+  </Card>
+</CardGroup>
+
+## Support by Plan
+
+| Plan | Support Level | Response Time |
+|------|---------------|---------------|
+| Free | Documentation only | - |
+| Starter | Email support | 48 hours |
+| Growth | Email support | 24 hours |
+| Scale | Priority email | 12 hours |
+| Scale Business | Dedicated support | 4 hours |
+| Scale Enterprise | Dedicated support + SLA | 1 hour |
+
+## Frequently Asked Questions
+
+### Account & Billing
+
+<AccordionGroup>
+  <Accordion title="How do I upgrade my plan?">
+    Go to **Dashboard → Billing → Change Plan** and select your new plan. Upgrades take effect immediately, and you'll be charged a prorated amount for the remainder of your billing period.
+  </Accordion>
+  
+  <Accordion title="How do I cancel my subscription?">
+    Go to **Dashboard → Billing → Cancel Subscription**. Your plan will remain active until the end of your current billing period. You won't be charged again, and your data will be retained for 30 days after cancellation.
+  </Accordion>
+  
+  <Accordion title="What payment methods do you accept?">
+    We accept all major credit cards (Visa, Mastercard, American Express) and PayPal through our payment processor, Polar.sh.
+  </Accordion>
+  
+  <Accordion title="Can I get a refund?">
+    We offer refunds within 7 days of purchase for annual subscriptions. Monthly subscriptions and credit packs are non-refundable. Contact support@fileloom.io for refund requests.
+  </Accordion>
+  
+  <Accordion title="How do I update my billing information?">
+    Go to **Dashboard → Billing → Payment Method** to update your card details or billing address.
+  </Accordion>
+</AccordionGroup>
+
+### API & Technical
+
+<AccordionGroup>
+  <Accordion title="What's the maximum PDF size I can generate?">
+    This depends on your plan:
+    - Free: 5 MB
+    - Starter: 25 MB
+    - Growth: 50 MB
+    - Scale: 50 MB
+    - Scale Business: 100 MB
+    - Scale Enterprise: 250 MB
+  </Accordion>
+  
+  <Accordion title="How long are generated PDFs stored?">
+    Storage retention varies by plan:
+    - Free: 7 days
+    - Starter: 30 days
+    - Growth: 90 days
+    - Scale: 180 days
+    - Scale Business/Enterprise: 365 days
+  </Accordion>
+  
+  <Accordion title="What happens if I exceed my monthly quota?">
+    PDF generation will fail with a `NO_CREDITS_AVAILABLE` error. You can either:
+    1. Purchase a credit pack for immediate additional PDFs
+    2. Upgrade to a higher plan
+    3. Wait for your quota to reset on the 1st of the next month
+  </Accordion>
+  
+  <Accordion title="Can I use custom fonts in my PDFs?">
+    Yes! You can use any Google Font by including the font link in your HTML. We also auto-inject common fonts (Inter, Roboto, Open Sans) as fallbacks for system fonts that don't exist on our servers.
+  </Accordion>
+  
+  <Accordion title="Why are emojis not rendering correctly?">
+    We automatically inject Twemoji for cross-platform emoji support. If you're still having issues, ensure your HTML doesn't block external scripts.
+  </Accordion>
+  
+  <Accordion title="What's the API rate limit?">
+    Rate limits vary by plan:
+    - Free: 10 requests/minute
+    - Starter: 120 requests/minute
+    - Growth: 200 requests/minute
+    - Scale: 400 requests/minute
+    - Scale Business: 1,000 requests/minute
+    - Scale Enterprise: Unlimited
+  </Accordion>
+  
+  <Accordion title="How do I rotate my API key?">
+    Go to **Dashboard → API Keys**, click the menu on your existing key, and select **Regenerate**. The old key will be invalidated immediately.
+  </Accordion>
+</AccordionGroup>
+
+### Templates
+
+<AccordionGroup>
+  <Accordion title="What templating language do you use?">
+    We use Handlebars for templating. It supports variables (`{{variable}}`), conditionals (`{{#if}}`), loops (`{{#each}}`), and 70+ built-in helper functions.
+  </Accordion>
+  
+  <Accordion title="Can I use external images in templates?">
+    Yes, you can use any publicly accessible image URL. For best performance, use optimized images and consider base64 encoding for small icons.
+  </Accordion>
+  
+  <Accordion title="How do I include page numbers?">
+    Enable headers/footers in your template settings and use the special classes:
+    - `<span class="pageNumber"></span>` - Current page
+    - `<span class="totalPages"></span>` - Total pages
+  </Accordion>
+  
+  <Accordion title="Can I create multi-page PDFs?">
+    Yes! Your content will automatically flow across multiple pages. Use CSS `page-break-before` or `page-break-after` to control where breaks occur.
+  </Accordion>
+</AccordionGroup>
+
+### Credits & Usage
+
+<AccordionGroup>
+  <Accordion title="What's the difference between quota and credits?">
+    **Quota** is your monthly allocation included with your subscription plan. It resets on the 1st of each month.
+    
+    **Credits** are purchased separately as credit packs. They don't reset monthly but expire 90 days after purchase.
+  </Accordion>
+  
+  <Accordion title="In what order are quota and credits consumed?">
+    We use FIFO (First In, First Out):
+    1. Monthly quota is used first
+    2. When quota is exhausted, the oldest credit pack is used
+    3. When all credits are exhausted, generation fails
+  </Accordion>
+  
+  <Accordion title="Do unused credits roll over?">
+    Monthly quota does NOT roll over - it resets to your plan limit on the 1st.
+    
+    Credit packs remain valid for 90 days from purchase, regardless of billing cycles.
+  </Accordion>
+  
+  <Accordion title="How do I set up auto top-up?">
+    Go to **Dashboard → Billing → Auto Top-Up** and configure:
+    - Which credit pack to purchase
+    - Trigger threshold (e.g., when 90% of quota is used)
+    - Maximum purchases per month
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Common Errors
+
+| Error Code | Cause | Solution |
+|------------|-------|----------|
+| `INVALID_API_KEY` | API key is missing, invalid, or revoked | Check your API key in Dashboard → API Keys |
+| `NO_CREDITS_AVAILABLE` | Quota exhausted and no credits | Purchase credits or upgrade plan |
+| `TEMPLATE_NOT_FOUND` | Template ID doesn't exist or is inactive | Verify template ID in Dashboard → Templates |
+| `TEMPLATE_COMPILATION_ERROR` | Invalid Handlebars syntax | Check template for syntax errors |
+| `REQUEST_TIMEOUT` | Generation took too long | Simplify HTML or upgrade for longer timeouts |
+| `FILE_TOO_LARGE` | Output PDF exceeds plan limit | Reduce content or upgrade plan |
+| `RATE_LIMIT_EXCEEDED` | Too many requests | Slow down or upgrade plan |
+
+### PDF Rendering Issues
+
+<AccordionGroup>
+  <Accordion title="Fonts look different than expected">
+    System fonts like `-apple-system` or `Segoe UI` don't exist on our Linux servers. Use Google Fonts or our auto-injected fallbacks (Inter, Roboto, Open Sans).
+  </Accordion>
+  
+  <Accordion title="Background colors not appearing">
+    Ensure `printBackground: true` is set in your options. This is enabled by default but may be overridden.
+  </Accordion>
+  
+  <Accordion title="Content is cut off">
+    Check your margins - content might be extending into the margin area. Also verify your page format matches your content width.
+  </Accordion>
+  
+  <Accordion title="Images not loading">
+    - Ensure image URLs are publicly accessible (no authentication required)
+    - Use HTTPS URLs
+    - Check that images aren't blocked by CORS
+  </Accordion>
+  
+  <Accordion title="CSS styles not applying">
+    - Avoid CSS `@import` - include all styles inline or in `<style>` tags
+    - Some CSS features may not be supported in print context
+    - Use `!important` sparingly to override defaults
+  </Accordion>
+</AccordionGroup>
+
+## Contact Us
+
+### Email Support
+
+For technical issues, billing questions, or general inquiries:
+
+**support@fileloom.io**
+
+Please include:
+- Your workspace ID (found in Dashboard → Settings)
+- Request ID (from error response)
+- Steps to reproduce the issue
+- Any relevant code snippets or template data
+
+### Feature Requests
+
+Have an idea to improve Fileloom? We'd love to hear it:
+
+**feedback@fileloom.io**
+
+### Security Issues
+
+For security vulnerabilities or concerns:
+
+**security@fileloom.io**
+
+We take security seriously and will respond within 24 hours.
+
+### Enterprise Inquiries
+
+For custom plans, volume discounts, or enterprise features:
+
+**enterprise@fileloom.io**

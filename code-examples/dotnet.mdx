@@ -1,5 +1,107 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: ".NET Examples"
+description: "Generate PDFs in C# using HttpClient."
 ---
 
+## Client Class
+```csharp
+using System.Net.Http.Json;
+using System.Text.Json;
+
+public class FileloomClient : IDisposable {
+    private readonly HttpClient _http;
+    private readonly JsonSerializerOptions _json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+    public FileloomClient(string apiKey) {
+        _http = new HttpClient { BaseAddress = new Uri("https://api.fileloom.io/v1/") };
+        _http.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    }
+
+    public async Task<FileloomResponse> GeneratePdfAsync(PdfRequest request) {
+        var response = await _http.PostAsJsonAsync("pdf/generate", request, _json);
+        var content = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode) {
+            var error = JsonSerializer.Deserialize<ErrorResponse>(content, _json);
+            throw new FileloomException(error?.Error.Message ?? "Unknown", 
+                error?.Error.Code ?? "UNKNOWN", (int)response.StatusCode);
+        }
+        return JsonSerializer.Deserialize<FileloomResponse>(content, _json)!;
+    }
+
+    public void Dispose() => _http.Dispose();
+}
+```
+
+## Models
+```csharp
+public record PdfRequest(
+    string? HtmlContent = null,
+    string? TemplateId = null,
+    Dictionary<string, object>? TemplateData = null,
+    string? Filename = null
+);
+
+public record FileloomResponse(bool Success, string RequestId, PdfData Data, UsageInfo Usage);
+public record PdfData(string FileId, string Url, string SignedUrl, string Filename, long Size);
+public record UsageInfo(int Remaining, int QuotaUsed, int QuotaLimit);
+public record ErrorResponse(ErrorDetail Error);
+public record ErrorDetail(string Code, string Message);
+
+public class FileloomException : Exception {
+    public string Code { get; }
+    public int StatusCode { get; }
+    public FileloomException(string msg, string code, int status) : base(msg) {
+        Code = code; StatusCode = status;
+    }
+}
+```
+
+## Usage
+```csharp
+using var client = new FileloomClient(Environment.GetEnvironmentVariable("FILELOOM_API_KEY")!);
+
+// From HTML
+var result = await client.GeneratePdfAsync(new PdfRequest(
+    HtmlContent: "<h1>Hello</h1>",
+    Filename: "hello.pdf"
+));
+Console.WriteLine($"URL: {result.Data.Url}");
+
+// From template
+var invoiceResult = await client.GeneratePdfAsync(new PdfRequest(
+    TemplateId: "tpl_invoice_v2",
+    TemplateData: new Dictionary<string, object> {
+        ["invoiceNumber"] = "INV-001",
+        ["customer"] = new { name = "Acme Corp" },
+        ["items"] = new[] { new { description = "Web Dev", quantity = 10, price = 150 } },
+        ["total"] = 1500
+    },
+    Filename: "invoice.pdf"
+));
+```
+
+## ASP.NET Core
+```csharp
+// Program.cs
+builder.Services.AddSingleton(new FileloomClient(builder.Configuration["Fileloom:ApiKey"]!));
+
+// Controller
+[ApiController]
+[Route("api/[controller]")]
+public class InvoicesController : ControllerBase {
+    private readonly FileloomClient _fileloom;
+    public InvoicesController(FileloomClient fileloom) => _fileloom = fileloom;
+
+    [HttpPost("{id}/pdf")]
+    public async Task<IActionResult> GeneratePdf(int id) {
+        var invoice = await GetInvoiceAsync(id);
+        var result = await _fileloom.GeneratePdfAsync(new PdfRequest(
+            TemplateId: "tpl_invoice_v2",
+            TemplateData: invoice.ToDictionary(),
+            Filename: $"invoice-{invoice.Number}.pdf"
+        ));
+        return Ok(new { pdfUrl = result.Data.Url });
+    }
+}
+```

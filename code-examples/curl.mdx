@@ -1,5 +1,82 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "cURL Examples"
+description: "Generate PDFs using cURL from the command line."
 ---
 
+## Basic Generation
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"htmlContent": "<h1>Hello World</h1>"}'
+```
+
+## With Dynamic Data
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<h1>Invoice #{{invoiceNumber}}</h1>",
+    "templateData": {"invoiceNumber": "INV-001"},
+    "filename": "invoice.pdf"
+  }'
+```
+
+## Using a Template
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateId": "tpl_invoice_v2",
+    "templateData": {
+      "invoiceNumber": "INV-2024-001",
+      "customer": {"name": "Acme Corp"},
+      "items": [{"description": "Web Dev", "quantity": 10, "price": 150}],
+      "total": 1500
+    }
+  }'
+```
+
+## With Options
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<h1>Document</h1>",
+    "options": {
+      "format": "Letter",
+      "orientation": "landscape",
+      "margin": {"top": 20, "right": 15, "bottom": 20, "left": 15}
+    }
+  }'
+```
+
+## Download PDF
+```bash
+curl -X POST https://api.fileloom.io/v1/pdf/generate \
+  -H "X-API-Key: fl_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"htmlContent": "<h1>Hello</h1>"}' \
+  | jq -r '.data.url' \
+  | xargs curl -o document.pdf
+```
+
+## Shell Script
+```bash
+#!/bin/bash
+API_KEY="${FILELOOM_API_KEY}"
+
+generate_pdf() {
+  curl -s -X POST "https://api.fileloom.io/v1/pdf/generate" \
+    -H "X-API-Key: $API_KEY" \
+    -H "Content-Type: application/json" \
+    -d "{\"htmlContent\": \"$1\", \"filename\": \"$2\"}"
+}
+
+result=$(generate_pdf "<h1>Report</h1>" "report.pdf")
+url=$(echo "$result" | jq -r '.data.url')
+curl -s -o "report.pdf" "$url"
+```

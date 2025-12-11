@@ -1,5 +1,288 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Business Helpers"
+description: "Simplify business calculations with tax, discount, invoice number, and due date helpers."
 ---
 
+Business helpers provide common calculations for invoices, receipts, and financial documents.
+
+## calculateTax
+
+Calculates tax amount based on a tax rate percentage.
+```handlebars
+{{calculateTax amount taxRate}}
+```
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| `amount` | number | Base amount |
+| `taxRate` | number | Tax rate as percentage (e.g., 8.5 for 8.5%) |
+
+**Examples:**
+```handlebars
+{{calculateTax 100 8.5}}
+```
+
+**Output:** `8.50`
+```handlebars
+<p>Subtotal: {{currency subtotal "USD"}}</p>
+<p>Tax ({{taxRate}}%): {{currency (calculateTax subtotal taxRate) "USD"}}</p>
+```
+
+## calculateDiscount
+
+Calculates discount amount based on a discount percentage.
+```handlebars
+{{calculateDiscount amount discountPercent}}
+```
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| `amount` | number | Original amount |
+| `discountPercent` | number | Discount as percentage (e.g., 20 for 20%) |
+
+**Examples:**
+```handlebars
+{{calculateDiscount 100 20}}
+```
+
+**Output:** `20.00`
+```handlebars
+<p>Original: {{currency originalPrice "USD"}}</p>
+<p>Discount ({{discountPercent}}%): -{{currency (calculateDiscount originalPrice discountPercent) "USD"}}</p>
+<p>Final: {{currency (subtract originalPrice (calculateDiscount originalPrice discountPercent)) "USD"}}</p>
+```
+
+## netAmount
+
+Calculates net amount after tax and discount.
+```handlebars
+{{netAmount amount taxRate discountPercent}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `amount` | number | required | Original amount |
+| `taxRate` | number | 0 | Tax rate percentage |
+| `discountPercent` | number | 0 | Discount percentage |
+
+**Calculation:** `(amount - discount) + tax on discounted amount`
+
+**Examples:**
+```handlebars
+{{netAmount 100 10 20}}
+```
+
+Calculation:
+- Original: $100
+- Discount (20%): -$20
+- Subtotal: $80
+- Tax (10% of $80): +$8
+- **Net: $88.00**
+```handlebars
+<p>Grand Total: {{currency (netAmount subtotal taxRate discountPercent) "USD"}}</p>
+```
+
+## invoiceNumber
+
+Generates a formatted invoice number.
+```handlebars
+{{invoiceNumber}}
+{{invoiceNumber "INV" 42 6}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `prefix` | string | "INV" | Prefix for the invoice |
+| `number` | number | 1 | Sequential number |
+| `padLength` | number | 6 | Padding length for number |
+
+**Format:** `PREFIX-YYYYMM-NUMBER`
+
+**Examples:**
+```handlebars
+{{invoiceNumber}}
+```
+
+**Output:** `INV-202412-000001`
+```handlebars
+{{invoiceNumber "INV" 42 6}}
+```
+
+**Output:** `INV-202412-000042`
+```handlebars
+{{invoiceNumber "REC" 1234 8}}
+```
+
+**Output:** `REC-202412-00001234`
+```handlebars
+{{invoiceNumber "PO" orderNumber 5}}
+```
+
+## dueDate
+
+Calculates a due date by adding days to an invoice date.
+```handlebars
+{{dueDate invoiceDate 30}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `invoiceDate` | string/Date | now | Starting date |
+| `terms` | number | 30 | Days until due |
+
+**Examples:**
+```handlebars
+{{dueDate "2024-12-15" 30}}
+```
+
+**Output:** `2025-01-14`
+```handlebars
+<p>Invoice Date: {{formatDate invoiceDate "MMM D, YYYY"}}</p>
+<p>Payment Terms: Net {{paymentTerms}}</p>
+<p>Due Date: {{formatDate (dueDate invoiceDate paymentTerms) "MMM D, YYYY"}}</p>
+```
+
+## Practical Examples
+
+### Complete Invoice Calculations
+```handlebars
+<div class="invoice">
+  <table class="line-items">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Qty</th>
+        <th>Unit Price</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each items}}
+      <tr>
+        <td>{{this.description}}</td>
+        <td>{{this.quantity}}</td>
+        <td>{{currency this.unitPrice "USD"}}</td>
+        <td>{{currency (multiply this.quantity this.unitPrice) "USD"}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <div class="row">
+      <span>Subtotal:</span>
+      <span>{{currency subtotal "USD"}}</span>
+    </div>
+    
+    {{#if discountPercent}}
+    <div class="row discount">
+      <span>Discount ({{discountPercent}}%):</span>
+      <span>-{{currency (calculateDiscount subtotal discountPercent) "USD"}}</span>
+    </div>
+    {{/if}}
+    
+    <div class="row">
+      <span>Tax ({{taxRate}}%):</span>
+      <span>{{currency (calculateTax (subtract subtotal (calculateDiscount subtotal discountPercent)) taxRate) "USD"}}</span>
+    </div>
+    
+    <div class="row grand-total">
+      <span>Total:</span>
+      <span>{{currency (netAmount subtotal taxRate discountPercent) "USD"}}</span>
+    </div>
+  </div>
+</div>
+```
+
+### Invoice Header with Auto-Generated Number
+```handlebars
+<div class="invoice-header">
+  <div class="company-info">
+    <h1>{{company.name}}</h1>
+    <p>{{company.address}}</p>
+  </div>
+  
+  <div class="invoice-info">
+    <h2>INVOICE</h2>
+    <table>
+      <tr>
+        <td>Invoice #:</td>
+        <td>{{invoiceNumber "INV" invoiceSequence 6}}</td>
+      </tr>
+      <tr>
+        <td>Date:</td>
+        <td>{{formatDate invoiceDate "MMMM D, YYYY"}}</td>
+      </tr>
+      <tr>
+        <td>Due Date:</td>
+        <td>{{formatDate (dueDate invoiceDate paymentTerms) "MMMM D, YYYY"}}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+```
+
+### Payment Terms Section
+```handlebars
+<div class="payment-terms">
+  <h3>Payment Terms</h3>
+  <p>Payment is due within {{paymentTerms}} days of invoice date.</p>
+  <p>
+    <strong>Invoice Date:</strong> {{formatDate invoiceDate "MMM D, YYYY"}}<br>
+    <strong>Due Date:</strong> {{formatDate (dueDate invoiceDate paymentTerms) "MMM D, YYYY"}}
+  </p>
+  
+  {{#if (gt (daysBetween (dueDate invoiceDate paymentTerms)) 0)}}
+    <p class="overdue-warning">
+      This invoice is {{daysBetween (dueDate invoiceDate paymentTerms)}} days overdue.
+    </p>
+  {{/if}}
+</div>
+```
+
+### Receipt with Discount
+```handlebars
+<div class="receipt">
+  <h1>Receipt</h1>
+  <p>Receipt #: {{invoiceNumber "REC" receiptNumber 8}}</p>
+  <p>Date: {{formatDate transactionDate "MMM D, YYYY"}}</p>
+  
+  <hr>
+  
+  {{#each items}}
+  <div class="line">
+    <span>{{this.name}}</span>
+    <span>{{currency this.price "USD"}}</span>
+  </div>
+  {{/each}}
+  
+  <hr>
+  
+  <div class="line">
+    <span>Subtotal</span>
+    <span>{{currency subtotal "USD"}}</span>
+  </div>
+  
+  {{#if promoCode}}
+  <div class="line discount">
+    <span>Promo ({{promoCode}} - {{discountPercent}}%)</span>
+    <span>-{{currency (calculateDiscount subtotal discountPercent) "USD"}}</span>
+  </div>
+  {{/if}}
+  
+  <div class="line">
+    <span>Tax</span>
+    <span>{{currency tax "USD"}}</span>
+  </div>
+  
+  <div class="line total">
+    <span>Total</span>
+    <span>{{currency total "USD"}}</span>
+  </div>
+  
+  <div class="line paid">
+    <span>Paid</span>
+    <span>{{currency total "USD"}}</span>
+  </div>
+</div>
+```

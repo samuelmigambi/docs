@@ -1,5 +1,183 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Comparison Helpers"
+description: "Compare values with greater than, less than, equal, and not equal helpers."
 ---
 
+Comparison helpers return boolean values for use in conditionals.
+
+## gt (Greater Than)
+
+Returns `true` if the first value is greater than the second.
+```handlebars
+{{gt 10 5}}
+```
+
+**Output:** `true`
+```handlebars
+{{#if (gt total 1000)}}
+  <p>Large order discount applied!</p>
+{{/if}}
+```
+
+## lt (Less Than)
+
+Returns `true` if the first value is less than the second.
+```handlebars
+{{lt 5 10}}
+```
+
+**Output:** `true`
+```handlebars
+{{#if (lt stock 10)}}
+  <span class="low-stock">Low Stock</span>
+{{/if}}
+```
+
+## gte (Greater Than or Equal)
+
+Returns `true` if the first value is greater than or equal to the second.
+```handlebars
+{{gte 10 10}}
+```
+
+**Output:** `true`
+```handlebars
+{{#if (gte quantity minimumOrder)}}
+  <button>Add to Cart</button>
+{{else}}
+  <p>Minimum order: {{minimumOrder}} units</p>
+{{/if}}
+```
+
+## lte (Less Than or Equal)
+
+Returns `true` if the first value is less than or equal to the second.
+```handlebars
+{{lte 5 10}}
+```
+
+**Output:** `true`
+```handlebars
+{{#if (lte balance 0)}}
+  <span class="badge overdue">Payment Required</span>
+{{/if}}
+```
+
+## eq (Equal)
+
+Returns `true` if both values are equal (loose equality).
+```handlebars
+{{eq status "active"}}
+```
+
+**Output:** `true` (if status is "active")
+```handlebars
+{{#if (eq status "active")}}
+  <span class="badge active">Active</span>
+{{else if (eq status "pending")}}
+  <span class="badge pending">Pending</span>
+{{else if (eq status "inactive")}}
+  <span class="badge inactive">Inactive</span>
+{{/if}}
+```
+
+## neq (Not Equal)
+
+Returns `true` if values are not equal.
+```handlebars
+{{neq status "deleted"}}
+```
+
+**Output:** `true` (if status is not "deleted")
+```handlebars
+{{#if (neq status "cancelled")}}
+  <button>Cancel Order</button>
+{{/if}}
+```
+
+## Combining Comparisons
+
+Use with logical helpers for complex conditions:
+```handlebars
+{{! Between range: 10 <= value <= 100 }}
+{{#if (and (gte value 10) (lte value 100))}}
+  <p>Value is in range</p>
+{{/if}}
+
+{{! Either condition }}
+{{#if (or (eq status "active") (eq status "pending"))}}
+  <p>Order is being processed</p>
+{{/if}}
+
+{{! Complex condition }}
+{{#if (and (gt quantity 0) (eq inStock true) (neq status "discontinued"))}}
+  <button>Add to Cart</button>
+{{/if}}
+```
+
+## Practical Examples
+
+### Pricing Tiers
+```handlebars
+{{#if (gte quantity 100)}}
+  <p>Bulk pricing: {{currency bulkPrice "USD"}}/unit</p>
+{{else if (gte quantity 50)}}
+  <p>Volume pricing: {{currency volumePrice "USD"}}/unit</p>
+{{else}}
+  <p>Standard pricing: {{currency standardPrice "USD"}}/unit</p>
+{{/if}}
+```
+
+### Stock Status
+```handlebars
+{{#if (eq stock 0)}}
+  <span class="out-of-stock">Out of Stock</span>
+{{else if (lt stock 10)}}
+  <span class="low-stock">Only {{stock}} left!</span>
+{{else}}
+  <span class="in-stock">In Stock</span>
+{{/if}}
+```
+
+### Order Status Badge
+```handlebars
+<span class="badge 
+  {{#if (eq status 'completed')}}badge-success
+  {{else if (eq status 'processing')}}badge-info
+  {{else if (eq status 'pending')}}badge-warning
+  {{else if (eq status 'cancelled')}}badge-danger
+  {{/if}}">
+  {{titleCase status}}
+</span>
+```
+
+### Discount Eligibility
+```handlebars
+{{#if (and (gte subtotal 100) (lt discountApplied 1))}}
+  <div class="discount-notice">
+    <p>You qualify for free shipping!</p>
+  </div>
+{{/if}}
+```
+
+### Overdue Highlighting
+```handlebars
+<tr class="{{#if (and (eq isPaid false) (gt (daysBetween dueDate) 0))}}overdue{{/if}}">
+  <td>{{invoiceNumber}}</td>
+  <td>{{formatDate dueDate "MMM D, YYYY"}}</td>
+  <td>{{currency amount "USD"}}</td>
+</tr>
+```
+
+### Rating Display
+```handlebars
+{{#if (gte rating 4.5)}}
+  <span class="rating excellent">★★★★★</span>
+{{else if (gte rating 3.5)}}
+  <span class="rating good">★★★★☆</span>
+{{else if (gte rating 2.5)}}
+  <span class="rating average">★★★☆☆</span>
+{{else}}
+  <span class="rating poor">★★☆☆☆</span>
+{{/if}}
+```

@@ -1,5 +1,310 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Array Helpers"
+description: "Work with arrays using first, last, at, join, length, contains, sum, average, max, and min."
 ---
 
+Array helpers provide operations for working with lists and collections.
+
+## first
+
+Returns the first element of an array.
+```handlebars
+{{first items}}
+```
+
+**Example:**
+```handlebars
+{{! items = ["Apple", "Banana", "Cherry"] }}
+{{first items}}
+```
+
+**Output:** `Apple`
+```handlebars
+<p>Featured: {{first featuredProducts}}</p>
+```
+
+## last
+
+Returns the last element of an array.
+```handlebars
+{{last items}}
+```
+
+**Example:**
+```handlebars
+{{! items = ["Apple", "Banana", "Cherry"] }}
+{{last items}}
+```
+
+**Output:** `Cherry`
+```handlebars
+<p>Most recent order: #{{last orderNumbers}}</p>
+```
+
+## at
+
+Returns the element at a specific index (zero-based).
+```handlebars
+{{at items 1}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `array` | array | required | Source array |
+| `index` | number | 0 | Index to retrieve |
+
+**Example:**
+```handlebars
+{{! items = ["Apple", "Banana", "Cherry"] }}
+{{at items 1}}
+```
+
+**Output:** `Banana`
+
+## join
+
+Joins array elements into a string with a separator.
+```handlebars
+{{join items ", "}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `array` | array | required | Array to join |
+| `separator` | string | ", " | Separator between elements |
+
+**Examples:**
+```handlebars
+{{! tags = ["javascript", "nodejs", "api"] }}
+{{join tags ", "}}
+```
+
+**Output:** `javascript, nodejs, api`
+```handlebars
+{{join tags " | "}}
+```
+
+**Output:** `javascript | nodejs | api`
+```handlebars
+<p>Categories: {{join categories ", "}}</p>
+<p>Phone: {{join phoneParts "-"}}</p>
+```
+
+## length
+
+Returns the length of an array, string, or object.
+```handlebars
+{{length items}}
+```
+
+**Examples:**
+```handlebars
+{{! items = ["A", "B", "C"] }}
+{{length items}}
+```
+
+**Output:** `3`
+```handlebars
+<p>{{length items}} items in cart</p>
+<p>{{length description}} characters</p>
+```
+
+## contains
+
+Returns `true` if the array contains a value.
+```handlebars
+{{contains array value}}
+```
+
+**Example:**
+```handlebars
+{{! roles = ["admin", "editor"] }}
+{{#if (contains roles "admin")}}
+  <span class="admin-badge">Admin</span>
+{{/if}}
+```
+
+## sum
+
+Calculates the sum of array values or a specific property.
+```handlebars
+{{sum numbers}}
+{{sum items "price"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `array` | array | required | Array to sum |
+| `property` | string | null | Property name to sum (for object arrays) |
+
+**Examples:**
+```handlebars
+{{! numbers = [10, 20, 30] }}
+{{sum numbers}}
+```
+
+**Output:** `60`
+```handlebars
+{{! items = [{price: 10}, {price: 20}, {price: 30}] }}
+{{sum items "price"}}
+```
+
+**Output:** `60`
+```handlebars
+<p>Total: {{currency (sum items "price") "USD"}}</p>
+<p>Total Quantity: {{sum items "quantity"}}</p>
+```
+
+## average
+
+Calculates the average of array values or a specific property.
+```handlebars
+{{average numbers}}
+{{average items "rating"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `array` | array | required | Array to average |
+| `property` | string | null | Property name (for object arrays) |
+
+**Examples:**
+```handlebars
+{{! scores = [85, 90, 78, 92] }}
+{{average scores}}
+```
+
+**Output:** `86.25`
+```handlebars
+<p>Average Rating: {{round (average reviews "rating") 1}} / 5</p>
+```
+
+## max
+
+Returns the maximum value in an array.
+```handlebars
+{{max numbers}}
+{{max items "price"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `array` | array | required | Array to search |
+| `property` | string | null | Property name (for object arrays) |
+
+**Examples:**
+```handlebars
+{{! prices = [29.99, 49.99, 19.99] }}
+{{max prices}}
+```
+
+**Output:** `49.99`
+```handlebars
+<p>Highest Price: {{currency (max products "price") "USD"}}</p>
+```
+
+## min
+
+Returns the minimum value in an array.
+```handlebars
+{{min numbers}}
+{{min items "price"}}
+```
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `array` | array | required | Array to search |
+| `property` | string | null | Property name (for object arrays) |
+
+**Examples:**
+```handlebars
+{{! prices = [29.99, 49.99, 19.99] }}
+{{min prices}}
+```
+
+**Output:** `19.99`
+```handlebars
+<p>Starting at {{currency (min products "price") "USD"}}</p>
+```
+
+## Practical Examples
+
+### Order Summary
+```handlebars
+<div class="order-summary">
+  <h3>Order Summary</h3>
+  <p>Items: {{length items}}</p>
+  <p>Total Quantity: {{sum items "quantity"}}</p>
+  <p>Subtotal: {{currency (sum items "total") "USD"}}</p>
+</div>
+```
+
+### Tag List
+```handlebars
+<div class="tags">
+  {{#if (isNotEmpty tags)}}
+    <p>Tags: {{join tags ", "}}</p>
+  {{else}}
+    <p class="no-tags">No tags</p>
+  {{/if}}
+</div>
+```
+
+### Price Range
+```handlebars
+<div class="price-range">
+  <p>
+    {{currency (min variants "price") "USD"}} - 
+    {{currency (max variants "price") "USD"}}
+  </p>
+</div>
+```
+
+### Statistics
+```handlebars
+<div class="statistics">
+  <p>Total Sales: {{currency (sum orders "total") "USD"}}</p>
+  <p>Average Order: {{currency (average orders "total") "USD"}}</p>
+  <p>Largest Order: {{currency (max orders "total") "USD"}}</p>
+  <p>Smallest Order: {{currency (min orders "total") "USD"}}</p>
+</div>
+```
+
+### Invoice Totals
+```handlebars
+<table>
+  <tbody>
+    {{#each lineItems}}
+    <tr>
+      <td>{{this.description}}</td>
+      <td>{{this.quantity}}</td>
+      <td>{{currency this.unitPrice "USD"}}</td>
+      <td>{{currency (multiply this.quantity this.unitPrice) "USD"}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3">Total Items</td>
+      <td>{{sum lineItems "quantity"}}</td>
+    </tr>
+    <tr>
+      <td colspan="3">Subtotal</td>
+      <td>{{currency (sum lineItems "total") "USD"}}</td>
+    </tr>
+  </tfoot>
+</table>
+```
+
+### Author List
+```handlebars
+<p>
+  {{#if (eq (length authors) 1)}}
+    Author: {{first authors}}
+  {{else if (eq (length authors) 2)}}
+    Authors: {{at authors 0}} and {{at authors 1}}
+  {{else}}
+    Authors: {{at authors 0}}, {{at authors 1}}, and {{subtract (length authors) 2}} others
+  {{/if}}
+</p>
+```

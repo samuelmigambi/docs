@@ -1,5 +1,154 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Template Settings"
+description: "Configure template output settings including paper size, orientation, margins, and dynamic filenames."
 ---
 
+The Settings panel (left side of the editor) controls how your PDF is generated.
+
+## Template Name
+
+The display name for your template. This appears in:
+
+- Templates list
+- File details (when generated from this template)
+- API responses
+
+**Best practices:**
+- Use descriptive names: "Monthly Invoice", "Shipping Label 4x6"
+- Include version or variant: "Contract v2", "Receipt (Dark Theme)"
+
+## Output Name
+
+Define the filename for generated PDFs using Handlebars variables:
+```
+Invoice-{{invoiceNumber}}-{{formatDate date "YYYY-MM-DD"}}
+```
+
+With test data `{"invoiceNumber": "INV-001", "date": "2024-12-15"}`, this produces:
+```
+Invoice-INV-001-2024-12-15.pdf
+```
+
+**Available variables:**
+- Any field from your `templateData`
+- All Handlebars helpers (formatDate, currency, etc.)
+
+<Info>
+  The `.pdf` extension is added automatically. Don't include it in your output name.
+</Info>
+
+## Print Background
+
+Toggle whether background colors and images are included in the PDF.
+
+| Setting | Behavior |
+|---------|----------|
+| **Enabled** | Background colors, gradients, and images are rendered |
+| **Disabled** | Only foreground content is rendered (saves ink for printing) |
+
+**Default:** Enabled
+
+## Orientation
+
+| Option | Dimensions |
+|--------|------------|
+| **Portrait** | Taller than wide (default) |
+| **Landscape** | Wider than tall |
+
+## Paper Size
+
+Select from standard paper sizes:
+
+| Size | Dimensions (mm) | Common Use |
+|------|-----------------|------------|
+| **A4** | 210 × 297 | International standard |
+| **Letter** | 216 × 279 | US standard |
+| **Legal** | 216 × 356 | US legal documents |
+| **A3** | 297 × 420 | Large format |
+| **A5** | 148 × 210 | Booklets, flyers |
+| **A6** | 105 × 148 | Postcards |
+| **Tabloid** | 279 × 432 | Newspapers |
+| **Ledger** | 432 × 279 | Spreadsheets |
+| **Custom** | User-defined | Special sizes |
+
+### Custom Size
+
+When "Custom" is selected, specify dimensions in millimeters:
+
+- **Width** — Page width in mm
+- **Height** — Page height in mm
+
+**Example custom sizes:**
+- Shipping label (4" × 6"): 102 × 152 mm
+- Business card: 89 × 51 mm
+- Square: 200 × 200 mm
+
+## Margins
+
+Set page margins in millimeters:
+
+| Margin | Description |
+|--------|-------------|
+| **Top** | Space above content |
+| **Right** | Space on right edge |
+| **Bottom** | Space below content |
+| **Left** | Space on left edge |
+
+**Default:** 10mm on all sides
+
+### Margin Tips
+
+- **Invoices/Documents:** 15-25mm for professional appearance
+- **Labels:** 2-5mm to maximize print area
+- **Borderless:** 0mm (printer may still add margins)
+- **Headers/Footers:** Ensure top/bottom margins accommodate header/footer height
+
+<Warning>
+  If using headers or footers, the top/bottom margin must be at least as tall as the header/footer content. Fileloom adjusts this automatically, but very small margins may cause overlap.
+</Warning>
+
+## Settings via API
+
+Override template settings in your API request:
+```json
+{
+  "templateId": "tpl_abc123",
+  "templateData": { ... },
+  "options": {
+    "format": "Letter",
+    "orientation": "landscape",
+    "margin": {
+      "top": 20,
+      "right": 15,
+      "bottom": 20,
+      "left": 15
+    },
+    "printBackground": true
+  }
+}
+```
+
+API options override template settings for that specific request.
+
+## Raw HTML Settings
+
+When generating from raw HTML (no template), include settings in the `options` object:
+```json
+{
+  "htmlContent": "<h1>Hello World</h1>",
+  "options": {
+    "format": "A4",
+    "orientation": "portrait",
+    "margin": {
+      "top": 10,
+      "right": 10,
+      "bottom": 10,
+      "left": 10
+    },
+    "printBackground": true,
+    "outputName": "hello-world"
+  }
+}
+```
+
+See [API Reference](/api-reference/generate-pdf) for all available options.

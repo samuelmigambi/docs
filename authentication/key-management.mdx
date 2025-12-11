@@ -1,5 +1,174 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Key Management"
+sidebarTitle: "Key Management"
+description: "Best practices for rotating, revoking, and managing your API keys."
+icon: "gear"
 ---
 
+# Key Management
+
+Proper API key management is essential for security. This guide covers rotation, revocation, and monitoring.
+
+## Viewing Your Keys
+
+In your [dashboard](https://app.fileloom.io), go to **Settings** → **API Keys** to see:
+
+- Key name and prefix (e.g., `fl_live_a1b2...`)
+- Permissions granted
+- Creation date
+- Last used timestamp
+- Expiration date (if set)
+
+<Note>
+  The full API key is only shown once when created. You can only see the prefix afterward.
+</Note>
+
+## Key Rotation
+
+Regularly rotating API keys reduces risk if a key is compromised. Here's how to rotate safely:
+
+<Steps>
+  <Step title="Create a New Key">
+    Create a new API key with the same permissions as the old one.
+  </Step>
+  <Step title="Update Your Application">
+    Deploy the new key to your application's environment variables.
+  </Step>
+  <Step title="Verify It Works">
+    Confirm your application is successfully using the new key by checking the "Last Used" timestamp.
+  </Step>
+  <Step title="Revoke the Old Key">
+    Once confirmed, revoke the old key.
+  </Step>
+</Steps>
+
+### Rotation Schedule
+
+| Environment | Recommended Rotation |
+|-------------|---------------------|
+| Production | Every 90 days |
+| Staging | Every 90 days |
+| Development | Every 180 days |
+| Temporary/Contractor | Set expiration on creation |
+
+## Revoking Keys
+
+Revoke a key immediately if you suspect it's compromised:
+
+<Steps>
+  <Step title="Go to API Keys">
+    Navigate to **Settings** → **API Keys**.
+  </Step>
+  <Step title="Find the Key">
+    Locate the key by its name or prefix.
+  </Step>
+  <Step title="Click Revoke">
+    Click the **Revoke** button and confirm.
+  </Step>
+</Steps>
+
+<Warning>
+  Revocation is immediate and permanent. Any requests using the revoked key will fail instantly.
+</Warning>
+
+### When to Revoke
+
+- Key was accidentally committed to a public repository
+- Key was exposed in logs or error messages
+- Team member with access left the company
+- Key was shared insecurely (email, Slack, etc.)
+- Suspicious activity detected
+
+## Monitoring Key Usage
+
+Track your API key activity in the dashboard:
+
+### Usage Metrics
+
+- **Total Requests** - All-time request count
+- **Successful Requests** - Requests that returned 2xx
+- **Failed Requests** - Requests that returned errors
+- **Last Used** - Timestamp of most recent request
+
+### Detecting Anomalies
+
+Watch for these warning signs:
+
+| Anomaly | Possible Cause |
+|---------|---------------|
+| Requests from unexpected IPs | Key may be compromised |
+| Spike in failed requests | Integration issue or attack |
+| Usage outside business hours | Unauthorized use |
+| Requests for unused permissions | Key may be compromised |
+
+## Multiple Keys Strategy
+
+Use multiple API keys to isolate access and reduce blast radius:
+
+<CardGroup cols={3}>
+  <Card title="Production Key" icon="server">
+    **Permissions:**
+    - `pdf.generate`
+    - `pdf.read`
+  </Card>
+  <Card title="Staging Key" icon="flask">
+    **Permissions:**
+    - `pdf.generate`
+    - `pdf.read`
+    - `template.read`
+  </Card>
+  <Card title="CI/CD Key" icon="robot">
+    **Permissions:**
+    - `pdf.read`
+  </Card>
+</CardGroup>
+
+### Benefits
+
+- **Isolation** - Compromise of one key doesn't affect others
+- **Auditing** - Track usage per environment
+- **Least Privilege** - Each key only has needed permissions
+- **Easy Rotation** - Rotate one key without affecting others
+
+## Key Limits
+
+Each plan has a maximum number of API keys:
+
+| Plan | Max API Keys |
+|------|--------------|
+| Free | 1 |
+| Starter | 2 |
+| Growth | 5 |
+| Scale | 10 |
+| Scale Business | 25 |
+| Scale Enterprise | Unlimited |
+
+## Programmatic Key Management
+
+<Info>
+  API key management via API is coming soon. Currently, keys can only be managed through the dashboard.
+</Info>
+
+## Checklist
+
+Use this checklist to ensure your API keys are secure:
+
+- [ ] Keys are stored in environment variables, not code
+- [ ] Different keys for each environment
+- [ ] Keys have minimal required permissions
+- [ ] Production keys have no expiration (rotate manually)
+- [ ] Temporary keys have expiration dates
+- [ ] Old keys are revoked after rotation
+- [ ] Key usage is monitored regularly
+- [ ] Team has process for compromised keys
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Webhook Security" icon="shield-check" href="/authentication/webhook-security">
+    Verify webhook signatures
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
+    Start making API requests
+  </Card>
+</CardGroup>

@@ -3,16 +3,15 @@
   "theme": "mint",
   "name": "Fileloom",
   "colors": {
-    "primary": "#000000",
-    "light": "#18181B",
-    "dark": "#FFFFFF"
+    "primary": "#39d2c0",
+    "light": "#39d2c0",
+    "dark": "#39d2c0"
   },
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
   },
   "favicon": "/favicon.svg",
-  "css": "/custom.css",
   "navigation": {
     "tabs": [
       {

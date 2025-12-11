@@ -3,103 +3,116 @@ title: "API Keys"
 description: "Create and manage API keys for authenticating with the Fileloom API."
 ---
 
-**API keys** authenticate your applications with the Fileloom API. Each key is tied to a specific workspace.
+API keys authenticate your requests to the Fileloom API. Manage them in **Workspace Settings** → **API Keys**.
 
-## API Key Format
+<Frame caption="API keys list showing all keys in workspace">
+  <img src="/images/dashboard/api-keys-list.png" alt="API Keys List" />
+</Frame>
 
-Fileloom API keys follow this format:
-```
-fl_xxxxxxxxxxxxxxxxxxxx
-```
+## API Keys List
 
-The `fl_` prefix identifies it as a Fileloom key.
+| Column | Description |
+|--------|-------------|
+| **Name** | Friendly name for the key |
+| **Key Prefix** | First 8 characters (fl_xxxxxxxx) |
+| **Created** | When the key was created |
+| **Last Used** | Most recent API call |
+| **Status** | Active or Revoked |
 
 ## Creating an API Key
 
 <Steps>
-  <Step title="Navigate to API Keys">
-    Go to **API Keys** in the sidebar, or **Workspace Settings** → **API Keys**.
-  </Step>
   <Step title="Click Create Key">
-    Click the "Create API Key" button.
+    From the API Keys page, click "Create API Key".
   </Step>
-  <Step title="Name Your Key">
-    Enter a descriptive name (e.g., "Production Server", "Development").
+  <Step title="Enter Name">
+    Give the key a descriptive name (e.g., "Production Server", "Development").
   </Step>
-  <Step title="Copy the Key">
-    Copy the key immediately — it won't be shown again.
+  <Step title="Set Permissions">
+    Select which operations this key can perform.
+  </Step>
+  <Step title="Copy Key">
+    Copy the full key immediately — it won't be shown again!
   </Step>
 </Steps>
 
+<Frame caption="Create API key modal with name and permissions">
+  <img src="/images/dashboard/api-keys-create-modal.png" alt="Create API Key Modal" />
+</Frame>
+
 <Warning>
-  API keys are shown only once at creation. Store them securely. If you lose a key, you'll need to create a new one.
+  The full API key is only shown once when created. Store it securely — we cannot recover it.
 </Warning>
+
+<Frame caption="API key revealed screen - copy immediately">
+  <img src="/images/dashboard/api-keys-revealed.png" alt="API Key Revealed" />
+</Frame>
+
+## Key Permissions
+
+| Permission | Description |
+|------------|-------------|
+| **pdf.generate** | Generate PDFs from HTML or templates |
+| **pdf.read** | View file details and download URLs |
+| **pdf.delete** | Delete generated files |
+| **template.read** | View template details |
+| **template.write** | Create and modify templates |
+
+<Frame caption="Permissions checkboxes when creating API key">
+  <img src="/images/dashboard/api-keys-permissions.png" alt="API Key Permissions" />
+</Frame>
 
 ## Using API Keys
 
-Include your API key in requests using one of these methods:
-
-**Header (Recommended):**
+Include your API key in the `X-API-Key` header:
 ```bash
 curl -X POST https://api.fileloom.io/v1/pdf/generate \
-  -H "X-API-Key: fl_your_api_key" \
+  -H "X-API-Key: fl_your_api_key_here" \
   -H "Content-Type: application/json" \
-  -d '{"htmlContent": "<h1>Hello</h1>"}'
+  -d '{"htmlContent": "<h1>Hello World</h1>"}'
 ```
 
-**Bearer Token:**
+Or use the Authorization header:
 ```bash
-curl -X POST https://api.fileloom.io/v1/pdf/generate \
-  -H "Authorization: Bearer fl_your_api_key" \
-  -H "Content-Type: application/json" \
-  -d '{"htmlContent": "<h1>Hello</h1>"}'
+Authorization: Bearer fl_your_api_key_here
 ```
 
-## API Key Details
+## Key Usage Statistics
 
-Each API key displays:
+View usage stats for each key:
 
-| Field | Description |
-|-------|-------------|
-| **Name** | Your chosen identifier |
-| **Key Prefix** | First 8 characters (for identification) |
-| **Created** | Creation date |
-| **Last Used** | Most recent API request |
-| **Total Requests** | Lifetime request count |
-| **Status** | Active or Inactive |
+<Frame caption="API key usage statistics showing requests over time">
+  <img src="/images/dashboard/api-keys-usage-stats.png" alt="API Key Usage Stats" />
+</Frame>
 
-## Managing Keys
+- Total requests
+- Successful requests
+- Failed requests
+- Last used timestamp
 
-### Rename a Key
+## Revoking Keys
 
-1. Click on the API key
-2. Edit the name field
-3. Save changes
+To revoke an API key:
 
-### Deactivate a Key
+1. Find the key in the list
+2. Click the menu icon (three dots)
+3. Select "Revoke Key"
+4. Confirm revocation
 
-Deactivating a key immediately blocks all requests using it:
-
-1. Click on the API key
-2. Toggle the "Active" switch off
-3. Confirm deactivation
-
-Reactivate anytime by toggling the switch back on.
-
-### Delete a Key
+<Frame caption="Revoke key confirmation dialog">
+  <img src="/images/dashboard/api-keys-revoke-confirm.png" alt="Revoke Key Confirmation" />
+</Frame>
 
 <Warning>
-  Deleting an API key is permanent. Any applications using the key will stop working immediately.
+  Revoked keys immediately stop working. Any applications using the key will receive authentication errors.
 </Warning>
 
-1. Click on the API key
-2. Click "Delete"
-3. Confirm deletion
+## Key Limits
 
-## API Key Limits
+API key limits are based on your plan:
 
-| Plan | Max API Keys |
-|------|--------------|
+| Plan | Max Keys |
+|------|----------|
 | Free | 1 |
 | Starter | 2 |
 | Growth | 5 |
@@ -107,25 +120,10 @@ Reactivate anytime by toggling the switch back on.
 | Scale Business | 25 |
 | Scale Enterprise | Unlimited |
 
-## Security Best Practices
+## Best Practices
 
-<CardGroup cols={2}>
-  <Card title="Environment Variables" icon="lock">
-    Store keys in environment variables, never in code
-  </Card>
-  <Card title="Separate Keys" icon="key">
-    Use different keys for dev, staging, and production
-  </Card>
-  <Card title="Regular Rotation" icon="rotate">
-    Rotate keys periodically for security
-  </Card>
-  <Card title="Monitor Usage" icon="chart-line">
-    Check "Last Used" to detect unauthorized access
-  </Card>
-</CardGroup>
-
-**Never expose API keys in:**
-- Client-side JavaScript
-- Public repositories
-- Mobile app bundles
-- Browser network requests
+- **Use descriptive names** — Name keys by environment or purpose
+- **Minimum permissions** — Only grant permissions the key needs
+- **Rotate regularly** — Create new keys and revoke old ones periodically
+- **Never commit keys** — Use environment variables, not hardcoded keys
+- **Monitor usage** — Check for unusual activity regularly

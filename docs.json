@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Fileloom",
   "colors": {
-    "primary": "#000000",
-    "light": "#404040",
-    "dark": "#000000"
+    "primary": "#39d2c0",
+    "light": "#39d2c0",
+    "dark": "#39d2c0"
   },
   "logo": {
     "dark": "/logo/dark.svg",
@@ -111,6 +111,7 @@
               "code-examples/flutter",
               "code-examples/php",
               "code-examples/dotnet",
+              "code-examples/go",
               "code-examples/java",
               "code-examples/ruby",
               "code-examples/rust"

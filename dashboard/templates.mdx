@@ -5,6 +5,10 @@ description: "Create, manage, and organize PDF templates in the Fileloom dashboa
 
 The **Templates** section lets you create reusable PDF templates with HTML, CSS, and dynamic Handlebars variables.
 
+<Frame caption="Templates list showing all templates in workspace">
+  <img src="/images/dashboard/templates-list.png" alt="Templates List" />
+</Frame>
+
 ## Templates List
 
 The templates page displays all templates in your workspace:
@@ -16,6 +20,10 @@ The templates page displays all templates in your workspace:
 | **Last Modified** | When the template was last updated |
 | **Generations** | Total PDFs generated from this template |
 | **Status** | Published or Draft |
+
+<Frame caption="Template list columns showing name, category, modified date, and generations">
+  <img src="/images/dashboard/templates-list-columns.png" alt="Template List Columns" />
+</Frame>
 
 ## Creating a Template
 
@@ -37,6 +45,14 @@ The templates page displays all templates in your workspace:
   </Step>
 </Steps>
 
+<Frame caption="Create template button and starter template selection">
+  <img src="/images/dashboard/templates-create-button.png" alt="Create Template" />
+</Frame>
+
+<Frame caption="Starter template gallery with pre-built templates">
+  <img src="/images/dashboard/templates-starter-gallery.png" alt="Starter Templates Gallery" />
+</Frame>
+
 See [Template Editor](/template-editor/overview) for detailed editing instructions.
 
 ## Template Categories
@@ -51,6 +67,10 @@ Organize templates by category:
 - **Ticket** — Event tickets and passes
 - **Label** — Shipping and product labels
 - **Custom** — Any other document type
+
+<Frame caption="Category filter dropdown for organizing templates">
+  <img src="/images/dashboard/templates-category-filter.png" alt="Category Filter" />
+</Frame>
 
 ## Using Templates via API
 
@@ -72,6 +92,10 @@ curl -X POST https://api.fileloom.io/v1/pdf/generate \
   }'
 ```
 
+<Frame caption="Template ID location in template editor header">
+  <img src="/images/dashboard/templates-id-location.png" alt="Template ID Location" />
+</Frame>
+
 Find the template ID in the template editor or templates list.
 
 ## Template Actions
@@ -83,38 +107,24 @@ Find the template ID in the template editor or templates list.
 | **Export** | Download template HTML/CSS |
 | **Delete** | Remove template permanently |
 
+<Frame caption="Template actions menu with edit, duplicate, export, delete options">
+  <img src="/images/dashboard/templates-actions-menu.png" alt="Template Actions Menu" />
+</Frame>
+
 ## Starter Templates
 
 Fileloom provides 50+ professionally designed starter templates:
 
-<CardGroup cols={3}>
-  <Card title="Invoices" icon="file-invoice">
-    Professional billing templates
-  </Card>
-  <Card title="Receipts" icon="receipt">
-    Transaction confirmations
-  </Card>
-  <Card title="Reports" icon="chart-bar">
-    Data visualization layouts
-  </Card>
-  <Card title="Contracts" icon="file-contract">
-    Legal document templates
-  </Card>
-  <Card title="Certificates" icon="certificate">
-    Awards and credentials
-  </Card>
-  <Card title="Tickets" icon="ticket">
-    Event passes with QR codes
-  </Card>
-</CardGroup>
+<Frame caption="Starter template examples including invoice, receipt, and certificate">
+  <img src="/images/dashboard/templates-starter-examples.png" alt="Starter Template Examples" />
+</Frame>
 
-Browse starter templates from the "Create Template" menu and click "Use Template" to add one to your workspace.
+| Category | Templates Available |
+|----------|---------------------|
+| Invoices | Standard, Detailed, Freelance, SaaS |
+| Receipts | Retail, E-commerce, Donation |
+| Reports | Analytics, Financial, Performance |
+| Certificates | Achievement, Course Completion, Award |
+| Tickets | Event, Concert, Boarding Pass |
 
-## Template Limits
-
-| Plan | Max Templates |
-|------|---------------|
-| Free | 5 |
-| Starter | 50 |
-| Growth | Unlimited |
-| Scale+ | Unlimited |
+See [Starter Templates](/templates/starter-templates) for the complete list.

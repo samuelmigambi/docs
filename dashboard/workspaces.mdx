@@ -5,6 +5,10 @@ description: "Create and manage workspaces to organize your Fileloom projects, t
 
 A **workspace** is an isolated environment containing all your Fileloom resources. Each workspace has its own templates, files, API keys, team members, and billing.
 
+<Frame caption="Workspace overview showing key statistics and settings">
+  <img src="/images/dashboard/workspace-overview.png" alt="Workspace Overview" />
+</Frame>
+
 ## Switching Workspaces
 
 Use the workspace dropdown at the top of the sidebar to switch between workspaces. The dropdown shows:
@@ -12,6 +16,10 @@ Use the workspace dropdown at the top of the sidebar to switch between workspace
 - Workspace name
 - Your role (Owner, Editor, Viewer)
 - Settings icon for quick access
+
+<Frame caption="Workspace selector dropdown showing available workspaces">
+  <img src="/images/dashboard/workspace-selector.png" alt="Workspace Selector" />
+</Frame>
 
 ## Creating a Workspace
 
@@ -30,6 +38,10 @@ Use the workspace dropdown at the top of the sidebar to switch between workspace
   </Step>
 </Steps>
 
+<Frame caption="Create workspace modal with name and slug fields">
+  <img src="/images/dashboard/workspace-create-modal.png" alt="Create Workspace Modal" />
+</Frame>
+
 <Info>
   New workspaces start on the Free plan. Upgrade anytime from the Billing section.
 </Info>
@@ -38,6 +50,10 @@ Use the workspace dropdown at the top of the sidebar to switch between workspace
 
 Access workspace settings by clicking the gear icon next to your workspace name.
 
+<Frame caption="Workspace settings page with all configuration tabs">
+  <img src="/images/dashboard/workspace-settings.png" alt="Workspace Settings" />
+</Frame>
+
 ### General Settings
 
 | Setting | Description |
@@ -45,6 +61,10 @@ Access workspace settings by clicking the gear icon next to your workspace name.
 | **Name** | Display name for the workspace |
 | **Slug** | URL-friendly identifier |
 | **Storage Mode** | Where to store generated PDFs |
+
+<Frame caption="General settings form with name, slug, and storage options">
+  <img src="/images/dashboard/workspace-general-settings.png" alt="General Settings" />
+</Frame>
 
 ### Storage Modes
 
@@ -55,6 +75,10 @@ Configure how Fileloom stores your generated PDFs:
 | **Fileloom** | Store in Fileloom storage only (default) |
 | **External** | Store in your AWS S3 or Supabase only |
 | **Both** | Store copies in both locations |
+
+<Frame caption="Storage mode selector with Fileloom, External, and Both options">
+  <img src="/images/dashboard/workspace-storage-modes.png" alt="Storage Modes" />
+</Frame>
 
 See [Integrations](/integrations/overview) for external storage setup.
 
@@ -91,6 +115,10 @@ Only workspace owners can delete a workspace:
 2. Scroll to the danger zone
 3. Click **Delete Workspace**
 4. Confirm by typing the workspace name
+
+<Frame caption="Delete workspace confirmation requiring workspace name">
+  <img src="/images/dashboard/workspace-delete-confirm.png" alt="Delete Workspace Confirmation" />
+</Frame>
 
 ## Best Practices
 

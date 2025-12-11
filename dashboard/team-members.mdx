@@ -1,75 +1,122 @@
 ---
 title: "Team Members"
-description: "Invite team members to collaborate in your Fileloom workspace."
+description: "Invite team members and manage roles in your Fileloom workspace."
 ---
 
-Collaborate with your team by inviting members to your workspace with role-based access control.
+Collaborate with your team by inviting members to your workspace. Access team management in **Workspace Settings** → **Members**.
 
-## Member Roles
+<Frame caption="Team members list showing all workspace members">
+  <img src="/images/dashboard/team-members-list.png" alt="Team Members List" />
+</Frame>
 
-| Role | Permissions |
-|------|-------------|
-| **Owner** | Full access including billing, can delete workspace |
-| **Editor** | Create/edit templates, manage files, view API keys |
-| **Viewer** | Read-only access to templates and files |
+## Members List
+
+| Column | Description |
+|--------|-------------|
+| **Member** | Name and email |
+| **Role** | Owner, Editor, or Viewer |
+| **Joined** | When they joined the workspace |
+| **Status** | Active or Pending invitation |
 
 ## Inviting Members
 
 <Steps>
-  <Step title="Open Team Settings">
-    Click "Invite to Workspace" in the sidebar, or go to **Workspace Settings** → **Members**.
+  <Step title="Click Invite">
+    Click "Invite Member" button or use the sidebar shortcut.
   </Step>
   <Step title="Enter Email">
-    Type the email address of the person you want to invite.
+    Enter the email address of the person to invite.
   </Step>
   <Step title="Select Role">
-    Choose the appropriate role (Editor or Viewer).
+    Choose their role: Editor or Viewer.
   </Step>
   <Step title="Send Invitation">
-    Click "Invite" to send the invitation.
+    Click "Send Invite" to send the invitation email.
   </Step>
 </Steps>
 
+<Frame caption="Invite member modal with email field and role selector">
+  <img src="/images/dashboard/team-members-invite-modal.png" alt="Invite Member Modal" />
+</Frame>
+
+The invitee receives an email with a link to join your workspace.
+
+<Frame caption="Invitation email preview">
+  <img src="/images/dashboard/team-members-invite-email.png" alt="Invitation Email" />
+</Frame>
+
+## Roles and Permissions
+
+| Permission | Owner | Editor | Viewer |
+|------------|-------|--------|--------|
+| View templates | ✓ | ✓ | ✓ |
+| View files | ✓ | ✓ | ✓ |
+| Create templates | ✓ | ✓ | — |
+| Edit templates | ✓ | ✓ | — |
+| Delete templates | ✓ | ✓ | — |
+| Generate PDFs | ✓ | ✓ | — |
+| Delete files | ✓ | ✓ | — |
+| View API keys | ✓ | ✓ | — |
+| Create API keys | ✓ | — | — |
+| Manage members | ✓ | — | — |
+| Manage billing | ✓ | — | — |
+| Delete workspace | ✓ | — | — |
+
+<Frame caption="Role permissions comparison chart">
+  <img src="/images/dashboard/team-members-roles-chart.png" alt="Roles Comparison" />
+</Frame>
+
+## Changing Member Roles
+
+Owners can change member roles:
+
+1. Find the member in the list
+2. Click the role dropdown
+3. Select the new role
+4. Confirm the change
+
+<Frame caption="Role dropdown menu for changing member role">
+  <img src="/images/dashboard/team-members-role-dropdown.png" alt="Role Dropdown" />
+</Frame>
+
 <Info>
-  Invited users see the workspace immediately in their dashboard. An email notification is also sent, but they don't need to click a link to accept.
+  Role changes take effect immediately. The member's access updates on their next page load.
 </Info>
 
-## Managing Members
+## Removing Members
 
-### View Members
+To remove a member from the workspace:
 
-The Members page shows all workspace members:
+1. Find the member in the list
+2. Click the menu icon (three dots)
+3. Select "Remove from Workspace"
+4. Confirm removal
 
-| Column | Description |
-|--------|-------------|
-| **Name** | Display name |
-| **Email** | Account email |
-| **Role** | Owner, Editor, or Viewer |
-| **Joined** | When they joined the workspace |
-| **Status** | Active or Pending |
-
-### Change Role
-
-1. Click on the member
-2. Select a new role from the dropdown
-3. Save changes
+<Frame caption="Remove member confirmation dialog">
+  <img src="/images/dashboard/team-members-remove-confirm.png" alt="Remove Member Confirmation" />
+</Frame>
 
 <Warning>
-  Only owners can change member roles. You cannot change your own role if you're the only owner.
+  Removed members immediately lose access to the workspace. Any API keys they created remain active.
 </Warning>
 
-### Remove Member
+## Pending Invitations
 
-1. Click on the member
-2. Click "Remove from Workspace"
-3. Confirm removal
+View and manage pending invitations:
 
-Removed members lose access immediately but can be re-invited later.
+<Frame caption="Pending invitations section showing unaccepted invites">
+  <img src="/images/dashboard/team-members-pending.png" alt="Pending Invitations" />
+</Frame>
+
+- **Resend** — Send the invitation email again
+- **Cancel** — Revoke the invitation
 
 ## Member Limits
 
-| Plan | Max Team Members |
-|------|------------------|
+Team size limits are based on your plan:
+
+| Plan | Max Members |
+|------|-------------|
 | Free | 2 |
 | Starter | 3 |
 | Growth | 5 |
@@ -77,19 +124,28 @@ Removed members lose access immediately but can be re-invited later.
 | Scale Business | 25 |
 | Scale Enterprise | Unlimited |
 
-<Tip>
-  Need more team members? Upgrade your plan in **Workspace Settings** → **Billing**.
-</Tip>
-
 ## Transferring Ownership
 
 To transfer workspace ownership:
 
-1. Ensure the new owner is already a member
-2. Go to **Workspace Settings** → **Members**
-3. Click on the member to become owner
-4. Select "Transfer Ownership"
-5. Confirm the transfer
+<Steps>
+  <Step title="Go to Members">
+    Open Workspace Settings → Members.
+  </Step>
+  <Step title="Select New Owner">
+    Click on the member to become owner.
+  </Step>
+  <Step title="Transfer">
+    Select "Transfer Ownership".
+  </Step>
+  <Step title="Confirm">
+    Confirm the transfer.
+  </Step>
+</Steps>
+
+<Frame caption="Transfer ownership confirmation dialog">
+  <img src="/images/dashboard/team-members-transfer-ownership.png" alt="Transfer Ownership" />
+</Frame>
 
 You'll become an Editor after transferring ownership.
 
